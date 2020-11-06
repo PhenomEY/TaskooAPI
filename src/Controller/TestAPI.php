@@ -79,7 +79,6 @@ class TestAPI extends AbstractController
             'success' => true,
             'data' => $data
         ]);
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -106,7 +105,6 @@ class TestAPI extends AbstractController
             'success' => true,
             'data' => $data
         ]);
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 }

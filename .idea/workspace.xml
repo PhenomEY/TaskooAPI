@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="" />
+    <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/TestAPI.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TestAPI.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -12,7 +18,7 @@
     <execution />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration">
     <include_path>
@@ -149,6 +155,9 @@
       <workItem from="1604419502179" duration="238000" />
       <workItem from="1604419748740" duration="347000" />
       <workItem from="1604420104925" duration="316000" />
+      <workItem from="1604420421881" duration="439000" />
+      <workItem from="1604425306356" duration="776000" />
+      <workItem from="1604695080034" duration="2980000" />
     </task>
     <servers />
   </component>
@@ -156,10 +165,10 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="552" y="178" key="#Deployment" timestamp="1604417371766">
+    <state x="552" y="178" key="#Deployment" timestamp="1604420855917">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604417371766" />
+    <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604420855917" />
     <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1604420419988">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
