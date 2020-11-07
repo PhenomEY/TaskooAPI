@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Integer;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -28,12 +29,12 @@ class User
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $firstname;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $lastname;
 
@@ -41,6 +42,7 @@ class User
      * @ORM\Column(type="integer")
      */
     private $role;
+
 
     public function getId(): ?int
     {
@@ -76,7 +78,7 @@ class User
         return $this->firstname;
     }
 
-    public function setFirstname(string $firstname): self
+    public function setFirstname(?string $firstname): self
     {
         $this->firstname = $firstname;
 
@@ -88,19 +90,19 @@ class User
         return $this->lastname;
     }
 
-    public function setLastname(string $lastname): self
+    public function setLastname(?string $lastname): self
     {
         $this->lastname = $lastname;
 
         return $this;
     }
 
-    public function getRole(): ?int
+    public function getRole(): ?string
     {
         return $this->role;
     }
 
-    public function setRole(int $role): self
+    public function setRole(?Integer $role): self
     {
         $this->role = $role;
 

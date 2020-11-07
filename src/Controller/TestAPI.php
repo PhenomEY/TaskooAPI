@@ -4,18 +4,10 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 
 use Doctrine\DBAL\Driver\Connection;
-use mysqli;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Json;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-use DateTime;
-
 
 class TestAPI extends AbstractController
 {
@@ -79,6 +71,9 @@ class TestAPI extends AbstractController
             'success' => true,
             'data' => $data
         ]);
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set("Access-Control-Allow-Methods", "GET");
+        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
         return $response;
     }
 
@@ -105,6 +100,9 @@ class TestAPI extends AbstractController
             'success' => true,
             'data' => $data
         ]);
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set("Access-Control-Allow-Methods", "GET");
+        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
         return $response;
     }
 }
