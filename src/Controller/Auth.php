@@ -25,6 +25,7 @@ class Auth extends AbstractController
         $userId = null;
         $firstname = null;
         $lastname = null;
+        $userType = 1;
 
         $payload = json_decode($request->getContent(), true);
         $entityManager = $this->getDoctrine()->getManager();
@@ -34,6 +35,7 @@ class Auth extends AbstractController
             $loginData = $payload['login'];
 
             $hashedPassword = hash('sha256', $loginData['password']);
+
 
             $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
                 'email' => $loginData['username'],
@@ -46,14 +48,27 @@ class Auth extends AbstractController
                         'user' => $user->getId()
                     ]);
 
-                    //save new generated logintoken to user
-                    $userAuth->setToken($this->generateToken());
+                    //no token found for user
+                    if($userAuth == null) {
+                        //Generate new UserAuth
+                        $userAuth = new UserAuth();
+                        $userAuth->setUser($user);
+                        $userAuth->setToken($this->generateToken());
+                    } else {
+
+                        //save new generated logintoken to user
+                        $userAuth->setToken($this->generateToken());
+                    }
+
+
 
                     //return data for app
                     $token = $userAuth->getToken();
                     $firstname = $user->getFirstname();
                     $lastname = $user->getLastname();
                     $userId = $user->getId();
+                    $userType = $user->getRole();
+                    $user->setLastLogin();
 
                     $entityManager->persist($userAuth);
                     $entityManager->flush();
@@ -72,7 +87,8 @@ class Auth extends AbstractController
                     'token' => $token,
                     'userid' => $userId,
                     'firstname' => $firstname,
-                    'lastname' => $lastname
+                    'lastname' => $lastname,
+                    'userType' => $userType
                 ]
         ]);
 
@@ -89,6 +105,7 @@ class Auth extends AbstractController
     public function Check(Request $request)
     {
         $success = false;
+        $userType = 1;
 
         //if its the actual get request
         if ($request->getMethod() == 'GET') {
@@ -103,11 +120,13 @@ class Auth extends AbstractController
             //auth token is still valid
             if($userAuth) {
                 $success = true;
+                $userType = $userAuth->getUser()->getRole();
             }
         }
 
         $response = new JsonResponse([
-            'success' => $success
+            'success' => $success,
+            'userType' => $userType
         ]);
 
         $response->headers->set('Access-Control-Allow-Origin', '*');

@@ -19,6 +19,9 @@ class TestAPI extends AbstractController
     {
         $data = [];
 
+        $data['project']['name'] = 'Zalando.de - Shoprelaunch 2023';
+        $data['project']['deadline'] = '20.06.2022';
+
         $data['groups'][0] = [
             'id' => 12,
             'name' => 'backend',
@@ -26,18 +29,26 @@ class TestAPI extends AbstractController
                 0 => [
                     'name' => 'aufgabe1',
                     'id' => 1,
+                    'dateDue' => null,
+                    'user' => null
                 ],
                 1 => [
                     'name' => 'aufgabe2',
                     'id' => 2,
+                    'dateDue' => null,
+                    'user' => null
                 ],
                 2 => [
                     'name' => 'aufgabe3',
                     'id' => 3,
+                    'dateDue' => '20.11.2020',
+                    'user' => 1
                 ],
                 3 => [
                     'name' => 'aufgabe4',
                     'id' => 4,
+                    'dateDue' => null,
+                    'user' => null
                 ],
             ]
         ];

@@ -43,6 +43,11 @@ class User
      */
     private $role;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $lastlogin;
+
 
     public function getId(): ?int
     {
@@ -107,5 +112,18 @@ class User
         $this->role = $role;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastlogin()
+    {
+        return $this->lastlogin;
+    }
+
+    public function setLastlogin(): void
+    {
+        $this->lastlogin = new \DateTime("now");
     }
 }
