@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\TaskGroups;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,30 +19,31 @@ class TaskGroupsRepository extends ServiceEntityRepository
         parent::__construct($registry, TaskGroups::class);
     }
 
-    /**
-    * @return TaskGroups[] Returns an array of TaskGroups objects
-    */
+    // /**
+    //  * @return TaskGroups[] Returns an array of TaskGroups objects
+    //  */
 
-    public function findArrayByProject($value)
+    public function findByExampleField($value)
     {
         return $this->createQueryBuilder('t')
+            ->select('t.name')
             ->andWhere('t.project = :val')
             ->setParameter('val', $value)
-            ->setMaxResults(10)
             ->getQuery()
-            ->getResult(Query::HYDRATE_ARRAY);
+            ->getResult(Query::HYDRATE_ARRAY)
+        ;
     }
 
 
-
-//    public function findByProjectId($value): ?TaskGroups
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('project_id = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//
-//    }
-
+    /*
+    public function findOneBySomeField($value): ?TaskGroups
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+    */
 }

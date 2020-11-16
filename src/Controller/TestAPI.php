@@ -99,7 +99,7 @@ class TestAPI extends AbstractController
         $data['projects'] = [
                 0 => [
                     'name' => 'TestProject',
-                    'id' => 1,
+                    'id' => 4,
                 ],
                 1 => [
                     'name' => 'FIFA 22',

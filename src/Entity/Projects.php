@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\ProjectsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OrderBy;
 
 /**
  * @ORM\Entity(repositoryClass=ProjectsRepository::class)
@@ -23,24 +26,35 @@ class Projects
     private $name;
 
     /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="projects")
+     */
+    private $mainUser;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $deadline;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\OneToMany(targetEntity=TaskGroups::class, mappedBy="project")
+     * @OrderBy({"position" = "ASC"})
+     */
+    private $taskGroups;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Organisations::class, inversedBy="projects")
      */
     private $organisation;
 
-    /**
-     * @ORM\Column(type="json_array", nullable=true)
-     */
-    private $taskgroups = [];
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $color;
+    public function __construct()
+    {
+        $this->taskGroups = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -59,6 +73,30 @@ class Projects
         return $this;
     }
 
+    public function getMainUser(): ?User
+    {
+        return $this->mainUser;
+    }
+
+    public function setMainUser(?User $mainUser): self
+    {
+        $this->mainUser = $mainUser;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     public function getDeadline(): ?\DateTimeInterface
     {
         return $this->deadline;
@@ -71,43 +109,45 @@ class Projects
         return $this;
     }
 
-    public function getOrganisation(): ?float
+    /**
+     * @return Collection|TaskGroups[]
+     */
+    public function getTaskGroups(): Collection
+    {
+        return $this->taskGroups;
+    }
+
+    public function addTaskGroup(TaskGroups $taskGroup): self
+    {
+        if (!$this->taskGroups->contains($taskGroup)) {
+            $this->taskGroups[] = $taskGroup;
+            $taskGroup->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTaskGroup(TaskGroups $taskGroup): self
+    {
+        if ($this->taskGroups->removeElement($taskGroup)) {
+            // set the owning side to null (unless already changed)
+            if ($taskGroup->getProject() === $this) {
+                $taskGroup->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getOrganisation(): ?Organisations
     {
         return $this->organisation;
     }
 
-    public function setOrganisation(?float $organisation): self
+    public function setOrganisation(?Organisations $organisation): self
     {
         $this->organisation = $organisation;
 
         return $this;
-    }
-
-    public function getColor(): ?string
-    {
-        return $this->color;
-    }
-
-    public function setColor(?string $color): self
-    {
-        $this->color = $color;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTaskgroups(): ?array
-    {
-        return $this->taskgroups;
-    }
-
-    /**
-     * @param mixed $taskgroups
-     */
-    public function setTaskgroups(?array $taskgroups): void
-    {
-        $this->taskgroups = $taskgroups;
     }
 }

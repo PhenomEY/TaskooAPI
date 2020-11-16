@@ -28,40 +28,14 @@ class Tasks
     private $description;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\ManyToOne(targetEntity=TaskGroups::class, inversedBy="tasks")
      */
-    private $dateDue;
+    private $TaskGroup;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist", "remove"})
+     * @ORM\Column(type="integer")
      */
-    private $user;
-
-    /**
-     * @ORM\OneToOne(targetEntity=TaskGroups::class, cascade={"persist", "remove"})
-     */
-    private $taskGroup;
-
-    /**
-     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $createdBy;
-
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
-    private $createdAt;
-
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
-    private $subTasks = [];
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $isDone;
+    private $position;
 
     public function getId(): ?int
     {
@@ -92,86 +66,26 @@ class Tasks
         return $this;
     }
 
-    public function getDateDue(): ?\DateTimeInterface
-    {
-        return $this->dateDue;
-    }
-
-    public function setDateDue(?\DateTimeInterface $dateDue): self
-    {
-        $this->dateDue = $dateDue;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?TaskGroups $taskGroup): self
-    {
-        $this->taskGroup = $taskGroup;
-
-        return $this;
-    }
-
     public function getTaskGroup(): ?TaskGroups
     {
-        return $this->taskGroup;
+        return $this->TaskGroup;
     }
 
-    public function setTaskGroup(?TaskGroups $user): self
+    public function setTaskGroup(?TaskGroups $TaskGroup): self
     {
-        $this->user = $user;
+        $this->TaskGroup = $TaskGroup;
 
         return $this;
     }
 
-    public function getCreatedBy(): ?User
+    public function getPosition(): ?int
     {
-        return $this->createdBy;
+        return $this->position;
     }
 
-    public function setCreatedBy(User $createdBy): self
+    public function setPosition(int $position): self
     {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getSubTasks(): ?array
-    {
-        return $this->subTasks;
-    }
-
-    public function setSubTasks(?array $subTasks): self
-    {
-        $this->subTasks = $subTasks;
-
-        return $this;
-    }
-
-    public function getIsDone(): ?bool
-    {
-        return $this->isDone;
-    }
-
-    public function setIsDone(bool $isDone): self
-    {
-        $this->isDone = $isDone;
+        $this->position = $position;
 
         return $this;
     }

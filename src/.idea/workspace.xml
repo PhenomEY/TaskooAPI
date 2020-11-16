@@ -20,7 +20,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a824c24-d29c-44dc-b1b6-6f097baf7bc6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Security/TaskooAuthenticator.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controller/Project.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controller/TestAPI.php" beforeDir="false" afterPath="$PROJECT_DIR$/Controller/TestAPI.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Entity/Projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/Entity/Projects.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Entity/TaskGroups.php" beforeDir="false" afterPath="$PROJECT_DIR$/Entity/TaskGroups.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Entity/Tasks.php" beforeDir="false" afterPath="$PROJECT_DIR$/Entity/Tasks.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +60,7 @@
       <option name="presentableId" value="Default" />
       <updated>1604695059329</updated>
       <workItem from="1604695060392" duration="18000" />
+      <workItem from="1605221192630" duration="38000" />
     </task>
     <servers />
   </component>
@@ -70,11 +77,12 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1604695077315">
+    <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1605221229106">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604695077315" />
+    <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1605221229106" />
   </component>
 </project>
