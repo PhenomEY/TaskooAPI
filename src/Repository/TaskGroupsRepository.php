@@ -23,16 +23,6 @@ class TaskGroupsRepository extends ServiceEntityRepository
     //  * @return TaskGroups[] Returns an array of TaskGroups objects
     //  */
 
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('t')
-            ->select('t.name')
-            ->andWhere('t.project = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getResult(Query::HYDRATE_ARRAY)
-        ;
-    }
 
 
     /*

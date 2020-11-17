@@ -28,7 +28,8 @@ class Tasks
     private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TaskGroups::class, inversedBy="tasks")
+     * @ORM\ManyToOne(targetEntity=TaskGroups::class, inversedBy="tasks", cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $TaskGroup;
 
@@ -36,6 +37,16 @@ class Tasks
      * @ORM\Column(type="integer")
      */
     private $position;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $dateDue;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
+     */
+    private $assignedUser;
 
     public function getId(): ?int
     {
@@ -86,6 +97,30 @@ class Tasks
     public function setPosition(int $position): self
     {
         $this->position = $position;
+
+        return $this;
+    }
+
+    public function getDateDue(): ?\DateTimeInterface
+    {
+        return $this->dateDue;
+    }
+
+    public function setDateDue(?\DateTimeInterface $dateDue): self
+    {
+        $this->dateDue = $dateDue;
+
+        return $this;
+    }
+
+    public function getAssignedUser(): ?User
+    {
+        return $this->assignedUser;
+    }
+
+    public function setAssignedUser(?User $assignedUser): self
+    {
+        $this->assignedUser = $assignedUser;
 
         return $this;
     }

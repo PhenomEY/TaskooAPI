@@ -29,9 +29,15 @@ class Organisations
      */
     private $projects;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="organisations")
+     */
+    private $Users;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
+        $this->Users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -77,6 +83,30 @@ class Organisations
                 $project->setOrganisation(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->Users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->Users->contains($user)) {
+            $this->Users[] = $user;
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        $this->Users->removeElement($user);
 
         return $this;
     }

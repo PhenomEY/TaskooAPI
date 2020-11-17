@@ -30,51 +30,61 @@ class Project extends AbstractController
         $deadline = null;
         $projectUser = null;
         $taskGroups = null;
+        $message = null;
 
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $auth = $authenticator->checkUserAuth($userId, $token);
-
         $entityManager = $this->getDoctrine()->getManager();
         $payload = json_decode($request->getContent(), true);
 
-//        //if payload exists
-//        if (!empty($payload) && $auth) {
-//            $projectId = $payload['projectId'];
-        $projectId = 2;
-
+        //if payload exists
+        if (!empty($payload)) {
+            $projectId = $payload['projectId'];
 
             //load project by id
             $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
 
+            //if project for id was found
             if($project !== null) {
-                $projectName = $project->getName();
-                $deadline = $project->getDeadline()->format('d.m.Y');
-                $taskGroups = $project->getTaskgroups()
-                                ->map(function($group) {
-                                    $tasks = null;
+                //authentification process
+                $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-                                    if(!$group->getTasks()->isEmpty()) {
-                                        $tasks = $group->getTasks()->map(function($task) {
-                                            return $task->getName();
-                                        });
-                                    }
 
-                                return [
-                                  'name' => $group->getName(),
-                                  'id' => $group->getId(),
-                                   'tasks' => $tasks
-                                ];
+                if($auth) {
+                    $projectName = $project->getName();
+                    $deadline = $project->getDeadline()->format('d.m.Y');
+                    $taskGroups = $project->getTaskgroups()
+                        ->map(function($group) {
+                            $tasks = null;
+
+                            if(!$group->getTasks()->isEmpty()) {
+                                $tasks = $group->getTasks()->map(function($task) {
+                                    return [
+                                        'name' => $task->getName(),
+                                        'id' => $task->getId()
+                                    ];
                                 })->toArray();
+                            }
 
-                $success = true;
+                            return [
+                                'name' => $group->getName(),
+                                'id' => $group->getId(),
+                                'tasks' => $tasks
+                            ];
+                        })->toArray();
+
+                    $success = true;
+                } else {
+                    $message = 'permission_denied';
+                }
             }
 
-//        }
+        }
 
         $response = new JsonResponse([
             'success' => $success,
+            'message' => $message,
             'project' => [
                 'name' => $projectName,
                 'deadline' => $deadline
@@ -103,12 +113,13 @@ class Project extends AbstractController
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $auth = $authenticator->checkUserAuth($userId, $token, 10);
+        $auth = $authenticator->checkUserAuth($userId, $token, null,  10);
 
         //if payload exists
         if (!empty($payload) && $auth) {
             $projectName = $payload['projectName'];
             $deadline = $payload['deadline'];
+            $groupName = $payload['groupName'];
             $organisationId = 1;
             $user = null;
 
@@ -118,6 +129,8 @@ class Project extends AbstractController
             $dateTime = new \DateTime($deadline);
             $project->setDeadline($dateTime);
             $project->setCreatedAt(new \DateTime('now'));
+            $project->setClosed(true);
+            $project->addProjectUser($auth);
             $entityManager->persist($project);
             $entityManager->flush();
 
@@ -125,7 +138,7 @@ class Project extends AbstractController
             $taskGroup = new TaskGroups();
             $taskGroup->setCreatedAt(new \DateTime('now'));
             $taskGroup->setProject($project);
-            $taskGroup->setName('Neue Gruppe');
+            $taskGroup->setName($groupName);
             $taskGroup->setPosition(0);
             $entityManager->persist($taskGroup);
             $entityManager->flush();

@@ -22,19 +22,31 @@ class TasksRepository extends ServiceEntityRepository
     // /**
     //  * @return Tasks[] Returns an array of Tasks objects
     //  */
-    /*
-    public function findByExampleField($value)
+
+    public function increasePositionsByOne($value)
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
+            ->update()
+            ->set('t.position', 't.position+1')
+            ->andWhere('t.TaskGroup = :group')
+            ->setParameter('group', $value)
             ->getQuery()
-            ->getResult()
+            ->getSingleScalarResult()
         ;
     }
-    */
+
+    public function decreasePositionsByOne($value)
+    {
+        return $this->createQueryBuilder('t')
+            ->update()
+            ->set('t.position', 't.position-1')
+            ->andWhere('t.TaskGroup = :group')
+            ->setParameter('group', $value)
+            ->getQuery()
+            ->getSingleScalarResult()
+            ;
+    }
+
 
     /*
     public function findOneBySomeField($value): ?Tasks

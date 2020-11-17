@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Entity\Organisations;
+use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Security\TaskooAuthenticator;
@@ -28,38 +29,40 @@ class Task extends AbstractController
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $auth = $authenticator->checkUserAuth($userId, $token);
+
 
         $entityManager = $this->getDoctrine()->getManager();
         $payload = json_decode($request->getContent(), true);
 
-        if(!empty($payload) && $auth) {
-            $taskData = $payload['model'][0];
-            $taskGroupId = $payload['groupId'];
+        if(!empty($payload)) {
+            $projectId = $payload['projectId'];
+            $groupId = $payload['groupId'];
+            $taskName = $payload['taskName'];
+            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
 
-            $task = new Tasks();
-            $task->setName($taskData['name']);
-            $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($taskGroupId);
-            $task->setTaskGroup($taskGroup);
-            $task->setCreatedAt(new \DateTimeImmutable('now'));
-            $task->setCreatedBy($auth);
+            if($project) {
+                $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-            $entityManager->persist($task);
-            $entityManager->flush();
+                if($auth) {
+                    $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
 
-            $createdId = $task->getId();
-            $sortedTasks = $payload['model'];
-            $sortedTasks[0]['id'] = $createdId;
+                    if($taskGroup) {
+                        $this->increasePositions($taskGroup->getId());
 
-            print_r($sortedTasks);
+                        $task = new Tasks();
+                        $task->setName($taskName);
+                        $task->setPosition(0);
+                        $entityManager->persist($task);
 
-            //Set sorted tasks for taskgroup
-            $taskGroup->setTasks($sortedTasks);
+                        $taskGroup->addTask($task);
+                        $entityManager->persist($taskGroup);
+                        $entityManager->flush();
 
-            //flush taskgroup
-            $entityManager->persist($taskGroup);
-            $entityManager->flush();
-            $success = true;
+                        $createdId = $task->getId();
+                        $success = true;
+                    }
+                }
+            }
         }
 
         $response = new JsonResponse([
@@ -72,4 +75,55 @@ class Task extends AbstractController
         $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
         return $response;
     }
+
+    /**
+     * @Route("/task/changeName", name="api_task_changename")
+     */
+    public function changeName(Request $request, TaskooAuthenticator $authenticator)
+    {
+        $success = false;
+
+        $token = $request->headers->get('authorization');
+        $userId = $request->headers->get('user');
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $payload = json_decode($request->getContent(), true);
+
+        if(!empty($payload)) {
+            $projectId = $payload['projectId'];
+            $taskId = $payload['taskId'];
+            $newName = $payload['newName'];
+            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+
+            if($project) {
+                $auth = $authenticator->checkUserAuth($userId, $token, $project);
+
+                if($auth) {
+                    $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
+
+                    if($task) {
+                        $task->setName($newName);
+                        $entityManager->persist($task);
+                        $entityManager->flush();
+                        $success = true;
+                    }
+                }
+            }
+        }
+
+        $response = new JsonResponse([
+            'success' => $success
+        ]);
+
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set("Access-Control-Allow-Methods", "POST");
+        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
+        return $response;
+    }
+
+    private function increasePositions($groupId) {
+        $this->getDoctrine()->getRepository(Tasks::class)->increasePositionsByOne($groupId);
+    }
+
+
 }

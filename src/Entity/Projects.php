@@ -41,7 +41,8 @@ class Projects
     private $deadline;
 
     /**
-     * @ORM\OneToMany(targetEntity=TaskGroups::class, mappedBy="project")
+     * @ORM\OneToMany(targetEntity=TaskGroups::class, mappedBy="project", cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @OrderBy({"position" = "ASC"})
      */
     private $taskGroups;
@@ -51,9 +52,20 @@ class Projects
      */
     private $organisation;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $closed;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="assignedProjects")
+     */
+    private $ProjectUsers;
+
     public function __construct()
     {
         $this->taskGroups = new ArrayCollection();
+        $this->ProjectUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -147,6 +159,42 @@ class Projects
     public function setOrganisation(?Organisations $organisation): self
     {
         $this->organisation = $organisation;
+
+        return $this;
+    }
+
+    public function getClosed(): ?bool
+    {
+        return $this->closed;
+    }
+
+    public function setClosed(bool $closed): self
+    {
+        $this->closed = $closed;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getProjectUsers(): Collection
+    {
+        return $this->ProjectUsers;
+    }
+
+    public function addProjectUser(User $projectUser): self
+    {
+        if (!$this->ProjectUsers->contains($projectUser)) {
+            $this->ProjectUsers[] = $projectUser;
+        }
+
+        return $this;
+    }
+
+    public function removeProjectUser(User $projectUser): self
+    {
+        $this->ProjectUsers->removeElement($projectUser);
 
         return $this;
     }

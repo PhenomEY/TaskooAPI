@@ -51,13 +51,31 @@ class User
     private $lastlogin;
 
     /**
-     * @ORM\OneToMany(targetEntity=Projects::class, mappedBy="mainUser")
+     * @ORM\OneToMany(targetEntity=Projects::class, mappedBy="mainUser", cascade={"persist"})
      */
     private $projects;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Projects::class, mappedBy="ProjectUsers")
+     */
+    private $assignedProjects;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="assignedUser")
+     */
+    private $tasks;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Organisations::class, mappedBy="Users")
+     */
+    private $organisations;
 
     public function __construct()
     {
         $this->projects = new ArrayCollection();
+        $this->assignedProjects = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
+        $this->organisations = new ArrayCollection();
     }
 
 
@@ -164,6 +182,90 @@ class User
             if ($project->getMainUser() === $this) {
                 $project->setMainUser(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Projects[]
+     */
+    public function getAssignedProjects(): Collection
+    {
+        return $this->assignedProjects;
+    }
+
+    public function addAssignedProject(Projects $assignedProject): self
+    {
+        if (!$this->assignedProjects->contains($assignedProject)) {
+            $this->assignedProjects[] = $assignedProject;
+            $assignedProject->addProjectUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedProject(Projects $assignedProject): self
+    {
+        if ($this->assignedProjects->removeElement($assignedProject)) {
+            $assignedProject->removeProjectUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tasks[]
+     */
+    public function getTasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    public function addTask(Tasks $task): self
+    {
+        if (!$this->tasks->contains($task)) {
+            $this->tasks[] = $task;
+            $task->setAssignedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTask(Tasks $task): self
+    {
+        if ($this->tasks->removeElement($task)) {
+            // set the owning side to null (unless already changed)
+            if ($task->getAssignedUser() === $this) {
+                $task->setAssignedUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Organisations[]
+     */
+    public function getOrganisations(): Collection
+    {
+        return $this->organisations;
+    }
+
+    public function addOrganisation(Organisations $organisation): self
+    {
+        if (!$this->organisations->contains($organisation)) {
+            $this->organisations[] = $organisation;
+            $organisation->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganisation(Organisations $organisation): self
+    {
+        if ($this->organisations->removeElement($organisation)) {
+            $organisation->removeUser($this);
         }
 
         return $this;

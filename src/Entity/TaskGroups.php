@@ -26,7 +26,8 @@ class TaskGroups
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Projects::class, inversedBy="taskGroups")
+     * @ORM\ManyToOne(targetEntity=Projects::class, inversedBy="taskGroups", cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $project;
 
@@ -36,7 +37,8 @@ class TaskGroups
     private $createdAt;
 
     /**
-     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="TaskGroup")
+     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="TaskGroup", cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @OrderBy({"position" = "ASC"})
      */
     private $tasks;

@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Entity\Organisations;
+use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Security\TaskooAuthenticator;
@@ -33,31 +34,35 @@ class TaskGroup extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $payload = json_decode($request->getContent(), true);
 
-        if(!empty($payload) && $auth) {
-            $model = $payload['model'];
-            $addedGroupKey = array_key_last($model);
+        if(!empty($payload)) {
             $projectId = $payload['projectId'];
-
-            $newGroup = new TaskGroups();
-            $newGroup->setName($model[$addedGroupKey]['name']);
+            $groupName = $payload['name'];
+            $position = $payload['position'];
             $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
-            $newGroup->setProject($project);
 
-            //create new group in db
-            $entityManager->persist($newGroup);
-            $entityManager->flush();
+            if($project) {
+                $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-            $createdId = $newGroup->getId();
+                if($auth) {
+                    $taskGroup = new TaskGroups();
+                    $taskGroup->setName($groupName);
+                    $taskGroup->setProject($project);
+                    $taskGroup->setPosition($position);
+                    $taskGroup->setCreatedAt(new \DateTime('now'));
 
-            //set flushed group id into model
-            $model[$addedGroupKey]['id'] = $createdId;
+                    $entityManager->persist($taskGroup);
 
-            $project->setTaskgroups($model);
-            //save new groups to project
-            $entityManager->persist($project);
-            $entityManager->flush();
+                    $project->addTaskGroup($taskGroup);
 
-            $success = true;
+                    $entityManager->persist($project);
+                    $entityManager->flush();
+
+                    $createdId = $taskGroup->getId();
+                    $success = true;
+                }
+            }
+
+
         }
 
         $response = new JsonResponse([
@@ -82,20 +87,68 @@ class TaskGroup extends AbstractController
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $auth = $authenticator->checkUserAuth($userId, $token);
+        $entityManager = $this->getDoctrine()->getManager();
+        $payload = json_decode($request->getContent(), true);
+
+        if(!empty($payload)) {
+            $groupId = $payload['groupId'];
+            $projectId = $payload['projectId'];
+            $newName = $payload['newName'];
+
+            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+            $auth = $authenticator->checkUserAuth($userId, $token, $project);
+
+            if($auth) {
+                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
+
+                if($taskGroup) {
+                    $taskGroup->setName($newName);
+                    $entityManager->persist($taskGroup);
+                    $entityManager->flush();
+                    $success = true;
+                }
+            }
+        }
+
+        $response = new JsonResponse([
+            'success' => $success
+        ]);
+
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set("Access-Control-Allow-Methods", "POST");
+        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
+        return $response;
+    }
+
+    /**
+     * @Route("/taskgroup/changePositions", name="api_taskgroup_changepositions")
+     */
+    public function changePositions(Request $request, TaskooAuthenticator $authenticator)
+    {
+        $success = false;
+
+        $token = $request->headers->get('authorization');
+        $userId = $request->headers->get('user');
 
         $entityManager = $this->getDoctrine()->getManager();
         $payload = json_decode($request->getContent(), true);
 
-        if(!empty($payload) && $auth) {
-            $groupKey = $payload['groupKey'];
+        if(!empty($payload)) {
             $projectId = $payload['projectId'];
-            $newName = $payload['newName'];
+            $positions = $payload['positions'];
 
-            $changeGroupName = $this->getDoctrine()->getRepository(Projects::class)->changeGroupName($groupKey, $newName, $projectId);
+            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+            $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-            if($changeGroupName !== false) {
-                $success = true;
+            if($auth) {
+              foreach($positions as $position=>$id) {
+                  $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($id);
+                  $taskGroup->setPosition($position);
+                  $entityManager->persist($taskGroup);
+              }
+
+              $entityManager->flush();
+              $success = true;
             }
         }
 
