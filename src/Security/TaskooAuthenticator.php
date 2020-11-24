@@ -26,10 +26,18 @@ class TaskooAuthenticator {
        ]);
 
        if($userAuth) {
+           $authData = [
+             'user' => null,
+             'type' => null
+           ];
+
            //check if user got admin role
            $userRole = $userAuth->getUser()->getRole();
-           if($userRole === 10) {
-               return $userAuth->getUser();
+           if($userRole == 10) {
+               $authData['user'] = $userAuth->getUser();
+               $authData['type'] = 'is_admin';
+
+               return $authData;
            }
 
            if($project) {
@@ -41,9 +49,15 @@ class TaskooAuthenticator {
 
            //role 1 = all
            if ($role == 1) {
-                return $userAuth->getUser();
+               $authData['user'] = $userAuth->getUser();
+               $authData['type'] = 'is_loggedin';
+
+               return $authData;
            } elseif ($userRole == $role) {
-               return $userAuth->getUser();
+               $authData['user'] = $userAuth->getUser();
+               $authData['type'] = 'role_'.$role;
+
+               return $authData;
            }
        }
 
@@ -51,6 +65,11 @@ class TaskooAuthenticator {
     }
 
     private function checkProjectPermission(Projects $project, UserAuth $auth) {
+
+        $authData = [
+            'user' => null,
+            'type' => null
+        ];
 
         $user = $auth->getUser();
 
@@ -61,13 +80,19 @@ class TaskooAuthenticator {
             $projectUsers = $project->getProjectUsers();
             if($projectUsers->contains($user)) {
                 //return assigned user
-                return $auth->getUser();
+
+                $authData['user'] = $auth->getUser();
+                $authData['type'] = 'is_in_project';
+
+                return $authData;
             }
         } else {
             //project is visible for whole organisation - check if user is part of organisation
             $organisationUsers = $project->getOrganisation()->getUsers();
             if($organisationUsers->contains($user)) {
-                return $user;
+                $authData['user'] = $auth->getUser();
+                $authData['type'] = 'project_open';
+                return $authData;
             }
         }
 

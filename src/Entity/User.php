@@ -70,12 +70,24 @@ class User
      */
     private $organisations;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="doneBy")
+     */
+    private $doneTasks;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Tasks::class, mappedBy="assignedUser")
+     */
+    private $assignedTasks;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
         $this->assignedProjects = new ArrayCollection();
         $this->tasks = new ArrayCollection();
         $this->organisations = new ArrayCollection();
+        $this->doneTasks = new ArrayCollection();
+        $this->assignedTasks = new ArrayCollection();
     }
 
 
@@ -266,6 +278,63 @@ class User
     {
         if ($this->organisations->removeElement($organisation)) {
             $organisation->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tasks[]
+     */
+    public function getDoneTasks(): Collection
+    {
+        return $this->doneTasks;
+    }
+
+    public function addDoneTask(Tasks $doneTask): self
+    {
+        if (!$this->doneTasks->contains($doneTask)) {
+            $this->doneTasks[] = $doneTask;
+            $doneTask->setDoneBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDoneTask(Tasks $doneTask): self
+    {
+        if ($this->doneTasks->removeElement($doneTask)) {
+            // set the owning side to null (unless already changed)
+            if ($doneTask->getDoneBy() === $this) {
+                $doneTask->setDoneBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tasks[]
+     */
+    public function getAssignedTasks(): Collection
+    {
+        return $this->assignedTasks;
+    }
+
+    public function addAssignedTask(Tasks $assignedTask): self
+    {
+        if (!$this->assignedTasks->contains($assignedTask)) {
+            $this->assignedTasks[] = $assignedTask;
+            $assignedTask->addAssignedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedTask(Tasks $assignedTask): self
+    {
+        if ($this->assignedTasks->removeElement($assignedTask)) {
+            $assignedTask->removeAssignedUser($this);
         }
 
         return $this;

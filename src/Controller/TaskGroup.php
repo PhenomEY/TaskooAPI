@@ -43,7 +43,7 @@ class TaskGroup extends AbstractController
             if($project) {
                 $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-                if($auth) {
+                if(isset($auth['user'])) {
                     $taskGroup = new TaskGroups();
                     $taskGroup->setName($groupName);
                     $taskGroup->setProject($project);
@@ -98,7 +98,7 @@ class TaskGroup extends AbstractController
             $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
             $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-            if($auth) {
+            if(isset($auth['user'])) {
                 $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
 
                 if($taskGroup) {
@@ -140,7 +140,7 @@ class TaskGroup extends AbstractController
             $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
             $auth = $authenticator->checkUserAuth($userId, $token, $project);
 
-            if($auth) {
+            if(isset($auth['user'])) {
               foreach($positions as $position=>$id) {
                   $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($id);
                   $taskGroup->setPosition($position);

@@ -47,6 +47,34 @@ class TasksRepository extends ServiceEntityRepository
             ;
     }
 
+    public function getDoneTasks($groupId)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.name, t.id, t.done as isDone, b.firstname as doneByfirstName, b.lastname as doneBylastName, t.doneAt')
+            ->andWhere('t.TaskGroup = :group')
+            ->andWhere('t.done = :done')
+            ->join('t.doneBy', 'b')
+            ->setParameter('group', $groupId)
+            ->setParameter('done', true)
+            ->orderBy('t.doneAt', 'DESC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function getOpenTasks($groupId)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.name, t.id, t.done as isDone')
+            ->andWhere('t.TaskGroup = :group')
+            ->andWhere('t.done = :done')
+            ->setParameter('group', $groupId)
+            ->setParameter('done', false)
+            ->orderBy('t.position', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 
     /*
     public function findOneBySomeField($value): ?Tasks
