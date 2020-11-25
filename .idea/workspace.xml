@@ -23,16 +23,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Controller/Organisation.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/TaskGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/TestAPI.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TestAPI.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Tasks.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Tasks.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/User.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Repository/TasksRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/TasksRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,7 +205,8 @@
       <workItem from="1606166985566" duration="2632000" />
       <workItem from="1606173242432" duration="1176000" />
       <workItem from="1606174580882" duration="354000" />
-      <workItem from="1606243179447" duration="12563000" />
+      <workItem from="1606243179447" duration="14871000" />
+      <workItem from="1606338788085" duration="4348000" />
     </task>
     <servers />
   </component>
@@ -256,10 +251,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="798" y="250" key="ftp.server.browser/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604417367936" />
-    <state x="616" y="240" key="run.anything.popup" timestamp="1605222904842">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="2459" y="265" key="run.anything.popup" timestamp="1606340313833">
+      <screen x="1920" y="23" width="1680" height="1050" />
     </state>
     <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1605222904842" />
+    <state x="2459" y="265" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1606340313833" />
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1605727933987">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

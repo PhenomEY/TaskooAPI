@@ -53,7 +53,7 @@ class Project extends AbstractController
 
                 if(isset($auth['user'])) {
                     $projectName = $project->getName();
-                    $deadline = $project->getDeadline()->format('d.m.Y');
+                    $deadline = $project->getDeadline();
 
                     $projectUsers = $project->getProjectUsers()->map(function($user) {
                         return [

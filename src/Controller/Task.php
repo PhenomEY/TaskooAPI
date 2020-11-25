@@ -197,14 +197,13 @@ class Task extends AbstractController
         $success = false;
         $message = 'load_task_failed';
         $data = [
+            'id' => null,
             'name' => null,
             'description' => null,
-            'doneBy' => [
-                'firstname' => null,
-                'lastname' => null
-            ],
+            'doneBy' => [],
             'doneAt' => null,
-            'isDone' => false
+            'isDone' => false,
+            'dateDue' => null
         ];
 
         $token = $request->headers->get('authorization');
@@ -216,6 +215,7 @@ class Task extends AbstractController
         if(!empty($payload)) {
             $projectId = intval($payload['projectId']);
             $taskId = $payload['taskId'];
+            $data['id'] = $taskId;
 
             $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
             $project = $task->getTaskGroup()->getProject();
@@ -233,7 +233,18 @@ class Task extends AbstractController
                             //collect data for app
                             $data['name'] = $task->getName();
                             $data['description'] = $task->getDescription();
+                            $data['dateDue'] = $task->getDateDue();
                             $data['isDone'] = $task->getDone();
+
+                            if($task->getDone() === true) {
+                                $data['doneBy'] = [
+                                    'firstname' => $task->getDoneBy()->getFirstname(),
+                                    'lastname' => $task->getDoneBy()->getLastname(),
+                                    'id' => $task->getDoneBy()->getId()
+                                ];
+                            }
+
+                            $data['doneAt'] = $task->getDoneAt();
                             $success = true;
                         }
                     } else {
@@ -264,10 +275,8 @@ class Task extends AbstractController
     {
         $success = false;
         $message = null;
-        $data = [
-            'name' => null,
-            'description' => null
-        ];
+        $doneAt = null;
+        $doneBy = [];
 
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
@@ -294,6 +303,13 @@ class Task extends AbstractController
 
                         $entityManager->persist($task);
                         $entityManager->flush();
+
+                        $doneBy = [
+                            'firstname' => $task->getDoneBy()->getFirstname(),
+                            'lastname' => $task->getDoneBy()->getLastname(),
+                        ];
+                        $doneAt = $task->getDoneAt();
+                        $message = 'changed_state';
                         $success = true;
                     }
                 }
@@ -307,7 +323,8 @@ class Task extends AbstractController
         $response = new JsonResponse([
             'success' => $success,
             'message' => $message,
-            'task' => $data
+            'doneAt' => $doneAt,
+            'doneBy' => $doneBy
         ]);
 
         $response->headers->set('Access-Control-Allow-Origin', '*');
@@ -410,6 +427,61 @@ class Task extends AbstractController
             'success' => $success,
             'message' => $message,
             'tasks' => $tasks
+        ]);
+
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set("Access-Control-Allow-Methods", "POST");
+        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
+        return $response;
+    }
+
+    /**
+     * @Route("/task/description/save", name="api_task_description_save")
+     */
+    public function saveDescription(Request $request, TaskooAuthenticator $authenticator)
+    {
+        $success = false;
+        $message = null;
+
+        $token = $request->headers->get('authorization');
+        $userId = $request->headers->get('user');
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $payload = json_decode($request->getContent(), true);
+
+        if(!empty($payload)) {
+            $projectId = intval($payload['projectId']);
+            $taskId = $payload['taskId'];
+            $description = $payload['description'];
+
+            $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
+
+            if($task) {
+                $project = $task->getTaskGroup()->getProject();
+                if($projectId === $project->getId()) {
+                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
+                    if(isset($auth['user'])) {
+
+                        $task->setDescription($description);
+                        $entityManager->persist($task);
+                        $entityManager->flush();
+
+                        $message = 'description_changed';
+                        $success = true;
+                    } else {
+                        $message = 'permission_denied';
+                    }
+                }
+            } else {
+                $message = 'taskid_not_found';
+            }
+
+
+        }
+
+        $response = new JsonResponse([
+            'success' => $success,
+            'message' => $message
         ]);
 
         $response->headers->set('Access-Control-Allow-Origin', '*');
