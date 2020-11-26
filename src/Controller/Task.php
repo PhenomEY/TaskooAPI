@@ -4,6 +4,7 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
+use App\Api\TaskooResponseManager;
 use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
@@ -17,477 +18,189 @@ use Symfony\Component\Routing\Annotation\Route;
 class Task extends AbstractController
 {
 
+    protected $authenticator;
 
-    /**
-     * @Route("/task/add", name="api_task_add")
-     */
-    public function addTask(Request $request, TaskooAuthenticator $authenticator)
+    protected $responseManager;
+
+
+    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager)
     {
-        $success = false;
-        $createdId = null;
-        $message = 'create_task_failed';
-
-        $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
-
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $groupId = $payload['groupId'];
-            $taskName = $payload['taskName'];
-
-            $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
-
-            if($taskGroup) {
-                $project = $taskGroup->getProject();
-
-                if($projectId === $project->getId()) {
-                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
-
-                    if(isset($auth['user'])) {
-                        $this->increasePositions($taskGroup->getId());
-
-                        $task = new Tasks();
-                        $task->setName($taskName);
-                        $task->setPosition(0);
-                        $task->setDone(false);
-                        $entityManager->persist($task);
-
-                        $taskGroup->addTask($task);
-                        $entityManager->persist($taskGroup);
-                        $entityManager->flush();
-
-                        $createdId = $task->getId();
-                        $success = true;
-                        $message = 'task_created';
-
-                    } else {
-                        $message = 'permission_denied';
-                    }
-                }
-            }
-        }
-
-        $response = new JsonResponse([
-            'success' => $success,
-            'createdId' => $createdId,
-            'message' => $message
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+        $this->authenticator = $authenticator;
+        $this->responseManager = $responseManager;
     }
 
+
     /**
-     * @Route("/task/changeName", name="api_task_changename")
+     * @Route("/task", name="api_task_add", methods={"POST"})
      */
-    public function changeName(Request $request, TaskooAuthenticator $authenticator)
+    public function addTask(Request $request)
     {
-        $success = false;
-        $message = 'change_name_failed';
+        $data = [];
 
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
+        if(isset($userId) && isset($token)) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $payload = json_decode($request->getContent(), true);
 
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $taskId = $payload['taskId'];
-            $newName = $payload['newName'];
+            if(!empty($payload)) {
+                $projectId = intval($payload['projectId']);
+                $groupId = $payload['groupId'];
+                $taskName = $payload['taskName'];
 
-            $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
-            $project = $task->getTaskGroup()->getProject();
+                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
 
-            if($projectId === $project->getId()) {
-                $auth = $authenticator->checkUserAuth($userId, $token, $project);
+                if($taskGroup) {
+                    $project = $taskGroup->getProject();
 
-                if(isset($auth['user'])) {
-                    $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
+                    if($projectId === $project->getId()) {
+                        $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
 
-                    if($task) {
-                        $task->setName($newName);
-                        $entityManager->persist($task);
-                        $entityManager->flush();
-                        $success = true;
-                        $message = 'name_changed';
-                    }
-                } else {
-                    $message = 'permission_denied';
-                }
-            }
-        }
+                        if(isset($auth['user'])) {
+                            $this->increasePositions($taskGroup->getId());
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
-    }
-
-    /**
-     * @Route("/task/changePositions", name="api_task_changepositions")
-     */
-    public function changePositions(Request $request, TaskooAuthenticator $authenticator)
-    {
-        $success = false;
-        $message = 'change_positions_failed';
-
-        $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
-
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $groupId = $payload['groupId'];
-            $positions = $payload['positions'];
-
-            $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
-
-            if($taskGroup) {
-                $project = $taskGroup->getProject();
-
-                if($projectId === $project->getId()) {
-                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
-                    if(isset($auth['user'])) {
-
-                        foreach($positions as $position=>$id) {
-                            $task = $this->getDoctrine()->getRepository(Tasks::class)->find($id);
-                            $task->setPosition($position);
+                            $task = new Tasks();
+                            $task->setName($taskName);
+                            $task->setPosition(0);
+                            $task->setDone(false);
                             $entityManager->persist($task);
-                        }
 
-                        $entityManager->flush();
-                        $success = true;
-                        $message = 'positions_changed';
-                    } else {
-                        $message = 'permission_denied';
+                            $taskGroup->addTask($task);
+                            $entityManager->persist($taskGroup);
+                            $entityManager->flush();
+
+                            $data['createdId'] = $task->getId();
+
+                            return $this->responseManager->successResponse($data, 'task_created');
+
+                        } else {
+                            return $this->responseManager->unauthorizedResponse();
+                        }
                     }
                 }
             }
         }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+        return $this->responseManager->forbiddenResponse();
     }
 
     /**
-     * @Route("/task/project/get", name="api_task_getforproject")
+     * @Route("/task/{taskId}", name="api_task_update", methods={"PUT"})
      */
-    public function getTaskForProject(Request $request, TaskooAuthenticator $authenticator)
+    public function updateTask(int $taskId, Request $request)
     {
-        $success = false;
-        $message = 'load_task_failed';
-        $data = [
-            'id' => null,
-            'name' => null,
-            'description' => null,
-            'doneBy' => [],
-            'doneAt' => null,
-            'isDone' => false,
-            'dateDue' => null
-        ];
-
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
+        $data = [];
 
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $taskId = $payload['taskId'];
-            $data['id'] = $taskId;
+        //check if auth data was sent
+        if(isset($userId) && isset($token)) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $payload = json_decode($request->getContent(), true);
 
-            $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
-            $project = $task->getTaskGroup()->getProject();
+            if(!empty($payload)) {
+                $projectId = intval($payload['projectId']);
 
-            if($projectId === $project->getId()) {
-                $auth = $authenticator->checkUserAuth($userId, $token, $project);
-                if(isset($auth['user'])) {
-                    $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
+                $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
+                $project = $task->getTaskGroup()->getProject();
 
+                if($projectId === $project->getId()) {
+                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
 
-                    if($task) {
-                        //when task was found
-                        //check if projectId matches the tasks project
-                        if($task->getTaskGroup()->getProject()->getId() == $projectId) {
-                            //collect data for app
-                            $data['name'] = $task->getName();
-                            $data['description'] = $task->getDescription();
-                            $data['dateDue'] = $task->getDateDue();
-                            $data['isDone'] = $task->getDone();
+                    if(isset($auth['user'])) {
+                        $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
 
-                            if($task->getDone() === true) {
-                                $data['doneBy'] = [
-                                    'firstname' => $task->getDoneBy()->getFirstname(),
-                                    'lastname' => $task->getDoneBy()->getLastname(),
-                                    'id' => $task->getDoneBy()->getId()
-                                ];
+                        if($task) {
+                            if(isset($payload['name'])) {
+                                $task->setName($payload['name']);
                             }
 
-                            $data['doneAt'] = $task->getDoneAt();
-                            $success = true;
+                            if(isset($payload['description'])) {
+                                $task->setDescription($payload['description']);
+                            }
+
+                            if(isset($payload['dateDue'])) {
+                                $task->setDateDue($payload['dateDue']);
+                            }
+
+                            if(isset($payload['done'])) {
+                                $task->setDone($payload['done']);
+
+                                if($payload['done'] === true) {
+                                    $task->setDoneBy($auth['user']);
+                                    $task->setDoneAt(new \DateTime('now'));
+
+                                    $data['doneAt'] = new \DateTime('now');
+                                    $data['doneBy'] = [
+                                        'firstname' => $auth['user']->getFirstname(),
+                                        'lastname' => $auth['user']->getLastname(),
+                                    ];
+                                }
+                            }
+
+                            $entityManager->persist($task);
+                            $entityManager->flush();
+
+                            return $this->responseManager->successResponse($data, 'task_updated');
                         }
                     } else {
-                        $success = false;
-                        $message = 'task_not_found';
+                        return $this->responseManager->unauthorizedResponse();
                     }
-
                 }
             }
         }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'task' => $data
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+        return $this->responseManager->forbiddenResponse();
     }
 
     /**
-     * @Route("/task/done", name="api_task_done")
+     * @Route("/task/{taskId}", name="api_task_load", methods={"GET"})
      */
-    public function setTaskDone(Request $request, TaskooAuthenticator $authenticator)
+    public function getTask(int $taskId, Request $request)
     {
-        $success = false;
-        $message = null;
-        $doneAt = null;
-        $doneBy = [];
+        $data = [];
 
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
+        if(isset($userId) && isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($userId, $token);
 
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $taskId = $payload['taskId'];
-            $state = $payload['state'];
+            if(isset($auth['user'])) {
+                //get Task
+                $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
 
-            $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
-
-            if($task) {
-                $project = $task->getTaskGroup()->getProject();
-
-                if($projectId === $project->getId()) {
-                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
+                if($task) {
+                    $project = $task->getTaskGroup()->getProject();
+                    //check if user is permitted to see the task
+                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
                     if(isset($auth['user'])) {
-                        $task->setDone($state);
-                        $task->setDoneBy($auth['user']);
-                        $task->setDoneAt(new \DateTime('now'));
+                        //collect data for app
+                        $data['task']['id'] = $taskId;
+                        $data['task']['name'] = $task->getName();
+                        $data['task']['description'] = $task->getDescription();
+                        $data['task']['dateDue'] = $task->getDateDue();
+                        $data['task']['isDone'] = $task->getDone();
 
-                        $entityManager->persist($task);
-                        $entityManager->flush();
+                        if($task->getDone() === true) {
+                            $data['task']['doneBy'] = [
+                                'firstname' => $task->getDoneBy()->getFirstname(),
+                                'lastname' => $task->getDoneBy()->getLastname(),
+                                'id' => $task->getDoneBy()->getId()
+                            ];
+                        }
 
-                        $doneBy = [
-                            'firstname' => $task->getDoneBy()->getFirstname(),
-                            'lastname' => $task->getDoneBy()->getLastname(),
-                        ];
-                        $doneAt = $task->getDoneAt();
-                        $message = 'changed_state';
-                        $success = true;
+                        $data['task']['doneAt'] = $task->getDoneAt();
+
+                        return $this->responseManager->successResponse($data, 'task_loaded');
                     }
                 }
-            } else {
-                $message = 'taskid_not_found';
             }
-
-
         }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'doneAt' => $doneAt,
-            'doneBy' => $doneBy
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
-    }
-
-    /**
-     * @Route("/task/done/get", name="api_task_done_get")
-     */
-    public function getDoneTasks(Request $request, TaskooAuthenticator $authenticator)
-    {
-        $success = false;
-        $message = null;
-        $tasks = [];
-
-        $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
-
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $groupId = $payload['groupId'];
-
-            $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
-
-            if($taskGroup) {
-                $project = $taskGroup->getProject();
-                if($projectId === $project->getId()) {
-                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
-                    if(isset($auth['user'])) {
-                        $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getDoneTasks($taskGroup->getId());
-                        $success = true;
-                    } else {
-                        $message = 'permission_denied';
-                    }
-                }
-            } else {
-                $message = 'groupid_not_found';
-            }
-
-
-        }
-
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'tasks' => $tasks
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
-    }
-
-    /**
-     * @Route("/task/open/get", name="api_task_open_get")
-     */
-    public function getOpenTasks(Request $request, TaskooAuthenticator $authenticator)
-    {
-        $success = false;
-        $message = null;
-        $tasks = [];
-
-        $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
-
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $groupId = $payload['groupId'];
-
-            $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
-
-            if($taskGroup) {
-                $project = $taskGroup->getProject();
-                if($projectId === $project->getId()) {
-                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
-                    if(isset($auth['user'])) {
-                        $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($groupId);
-                        $success = true;
-                    } else {
-                        $message = 'permission_denied';
-                    }
-                }
-            } else {
-                $message = 'groupid_not_found';
-            }
-
-
-        }
-
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'tasks' => $tasks
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
-    }
-
-    /**
-     * @Route("/task/description/save", name="api_task_description_save")
-     */
-    public function saveDescription(Request $request, TaskooAuthenticator $authenticator)
-    {
-        $success = false;
-        $message = null;
-
-        $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
-
-        if(!empty($payload)) {
-            $projectId = intval($payload['projectId']);
-            $taskId = $payload['taskId'];
-            $description = $payload['description'];
-
-            $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
-
-            if($task) {
-                $project = $task->getTaskGroup()->getProject();
-                if($projectId === $project->getId()) {
-                    $auth = $authenticator->checkUserAuth($userId, $token, $project);
-                    if(isset($auth['user'])) {
-
-                        $task->setDescription($description);
-                        $entityManager->persist($task);
-                        $entityManager->flush();
-
-                        $message = 'description_changed';
-                        $success = true;
-                    } else {
-                        $message = 'permission_denied';
-                    }
-                }
-            } else {
-                $message = 'taskid_not_found';
-            }
-
-
-        }
-
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+        return $this->responseManager->forbiddenResponse();
     }
 
 

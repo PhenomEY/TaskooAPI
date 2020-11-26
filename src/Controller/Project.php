@@ -4,6 +4,7 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
+use App\Api\TaskooResponseManager;
 use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
@@ -19,43 +20,46 @@ use App\Entity\UserAuth;
 class Project extends AbstractController
 {
 
+    protected $authenticator;
+
+    protected $responseManager;
+
+
+    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager)
+    {
+        $this->authenticator = $authenticator;
+        $this->responseManager = $responseManager;
+    }
+
 
     /**
-     * @Route("/project/load", name="api_project_load")
+     * @Route("/project/{projectId}", name="api_project_load", methods={"GET"})
      */
-    public function getProject(Request $request, TaskooAuthenticator $authenticator)
+    public function getProject(int $projectId, Request $request)
     {
-        $success = false;
-        $projectName = null;
-        $deadline = null;
-        $projectUsers = null;
-        $taskGroups = null;
         $message = 'not_found';
+
+        $data = [];
 
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
         $entityManager = $this->getDoctrine()->getManager();
-        $payload = json_decode($request->getContent(), true);
 
-        //if payload exists
-        if (!empty($payload)) {
-            $projectId = $payload['projectId'];
-
+        //check if auth data got sent
+        if(isset($token) && isset($userId)) {
             //load project by id
             $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+            $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
 
             //if project for id was found
             if($project !== null) {
                 //authentification process
-                $auth = $authenticator->checkUserAuth($userId, $token, $project);
-
-
                 if(isset($auth['user'])) {
-                    $projectName = $project->getName();
-                    $deadline = $project->getDeadline();
+                    $data['project']['name'] = $project->getName();
+                    $data['project']['deadline'] = $project->getDeadline();
 
-                    $projectUsers = $project->getProjectUsers()->map(function($user) {
+                    $data['project']['users'] = $project->getProjectUsers()->map(function($user) {
                         return [
                             'firstname' => $user->getFirstname(),
                             'lastname' => $user->getLastname(),
@@ -64,7 +68,7 @@ class Project extends AbstractController
                     })->toArray();
 
 
-                    $taskGroups = $project->getTaskgroups()
+                    $data['groups'] = $project->getTaskgroups()
                         ->map(function($group) {
                             $tasks = null;
 
@@ -79,41 +83,27 @@ class Project extends AbstractController
                             ];
                         })->toArray();
 
-                    $message = 'project_loaded';
-                    $success = true;
+                    return $this->responseManager->successResponse($data, 'project_loaded');
 
                 } else {
-                    $message = 'permission_denied';
+                    return $this->responseManager->forbiddenResponse();
                 }
+            } else {
+                return $this->responseManager->notFoundResponse();
             }
-
+        } else {
+            return $this->responseManager->forbiddenResponse();
         }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'project' => [
-                'name' => $projectName,
-                'deadline' => $deadline,
-                'users' => $projectUsers
-            ],
-            'groups' => $taskGroups
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+        return $this->responseManager->forbiddenResponse();
     }
 
     /**
-     * @Route("/project/create", name="api_project_create")
+     * @Route("/project", name="api_project_create", methods={"POST"})
      */
     public function createProject(Request $request, TaskooAuthenticator $authenticator)
     {
-        $success = false;
-        $message = 'login_failed';
-        $projectId = null;
+        $data = [];
 
         $entityManager = $this->getDoctrine()->getManager();
         $payload = json_decode($request->getContent(), true);
@@ -121,59 +111,107 @@ class Project extends AbstractController
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $auth = $authenticator->checkUserAuth($userId, $token, null,  10);
+        //check if auth data got sent
+        if(isset($token) && isset($userId)) {
+            $auth = $authenticator->checkUserAuth($userId, $token, null,  10);
 
-        //if payload exists
-        if (!empty($payload)) {
+            //if payload exists
+            if (!empty($payload)) {
+                if(isset($auth['user'])) {
+                    $projectName = $payload['projectName'];
+                    $deadline = $payload['deadline'];
+                    $groupName = $payload['groupName'];
+                    $organisationId = 1;
+                    $user = null;
 
-            if(isset($auth['user'])) {
+                    //Create new Project
+                    $project = new Projects();
+                    $project->setName($projectName);
+                    $dateTime = new \DateTime($deadline);
+                    $project->setDeadline($dateTime);
+                    $project->setCreatedAt(new \DateTime('now'));
+                    $project->setClosed(true);
+                    $project->addProjectUser($auth['user']);
+                    $entityManager->persist($project);
+                    $entityManager->flush();
 
-                $projectName = $payload['projectName'];
-                $deadline = $payload['deadline'];
-                $groupName = $payload['groupName'];
-                $organisationId = 1;
-                $user = null;
+                    //Create default Group
+                    $taskGroup = new TaskGroups();
+                    $taskGroup->setCreatedAt(new \DateTime('now'));
+                    $taskGroup->setProject($project);
+                    $taskGroup->setName($groupName);
+                    $taskGroup->setPosition(0);
+                    $entityManager->persist($taskGroup);
+                    $entityManager->flush();
 
-                //Create new Project
-                $project = new Projects();
-                $project->setName($projectName);
-                $dateTime = new \DateTime($deadline);
-                $project->setDeadline($dateTime);
-                $project->setCreatedAt(new \DateTime('now'));
-                $project->setClosed(true);
-                $project->addProjectUser($auth['user']);
-                $entityManager->persist($project);
-                $entityManager->flush();
+                    $project->addTaskGroup($taskGroup);
+                    $entityManager->persist($project);
+                    $entityManager->flush();
 
-                //Create default Group
-                $taskGroup = new TaskGroups();
-                $taskGroup->setCreatedAt(new \DateTime('now'));
-                $taskGroup->setProject($project);
-                $taskGroup->setName($groupName);
-                $taskGroup->setPosition(0);
-                $entityManager->persist($taskGroup);
-                $entityManager->flush();
-
-                $project->addTaskGroup($taskGroup);
-                $entityManager->persist($project);
-                $entityManager->flush();
-
-
-                $projectId = $project->getId();
-                $success = true;
-                $message = 'project_created';
+                    $data['projectId'] = $project->getId();
+                    return $this->responseManager->successResponse($data, 'project_created');
+                } else {
+                    return $this->responseManager->forbiddenResponse();
+                }
+            } else {
+                return $this->responseManager->badRequestResponse();
             }
         }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'projectId' => $projectId
-        ]);
+        return $this->responseManager->forbiddenResponse();
+    }
 
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+    /**
+     * @Route("/project/{projectId}", name="api_project_update", methods={"PUT"})
+     */
+    public function updateProject(int $projectId, Request $request)
+    {
+        $data = [];
+
+        $token = $request->headers->get('authorization');
+        $userId = $request->headers->get('user');
+
+        //check if auth data got sent
+        if(isset($token) && isset($userId)) {
+            //load project by id
+            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+            $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+            $entityManager = $this->getDoctrine()->getManager();
+
+            //if project for id was found
+            if($project) {
+                //authentification process
+                if(isset($auth['user'])) {
+                    $payload = json_decode($request->getContent(), true);
+
+                    if(!empty($payload)) {
+
+                        if(isset($payload['name'])) {
+                            $project->setName($payload['name']);
+                        }
+
+                        if(isset($payload['groupPositions'])) {
+                            $positions = $payload['groupPositions'];
+
+                            foreach($positions as $position=>$id) {
+                                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($id);
+                                $taskGroup->setPosition($position);
+                                $entityManager->persist($taskGroup);
+                            }
+                        }
+
+                        $entityManager->persist($project);
+                        $entityManager->flush();
+
+                        return $this->responseManager->successResponse($data, 'project_updated');
+                    }
+
+                }
+            } else {
+                return $this->responseManager->notFoundResponse();
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
     }
 }

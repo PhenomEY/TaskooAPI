@@ -26,7 +26,7 @@ class TaskGroups
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Projects::class, inversedBy="taskGroups", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Projects::class, inversedBy="taskGroups", cascade={"persist"})
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $project;
