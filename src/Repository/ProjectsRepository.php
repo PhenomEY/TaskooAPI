@@ -23,16 +23,16 @@ class ProjectsRepository extends ServiceEntityRepository
     //  * @return Projects[] Returns an array of Projects objects
     //  */
 
-    public function findByExampleField($value)
+    public function getProjectUsers($id)
     {
         return $this->createQueryBuilder('p')
-            ->select('p.taskGroups')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
+            ->select('u.id, u.firstname, u.lastname')
+            ->andWhere('p.id = :project')
+            ->join('p.ProjectUsers', 'u')
+            ->setParameter('project', $id)
             ->getQuery()
             ->getResult()
-        ;
+            ;
     }
 
 

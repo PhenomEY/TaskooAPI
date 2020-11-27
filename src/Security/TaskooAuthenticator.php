@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\Organisations;
 use App\Entity\Projects;
+use App\Entity\User;
 use App\Entity\UserAuth;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -42,7 +43,7 @@ class TaskooAuthenticator {
 
            if($project) {
                //check if user is permitted in project
-               $user = $this->checkProjectPermission($project, $userAuth);
+               $user = $this->checkProjectPermission($project, $userAuth->getUser());
 
                return $user;
            }
@@ -64,14 +65,16 @@ class TaskooAuthenticator {
        return false;
     }
 
-    private function checkProjectPermission(Projects $project, UserAuth $auth) {
+    public function checkUserTaskAssignment(Projects $project, User $user) {
+        return $this->checkProjectPermission($project, $user);
+    }
+
+    private function checkProjectPermission(Projects $project, User $user) {
 
         $authData = [
             'user' => null,
             'type' => null
         ];
-
-        $user = $auth->getUser();
 
         //check if project is closed (only for assigned users)
         if($project->getClosed() === true) {
@@ -81,7 +84,7 @@ class TaskooAuthenticator {
             if($projectUsers->contains($user)) {
                 //return assigned user
 
-                $authData['user'] = $auth->getUser();
+                $authData['user'] = $user;
                 $authData['type'] = 'is_in_project';
 
                 return $authData;
@@ -90,7 +93,7 @@ class TaskooAuthenticator {
             //project is visible for whole organisation - check if user is part of organisation
             $organisationUsers = $project->getOrganisation()->getUsers();
             if($organisationUsers->contains($user)) {
-                $authData['user'] = $auth->getUser();
+                $authData['user'] = $user;
                 $authData['type'] = 'project_open';
                 return $authData;
             }

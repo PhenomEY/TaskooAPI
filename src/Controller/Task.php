@@ -9,6 +9,7 @@ use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
+use App\Entity\User;
 use App\Security\TaskooAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -125,6 +126,26 @@ class Task extends AbstractController
                                 $task->setDateDue($payload['dateDue']);
                             }
 
+                            if(isset($payload['addUser'])) {
+                                $user = $this->getDoctrine()->getRepository(User::class)->find($payload['addUser']);
+
+                                //check if user is permitted to work in task
+                                if($user) {
+                                    $check = $this->authenticator->checkUserTaskAssignment($project, $user);
+                                    if($check) {
+                                        $task->addAssignedUser($user);
+                                    } else {
+                                        $this->responseManager->unauthorizedResponse();
+                                    }
+                                }
+                            }
+
+                            if(isset($payload['removeUser'])) {
+                                $user = $this->getDoctrine()->getRepository(User::class)->find($payload['removeUser']);
+
+                                $task->removeAssignedUser($user);
+                            }
+
                             if(isset($payload['done'])) {
                                 $task->setDone($payload['done']);
 
@@ -184,6 +205,12 @@ class Task extends AbstractController
                         $data['task']['dateDue'] = $task->getDateDue();
                         $data['task']['isDone'] = $task->getDone();
 
+                        if($project->getClosed()) {
+                            $data['task']['availableUsers'] = $this->getDoctrine()->getRepository(Projects::class)->getProjectUsers($project->getId());
+                        } else {
+                            $data['task']['availableUsers'] = $this->getDoctrine()->getRepository(Organisations::class)->getOrganisationUsers($project->getOrganisation()->getId());
+                        }
+
                         if($task->getDone() === true) {
                             $data['task']['doneBy'] = [
                                 'firstname' => $task->getDoneBy()->getFirstname(),
@@ -191,6 +218,8 @@ class Task extends AbstractController
                                 'id' => $task->getDoneBy()->getId()
                             ];
                         }
+
+                        $data['task']['users'] = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task->getId());
 
                         $data['task']['doneAt'] = $task->getDoneAt();
 
@@ -202,7 +231,6 @@ class Task extends AbstractController
 
         return $this->responseManager->forbiddenResponse();
     }
-
 
     private function increasePositions($groupId) {
         $this->getDoctrine()->getRepository(Tasks::class)->increasePositionsByOne($groupId);

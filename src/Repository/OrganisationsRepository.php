@@ -19,6 +19,18 @@ class OrganisationsRepository extends ServiceEntityRepository
         parent::__construct($registry, Organisations::class);
     }
 
+    public function getOrganisationUsers($id)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('u.id, u.firstname, u.lastname')
+            ->andWhere('p.id = :id')
+            ->join('p.Users', 'u')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Organisations[] Returns an array of Organisations objects
     //  */

@@ -65,12 +65,24 @@ class TasksRepository extends ServiceEntityRepository
     public function getOpenTasks($groupId)
     {
         return $this->createQueryBuilder('t')
-            ->select('t.name, t.id, t.done as isDone, t.dateDue')
+            ->select('t.name, t.id, t.done as isDone, t.dateDue, t.description')
             ->andWhere('t.TaskGroup = :group')
             ->andWhere('t.done = :done')
             ->setParameter('group', $groupId)
             ->setParameter('done', false)
             ->orderBy('t.position', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function getAssignedUsers($id)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('u.id, u.firstname, u.lastname')
+            ->andWhere('p.id = :task')
+            ->join('p.assignedUser', 'u')
+            ->setParameter('task', $id)
             ->getQuery()
             ->getResult()
             ;

@@ -37,8 +37,6 @@ class Project extends AbstractController
      */
     public function getProject(int $projectId, Request $request)
     {
-        $message = 'not_found';
-
         $data = [];
 
         $token = $request->headers->get('authorization');
@@ -48,55 +46,112 @@ class Project extends AbstractController
 
         //check if auth data got sent
         if(isset($token) && isset($userId)) {
-            //load project by id
-            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
-            $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+            $auth = $this->authenticator->checkUserAuth($userId, $token);
 
-            //if project for id was found
-            if($project !== null) {
-                //authentification process
-                if(isset($auth['user'])) {
-                    $data['project']['name'] = $project->getName();
-                    $data['project']['deadline'] = $project->getDeadline();
+            if(isset($auth['user'])) {
+                //load project by id
+                $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+                $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
 
-                    $data['project']['users'] = $project->getProjectUsers()->map(function($user) {
-                        return [
-                            'firstname' => $user->getFirstname(),
-                            'lastname' => $user->getLastname(),
-                            'id' => $user->getId()
-                        ];
-                    })->toArray();
+                //if project for id was found
+                if($project !== null) {
+                    //authentification process
+                    if(isset($auth['user'])) {
+                        $data['project']['name'] = $project->getName();
+                        $data['project']['deadline'] = $project->getDeadline();
 
-
-                    $data['groups'] = $project->getTaskgroups()
-                        ->map(function($group) {
-                            $tasks = null;
-
-                            if(!$group->getTasks()->isEmpty()) {
-                                $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($group->getId());
-                            }
-
+                        $data['project']['users'] = $project->getProjectUsers()->map(function($user) {
                             return [
-                                'name' => $group->getName(),
-                                'id' => $group->getId(),
-                                'tasks' => $tasks
+                                'firstname' => $user->getFirstname(),
+                                'lastname' => $user->getLastname(),
+                                'id' => $user->getId()
                             ];
                         })->toArray();
 
-                    return $this->responseManager->successResponse($data, 'project_loaded');
 
+                        $data['groups'] = $project->getTaskgroups()
+                            ->map(function($group) {
+                                $tasks = null;
+
+                                if(!$group->getTasks()->isEmpty()) {
+                                    $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($group->getId());
+
+                                    foreach($tasks as &$task) {
+                                        if($task['description']) {
+                                            $task['description'] = true;
+
+                                            $users = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task['id']);
+                                            if($users) {
+                                                $task['user'] = $users[0];
+                                            }
+                                        }
+                                    }
+
+                                    $data['tasks'] = $tasks;
+                                }
+
+                                return [
+                                    'name' => $group->getName(),
+                                    'id' => $group->getId(),
+                                    'tasks' => $tasks
+                                ];
+                            })->toArray();
+
+                        return $this->responseManager->successResponse($data, 'project_loaded');
+
+                    }
                 } else {
-                    return $this->responseManager->forbiddenResponse();
+                    return $this->responseManager->notFoundResponse();
                 }
-            } else {
-                return $this->responseManager->notFoundResponse();
             }
-        } else {
-            return $this->responseManager->forbiddenResponse();
         }
 
         return $this->responseManager->forbiddenResponse();
     }
+
+    /**
+     * @Route("/project/{projectId}/users", name="api_project_load_users", methods={"GET"})
+     */
+    public function getProjectUsers(int $projectId, Request $request)
+    {
+        $data = [];
+
+        $token = $request->headers->get('authorization');
+        $userId = $request->headers->get('user');
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //check if auth data got sent
+        if(isset($token) && isset($userId)) {
+            $auth = $this->authenticator->checkUserAuth($userId, $token);
+
+            if(isset($auth['user'])) {
+                //load project by id
+                $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+                $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+
+                //if project for id was found
+                if($project !== null) {
+                    //authentification process
+                    if(isset($auth['user'])) {
+                        if($project->getClosed()) {
+                            $data['users'] = $this->getDoctrine()->getRepository(Projects::class)->getProjectUsers($project->getId());
+                        } else {
+                            $data['users'] = $this->getDoctrine()->getRepository(Organisations::class)->getOrganisationUsers($project->getOrganisation()->getId());
+                        }
+
+                        return $this->responseManager->successResponse($data, 'project_loaded');
+
+                    }
+                } else {
+                    return $this->responseManager->notFoundResponse();
+                }
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
 
     /**
      * @Route("/project", name="api_project_create", methods={"POST"})

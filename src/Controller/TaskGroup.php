@@ -202,8 +202,19 @@ class TaskGroup extends AbstractController
 
                         if($doneTasks === 'true') {
                             $data['tasks'] = $this->getDoctrine()->getRepository(Tasks::class)->getDoneTasks($groupId);
+
+
+
                         } elseif ($doneTasks === 'false') {
-                            $data['tasks'] = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($groupId);
+                            $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($groupId);
+
+                            foreach($tasks as &$task) {
+                                if($task['description']) {
+                                    $task['description'] = true;
+                                }
+                            }
+
+                            $data['tasks'] = $tasks;
                         }
 
 
