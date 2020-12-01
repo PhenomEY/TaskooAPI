@@ -2,7 +2,7 @@
 namespace App\Controller;
 
 mb_http_output('UTF-8');
-date_default_timezone_set('Europe/Amsterdam');
+//date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooResponseManager;
 use App\Entity\Organisations;

@@ -123,7 +123,11 @@ class Task extends AbstractController
                             }
 
                             if(isset($payload['dateDue'])) {
-                                $task->setDateDue($payload['dateDue']);
+                                if($payload['dateDue'] === 'null') {
+                                    $task->setDateDue(null);
+                                } else {
+                                    $task->setDateDue(new \DateTime($payload['dateDue']));
+                                }
                             }
 
                             if(isset($payload['addUser'])) {

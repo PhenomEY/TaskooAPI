@@ -26,11 +26,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/TaskGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Repository/OrganisationsRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/OrganisationsRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Repository/ProjectsRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/ProjectsRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Repository/TasksRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/TasksRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -212,7 +207,11 @@
       <workItem from="1606243179447" duration="14871000" />
       <workItem from="1606338788085" duration="4900000" />
       <workItem from="1606413920860" duration="12563000" />
-      <workItem from="1606510835768" duration="5441000" />
+      <workItem from="1606510835768" duration="6213000" />
+      <workItem from="1606683178373" duration="1976000" />
+      <workItem from="1606694368981" duration="533000" />
+      <workItem from="1606762699505" duration="5000" />
+      <workItem from="1606791834840" duration="488000" />
     </task>
     <servers />
   </component>
