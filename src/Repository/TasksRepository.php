@@ -35,6 +35,18 @@ class TasksRepository extends ServiceEntityRepository
         ;
     }
 
+    public function increaseSubPositionsByOne($mainTaskId)
+    {
+        return $this->createQueryBuilder('t')
+            ->update()
+            ->set('t.position', 't.position+1')
+            ->andWhere('t.mainTask = :mainTask')
+            ->setParameter('mainTask', $mainTaskId)
+            ->getQuery()
+            ->getSingleScalarResult()
+            ;
+    }
+
     public function decreasePositionsByOne($value)
     {
         return $this->createQueryBuilder('t')
@@ -53,6 +65,7 @@ class TasksRepository extends ServiceEntityRepository
             ->select('t.name, t.id, t.done as isDone, b.firstname as doneByfirstName, b.lastname as doneBylastName, t.doneAt')
             ->andWhere('t.TaskGroup = :group')
             ->andWhere('t.done = :done')
+            ->andWhere('t.mainTask IS NULL')
             ->join('t.doneBy', 'b')
             ->setParameter('group', $groupId)
             ->setParameter('done', true)
@@ -68,6 +81,7 @@ class TasksRepository extends ServiceEntityRepository
             ->select('t.name, t.id, t.done as isDone, t.dateDue, t.description')
             ->andWhere('t.TaskGroup = :group')
             ->andWhere('t.done = :done')
+            ->andWhere('t.mainTask IS NULL')
             ->setParameter('group', $groupId)
             ->setParameter('done', false)
             ->orderBy('t.position', 'ASC')
@@ -83,6 +97,19 @@ class TasksRepository extends ServiceEntityRepository
             ->andWhere('p.id = :task')
             ->join('p.assignedUser', 'u')
             ->setParameter('task', $id)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function getSubTasks($id)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('s.id, s.name, s.description, s.done as isDone, s.doneAt')
+            ->andWhere('p.id = :task')
+            ->join('p.subTasks', 's')
+            ->setParameter('task', $id)
+            ->orderBy('s.position', 'ASC')
             ->getQuery()
             ->getResult()
             ;

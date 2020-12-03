@@ -65,9 +65,30 @@ class Tasks
      */
     private $assignedUser;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Tasks::class, inversedBy="subTasks", cascade={"remove"})
+     */
+    private $mainTask;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="mainTask")
+     */
+    private $subTasks;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     */
+    private $createdBy;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
     public function __construct()
     {
         $this->assignedUser = new ArrayCollection();
+        $this->subTasks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -191,6 +212,72 @@ class Tasks
     public function removeAssignedUser(User $assignedUser): self
     {
         $this->assignedUser->removeElement($assignedUser);
+
+        return $this;
+    }
+
+    public function getMainTask(): ?self
+    {
+        return $this->mainTask;
+    }
+
+    public function setMainTask(?self $mainTask): self
+    {
+        $this->mainTask = $mainTask;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getSubTasks(): Collection
+    {
+        return $this->subTasks;
+    }
+
+    public function addSubTask(self $subTask): self
+    {
+        if (!$this->subTasks->contains($subTask)) {
+            $this->subTasks[] = $subTask;
+            $subTask->setMainTask($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubTask(self $subTask): self
+    {
+        if ($this->subTasks->removeElement($subTask)) {
+            // set the owning side to null (unless already changed)
+            if ($subTask->getMainTask() === $this) {
+                $subTask->setMainTask(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

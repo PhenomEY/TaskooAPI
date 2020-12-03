@@ -46,25 +46,42 @@ class Task extends AbstractController
             $payload = json_decode($request->getContent(), true);
 
             if(!empty($payload)) {
-                $projectId = intval($payload['projectId']);
-                $groupId = $payload['groupId'];
-                $taskName = $payload['taskName'];
+                if($payload['mainTaskId']) {
+                    $mainTaskId = $payload['mainTaskId'];
+                    $mainTask = $this->getDoctrine()->getRepository(Tasks::class)->find($mainTaskId);
+                    $taskGroup = $mainTask->getTaskGroup();
 
-                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
+                } else {
+                    $groupId = $payload['groupId'];
+                    $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
+                }
 
                 if($taskGroup) {
+                    $projectId = intval($payload['projectId']);
+                    $taskName = $payload['taskName'];
                     $project = $taskGroup->getProject();
 
                     if($projectId === $project->getId()) {
                         $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
 
                         if(isset($auth['user'])) {
-                            $this->increasePositions($taskGroup->getId());
+                            if(isset($mainTask)) {
+                                $this->increaseSubPositions($mainTaskId);
+                            } else {
+                                $this->increasePositions($taskGroup->getId());
+                            }
 
                             $task = new Tasks();
                             $task->setName($taskName);
                             $task->setPosition(0);
                             $task->setDone(false);
+                            $task->setCreatedBy($auth['user']);
+                            $task->setCreatedAt(new \DateTime('now'));
+
+                            if(isset($mainTask)) {
+                                $task->setMainTask($mainTask);
+                            }
+
                             $entityManager->persist($task);
 
                             $taskGroup->addTask($task);
@@ -165,6 +182,15 @@ class Task extends AbstractController
                                 }
                             }
 
+                            if(isset($payload['subTaskPositions'])) {
+                                $positions = $payload['subTaskPositions'];
+                                foreach($positions as $position=>$id) {
+                                    $task = $this->getDoctrine()->getRepository(Tasks::class)->find($id);
+                                    $task->setPosition($position);
+                                    $entityManager->persist($task);
+                                }
+                            }
+
                             $entityManager->persist($task);
                             $entityManager->flush();
 
@@ -202,12 +228,22 @@ class Task extends AbstractController
                     //check if user is permitted to see the task
                     $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
                     if(isset($auth['user'])) {
+                        $getSubTasks = $request->query->get('subTasks');
+
                         //collect data for app
                         $data['task']['id'] = $taskId;
                         $data['task']['name'] = $task->getName();
                         $data['task']['description'] = $task->getDescription();
                         $data['task']['dateDue'] = $task->getDateDue();
                         $data['task']['isDone'] = $task->getDone();
+                        $data['task']['subTasks'] = null;
+                        $data['task']['projectName'] = $project->getName();
+
+                        $mainTask = $task->getMainTask();
+                        if($mainTask) {
+                            $data['task']['mainTaskId'] = $mainTask->getId();
+                            $data['task']['mainTask'] = $mainTask->getName();
+                        }
 
                         if($project->getClosed()) {
                             $data['task']['availableUsers'] = $this->getDoctrine()->getRepository(Projects::class)->getProjectUsers($project->getId());
@@ -223,6 +259,16 @@ class Task extends AbstractController
                             ];
                         }
 
+                        if($getSubTasks === 'true') {
+                            $data['task']['subTasks'] = $this->getDoctrine()->getRepository(Tasks::class)->getSubTasks($task->getId());
+
+                            foreach($data['task']['subTasks'] as &$subTask) {
+                                if($subTask['description']) {
+                                    $subTask['description'] = true;
+                                }
+                            }
+                        }
+
                         $data['task']['users'] = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task->getId());
 
                         $data['task']['doneAt'] = $task->getDoneAt();
@@ -234,6 +280,10 @@ class Task extends AbstractController
         }
 
         return $this->responseManager->forbiddenResponse();
+    }
+
+    private function increaseSubPositions($mainTaskId) {
+        $this->getDoctrine()->getRepository(Tasks::class)->increaseSubPositionsByOne($mainTaskId);
     }
 
     private function increasePositions($groupId) {

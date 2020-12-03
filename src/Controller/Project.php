@@ -79,11 +79,16 @@ class Project extends AbstractController
                                     foreach($tasks as &$task) {
                                         if($task['description']) {
                                             $task['description'] = true;
+                                        }
 
-                                            $users = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task['id']);
-                                            if($users) {
-                                                $task['user'] = $users[0];
-                                            }
+                                        $subTasks = $this->getDoctrine()->getRepository(Tasks::class)->getSubTasks($task['id']);
+                                        if($subTasks) {
+                                            $task['subTasks'] = true;
+                                        }
+
+                                        $users = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task['id']);
+                                        if($users) {
+                                            $task['user'] = $users[0];
                                         }
                                     }
 
