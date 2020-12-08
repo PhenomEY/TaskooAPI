@@ -110,11 +110,9 @@ class Auth extends AbstractController
         //if its the actual get request
         if ($request->getMethod() == 'GET') {
             $token = $request->headers->get('authorization');
-            $userId = $request->headers->get('user');
 
             $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
-                'token' => $token,
-                'user' => $userId
+                'token' => $token
             ]);
 
             //auth token is still valid

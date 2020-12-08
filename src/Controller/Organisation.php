@@ -25,12 +25,11 @@ class Organisation extends AbstractController
         //if its the actual get request
         if ($request->getMethod() == 'GET') {
             $token = $request->headers->get('authorization');
-            $userId = $request->headers->get('user');
 
             $entityManager = $this->getDoctrine()->getManager();
 
             //authentification process
-            $auth = $authenticator->checkUserAuth($userId, $token);
+            $auth = $authenticator->checkUserAuth($token);
 
             //if user is admin, return every organisation
             if (isset($auth['type']) && $auth['type'] == 'is_admin') {

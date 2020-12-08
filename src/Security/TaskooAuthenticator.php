@@ -20,9 +20,8 @@ class TaskooAuthenticator {
 
 
 
-    public function checkUserAuth($userId, $token, Projects $project = null, $role = 1) {
+    public function checkUserAuth($token, Projects $project = null, $role = 1) {
        $userAuth = $this->manager->getRepository(UserAuth::class)->findOneBy([
-           'user' => $userId,
            'token' => $token
        ]);
 

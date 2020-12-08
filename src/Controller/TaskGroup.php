@@ -38,10 +38,9 @@ class TaskGroup extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        if(isset($userId) && isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($userId, $token);
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
 
             if(isset($auth['user'])) {
 
@@ -55,7 +54,7 @@ class TaskGroup extends AbstractController
                     $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
 
                     if($project) {
-                        $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                        $auth = $this->authenticator->checkUserAuth($token, $project);
 
                         if(isset($auth['user'])) {
                             $taskGroup = new TaskGroups();
@@ -94,16 +93,15 @@ class TaskGroup extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        if(isset($userId) && isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($userId, $token);
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
             if(isset($auth['user'])) {
                 $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
 
                 if($taskGroup) {
                     $project = $taskGroup->getProject();
-                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                    $auth = $this->authenticator->checkUserAuth($token, $project);
 
                     if(isset($auth['user'])) {
                         $entityManager = $this->getDoctrine()->getManager();
@@ -148,16 +146,15 @@ class TaskGroup extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        if(isset($userId) && isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($userId, $token);
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
             if(isset($auth['user'])) {
                 $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
 
                 if($taskGroup) {
                     $project = $taskGroup->getProject();
-                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                    $auth = $this->authenticator->checkUserAuth($token, $project);
 
                     if(isset($auth['user'])) {
                         $entityManager = $this->getDoctrine()->getManager();
@@ -186,16 +183,15 @@ class TaskGroup extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        if(isset($userId) && isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($userId, $token);
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
             if(isset($auth['user'])) {
                 $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
 
                 if($taskGroup) {
                     $project = $taskGroup->getProject();
-                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                    $auth = $this->authenticator->checkUserAuth($token, $project);
 
                     if(isset($auth['user'])) {
                         $doneTasks = $request->query->get('done');

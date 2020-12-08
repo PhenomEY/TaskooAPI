@@ -39,14 +39,13 @@ class Task extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        if(isset($userId) && isset($token)) {
+        if(isset($token)) {
             $entityManager = $this->getDoctrine()->getManager();
             $payload = json_decode($request->getContent(), true);
 
             if(!empty($payload)) {
-                if($payload['mainTaskId']) {
+                if(isset($payload['mainTaskId'])) {
                     $mainTaskId = $payload['mainTaskId'];
                     $mainTask = $this->getDoctrine()->getRepository(Tasks::class)->find($mainTaskId);
                     $taskGroup = $mainTask->getTaskGroup();
@@ -62,7 +61,7 @@ class Task extends AbstractController
                     $project = $taskGroup->getProject();
 
                     if($projectId === $project->getId()) {
-                        $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                        $auth = $this->authenticator->checkUserAuth($token, $project);
 
                         if(isset($auth['user'])) {
                             if(isset($mainTask)) {
@@ -109,12 +108,11 @@ class Task extends AbstractController
     public function updateTask(int $taskId, Request $request)
     {
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
         $data = [];
 
         //check if auth data was sent
-        if(isset($userId) && isset($token)) {
+        if(isset($token)) {
             $entityManager = $this->getDoctrine()->getManager();
             $payload = json_decode($request->getContent(), true);
 
@@ -125,7 +123,7 @@ class Task extends AbstractController
                 $project = $task->getTaskGroup()->getProject();
 
                 if($projectId === $project->getId()) {
-                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                    $auth = $this->authenticator->checkUserAuth($token, $project);
 
                     if(isset($auth['user'])) {
                         $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
@@ -214,10 +212,9 @@ class Task extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        if(isset($userId) && isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($userId, $token);
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
 
             if(isset($auth['user'])) {
                 //get Task
@@ -226,7 +223,7 @@ class Task extends AbstractController
                 if($task) {
                     $project = $task->getTaskGroup()->getProject();
                     //check if user is permitted to see the task
-                    $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                    $auth = $this->authenticator->checkUserAuth($token, $project);
                     if(isset($auth['user'])) {
                         $getSubTasks = $request->query->get('subTasks');
 

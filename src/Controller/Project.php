@@ -40,18 +40,17 @@ class Project extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
         $entityManager = $this->getDoctrine()->getManager();
 
-        //check if auth data got sent
-        if(isset($token) && isset($userId)) {
-            $auth = $this->authenticator->checkUserAuth($userId, $token);
+        //check if auth token got sent
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
 
             if(isset($auth['user'])) {
                 //load project by id
                 $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
-                $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+                $auth = $this->authenticator->checkUserAuth($token, $project);
 
                 //if project for id was found
                 if($project !== null) {
@@ -169,11 +168,10 @@ class Project extends AbstractController
         $payload = json_decode($request->getContent(), true);
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
         //check if auth data got sent
-        if(isset($token) && isset($userId)) {
-            $auth = $authenticator->checkUserAuth($userId, $token, null,  10);
+        if(isset($token)) {
+            $auth = $authenticator->checkUserAuth($token, null,  10);
 
             //if payload exists
             if (!empty($payload)) {
@@ -229,13 +227,12 @@ class Project extends AbstractController
         $data = [];
 
         $token = $request->headers->get('authorization');
-        $userId = $request->headers->get('user');
 
-        //check if auth data got sent
-        if(isset($token) && isset($userId)) {
+        //check if auth token got sent
+        if(isset($token)) {
             //load project by id
             $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
-            $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
+            $auth = $this->authenticator->checkUserAuth($token, $project);
             $entityManager = $this->getDoctrine()->getManager();
 
             //if project for id was found
