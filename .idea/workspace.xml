@@ -24,12 +24,7 @@
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Auth.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Organisation.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Organisation.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/TaskGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -221,7 +216,8 @@
       <workItem from="1606988750281" duration="665000" />
       <workItem from="1607011034426" duration="2643000" />
       <workItem from="1607312148868" duration="599000" />
-      <workItem from="1607456683175" duration="659000" />
+      <workItem from="1607456683175" duration="1158000" />
+      <workItem from="1607548343644" duration="1947000" />
     </task>
     <servers />
   </component>

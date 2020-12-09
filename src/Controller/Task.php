@@ -56,11 +56,9 @@ class Task extends AbstractController
                 }
 
                 if($taskGroup) {
-                    $projectId = intval($payload['projectId']);
                     $taskName = $payload['taskName'];
                     $project = $taskGroup->getProject();
 
-                    if($projectId === $project->getId()) {
                         $auth = $this->authenticator->checkUserAuth($token, $project);
 
                         if(isset($auth['user'])) {
@@ -94,7 +92,6 @@ class Task extends AbstractController
                         } else {
                             return $this->responseManager->unauthorizedResponse();
                         }
-                    }
                 }
             }
         }
@@ -117,12 +114,9 @@ class Task extends AbstractController
             $payload = json_decode($request->getContent(), true);
 
             if(!empty($payload)) {
-                $projectId = intval($payload['projectId']);
-
                 $task = $this->getDoctrine()->getRepository(Tasks::class)->find($taskId);
                 $project = $task->getTaskGroup()->getProject();
 
-                if($projectId === $project->getId()) {
                     $auth = $this->authenticator->checkUserAuth($token, $project);
 
                     if(isset($auth['user'])) {
@@ -197,7 +191,6 @@ class Task extends AbstractController
                     } else {
                         return $this->responseManager->unauthorizedResponse();
                     }
-                }
             }
         }
 
@@ -235,6 +228,7 @@ class Task extends AbstractController
                         $data['task']['isDone'] = $task->getDone();
                         $data['task']['subTasks'] = null;
                         $data['task']['projectName'] = $project->getName();
+                        $data['task']['projectId'] = $project->getId();
 
                         $mainTask = $task->getMainTask();
                         if($mainTask) {
