@@ -80,6 +80,11 @@ class User
      */
     private $assignedTasks;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Notifications::class, mappedBy="user")
+     */
+    private $notifications;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
@@ -88,6 +93,7 @@ class User
         $this->organisations = new ArrayCollection();
         $this->doneTasks = new ArrayCollection();
         $this->assignedTasks = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
 
@@ -335,6 +341,36 @@ class User
     {
         if ($this->assignedTasks->removeElement($assignedTask)) {
             $assignedTask->removeAssignedUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Notifications[]
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notifications $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications[] = $notification;
+            $notification->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notifications $notification): self
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getUser() === $this) {
+                $notification->setUser(null);
+            }
         }
 
         return $this;

@@ -70,7 +70,7 @@ class Project extends AbstractController
 
                         $data['groups'] = $project->getTaskgroups()
                             ->map(function($group) {
-                                $tasks = null;
+                                $tasks = [];
 
                                 if(!$group->getTasks()->isEmpty()) {
                                     $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($group->getId());

@@ -117,6 +117,12 @@ class TaskGroup extends AbstractController
                                 $positions = $payload['taskPositions'];
                                 foreach($positions as $position=>$id) {
                                     $task = $this->getDoctrine()->getRepository(Tasks::class)->find($id);
+
+                                    //if task got moved into this group from another
+                                    if($task->getTaskGroup() !== $taskGroup) {
+                                        $task->setTaskGroup($taskGroup);
+                                    }
+
                                     $task->setPosition($position);
                                     $entityManager->persist($task);
                                 }
