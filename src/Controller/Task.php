@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooResponseManager;
+use App\Entity\Notifications;
 use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
@@ -147,6 +148,20 @@ class Task extends AbstractController
                                     $check = $this->authenticator->checkUserTaskAssignment($project, $user);
                                     if($check) {
                                         $task->addAssignedUser($user);
+
+                                        if($user !== $auth['user']) {
+
+                                            $notification = new Notifications();
+                                            $notification->setTask($task);
+                                            $notification->setByUser($auth['user']);
+                                            $notification->setUser($user);
+                                            $notification->setTime(new \DateTime('now'));
+                                            $notification->setMessage('task_assigned');
+
+                                            $entityManager->persist($notification);
+                                        }
+
+
                                     } else {
                                         $this->responseManager->unauthorizedResponse();
                                     }

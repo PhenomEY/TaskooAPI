@@ -23,11 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Controller/TaskooUser.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/TaskGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/User.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/TaskooUser.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskooUser.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/NotificationsRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/NotificationsRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/TasksRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/TasksRepository.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -224,6 +224,9 @@
       <workItem from="1607802204110" duration="4930000" />
       <workItem from="1607884629420" duration="618000" />
       <workItem from="1607897219563" duration="1203000" />
+      <workItem from="1607902443842" duration="37000" />
+      <workItem from="1607905906344" duration="3000" />
+      <workItem from="1607972882063" duration="8786000" />
     </task>
     <servers />
   </component>
@@ -259,23 +262,23 @@
       <screen x="1920" y="23" width="1680" height="1050" />
     </state>
     <state x="2261" y="193" key="SettingsEditor/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1605554448671" />
-    <state x="667" y="253" width="585" height="534" key="find.popup" timestamp="1607807249914">
+    <state x="667" y="253" width="585" height="534" key="find.popup" timestamp="1607977443368">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="667" y="253" width="585" height="534" key="find.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607807249914" />
+    <state x="667" y="253" width="585" height="534" key="find.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607977443368" />
     <state x="646" y="224" width="812" height="717" key="find.popup/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1606168046763" />
     <state x="798" y="250" key="ftp.server.browser" timestamp="1604417367936">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="798" y="250" key="ftp.server.browser/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604417367936" />
-    <state x="616" y="240" key="run.anything.popup" timestamp="1606981413863">
+    <state x="616" y="240" key="run.anything.popup" timestamp="1607974242764">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1606981413863" />
+    <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607974242764" />
     <state x="2459" y="265" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1606340313833" />
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1605727933987">
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1607980163680">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1605727933987" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607980163680" />
   </component>
 </project>

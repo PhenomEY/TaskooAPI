@@ -19,6 +19,39 @@ class NotificationsRepository extends ServiceEntityRepository
         parent::__construct($registry, Notifications::class);
     }
 
+    public function getUserNotificationsDB($user)
+    {
+        return $this->createQueryBuilder('n')
+            ->select('n.id, n.message, n.time, bu.firstname, bu.lastname, t.name as taskName, t.id as taskId, p.name as projectName, p.id as projectId')
+            ->andWhere('n.user = :user')
+            ->leftJoin('n.byUser', 'bu')
+            ->leftJoin('n.project', 'p')
+            ->leftJoin('n.task', 't')
+            ->setParameter('user', $user)
+            ->orderBy('n.time', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function getUserNotifications($user)
+    {
+        return $this->createQueryBuilder('n')
+            ->select('n.id, n.message, n.time, bu.firstname, bu.lastname, t.name as taskName, t.id as taskId, p.name as projectName, p.id as projectId')
+            ->andWhere('n.user = :user')
+            ->andWhere('n.visited IS NULL')
+            ->leftJoin('n.byUser', 'bu')
+            ->leftJoin('n.project', 'p')
+            ->leftJoin('n.task', 't')
+            ->setParameter('user', $user)
+            ->orderBy('n.time', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Notifications[] Returns an array of Notifications objects
     //  */

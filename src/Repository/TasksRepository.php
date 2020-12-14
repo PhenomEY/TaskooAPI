@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Tasks;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * @method Tasks|null find($id, $lockMode = null, $lockVersion = null)
@@ -105,7 +106,7 @@ class TasksRepository extends ServiceEntityRepository
     public function getSubTasks($id)
     {
         return $this->createQueryBuilder('p')
-            ->select('s.id, s.name, s.description, s.done as isDone, s.doneAt')
+            ->select('s.id, s.name, s.description, s.done as isDone, s.doneAt, s.dateDue')
             ->andWhere('p.id = :task')
             ->join('p.subTasks', 's')
             ->setParameter('task', $id)
@@ -114,6 +115,25 @@ class TasksRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+
+    public function getTasksForUser($user, $limit = 100, $done = 0)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.id, t.name, t.dateDue, t.description, t.done as isDone, t.doneAt')
+            ->where('t.done = :done')
+            ->join('t.assignedUser', 'au', Expr\Join::WITH, 'au = :user')
+            ->leftJoin('t.TaskGroup', 'tg')
+            ->leftJoin('tg.project', 'p')
+            ->setParameter('user', $user)
+            ->setParameter('done', $done)
+            ->orderBy('t.dateDue', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+
 
     /*
     public function findOneBySomeField($value): ?Tasks
