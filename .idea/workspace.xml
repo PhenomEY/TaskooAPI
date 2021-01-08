@@ -24,7 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/TaskooUser.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskooUser.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Repository/NotificationsRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/NotificationsRepository.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Repository/TasksRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/TasksRepository.php" afterDir="false" />
@@ -226,7 +225,10 @@
       <workItem from="1607897219563" duration="1203000" />
       <workItem from="1607902443842" duration="37000" />
       <workItem from="1607905906344" duration="3000" />
-      <workItem from="1607972882063" duration="8786000" />
+      <workItem from="1607972882063" duration="10222000" />
+      <workItem from="1608064227545" duration="727000" />
+      <workItem from="1608149974137" duration="3040000" />
+      <workItem from="1608323620691" duration="1424000" />
     </task>
     <servers />
   </component>

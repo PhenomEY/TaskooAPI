@@ -19,9 +19,9 @@ class NotificationsRepository extends ServiceEntityRepository
         parent::__construct($registry, Notifications::class);
     }
 
-    public function getUserNotificationsDB($user)
+    public function getUserNotifications($user, $dashboard = false)
     {
-        return $this->createQueryBuilder('n')
+        $querybuilder = $this->createQueryBuilder('n')
             ->select('n.id, n.message, n.time, bu.firstname, bu.lastname, t.name as taskName, t.id as taskId, p.name as projectName, p.id as projectId')
             ->andWhere('n.user = :user')
             ->leftJoin('n.byUser', 'bu')
@@ -30,12 +30,17 @@ class NotificationsRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->orderBy('n.time', 'DESC')
             ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
             ;
+
+        if($dashboard === false) {
+            $querybuilder->andWhere('n.visited IS NULL');
+        }
+
+        return $querybuilder->getQuery()
+                            ->getResult();
     }
 
-    public function getUserNotifications($user)
+    public function getUserNotificationsAA($user)
     {
         return $this->createQueryBuilder('n')
             ->select('n.id, n.message, n.time, bu.firstname, bu.lastname, t.name as taskName, t.id as taskId, p.name as projectName, p.id as projectId')

@@ -43,7 +43,7 @@ class TaskooUser extends AbstractController
                 $isDashboard = $request->query->get('dashboard');
 
                 if($isDashboard === 'true') {
-                    $notifications = $this->getDoctrine()->getRepository(Notifications::class)->getUserNotificationsDB($auth['user']);
+                    $notifications = $this->getDoctrine()->getRepository(Notifications::class)->getUserNotifications($auth['user'], true);
                     $data['notifications'] = $notifications;
                 } else {
                     $notifications = $this->getDoctrine()->getRepository(Notifications::class)->getUserNotifications($auth['user']);
@@ -92,7 +92,14 @@ class TaskooUser extends AbstractController
             $auth = $this->authenticator->checkUserAuth($token);
 
             if(isset($auth['user'])) {
-                $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getTasksForUser($auth['user']);
+                $dashboard = false;
+                $isDashboard = $request->query->get('dashboard');
+
+                if($isDashboard === 'true') {
+                    $dashboard = true;
+                }
+
+                $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getTasksForUser($auth['user'], $dashboard);
 
                 foreach($tasks as &$task) {
                     if($task['description']) {
