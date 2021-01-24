@@ -100,4 +100,14 @@ class TaskooAuthenticator {
 
         return false;
     }
+
+    public function generatePassword($password) {
+        $hashedPassword = hash('sha256', $password.'taskoo7312');
+
+        return $hashedPassword;
+    }
+
+    public function generateAuthToken() {
+        return hash('sha256', time().'tasko24781');
+    }
 }

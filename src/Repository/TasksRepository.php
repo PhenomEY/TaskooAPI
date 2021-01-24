@@ -116,7 +116,7 @@ class TasksRepository extends ServiceEntityRepository
             ;
     }
 
-    public function getTasksForUser($user,$dashboard = false, $limit = 100, $done = 0)
+    public function getTasksForUser($user,$dashboard = false,$done = 0, $limit = 100)
     {
 
 
@@ -136,6 +136,9 @@ class TasksRepository extends ServiceEntityRepository
             $queryBuilder->andWhere('t.dateDue IS NOT NULL');
         }
 
+        if($done === 1) {
+            $queryBuilder->orderBy('t.doneAt', 'DESC');
+        }
 
 
         return $queryBuilder->getQuery()

@@ -3,29 +3,23 @@ namespace App\Controller;
 
 mb_http_output('UTF-8');
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Api\TaskooApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
 use App\Entity\UserAuth;
 
-class Auth extends AbstractController
+class Auth extends TaskooApiController
 {
 
 
     /**
-     * @Route("/auth/login", name="api_auth_login")
+     * @Route("/auth/login", name="api_auth_login", methods={"POST"})
      */
     public function Login(Request $request)
     {
-        $success = false;
         $message = 'login_failed';
-        $token = null;
-        $userId = null;
-        $firstname = null;
-        $lastname = null;
-        $userType = 1;
+        $data = [];
 
         $payload = json_decode($request->getContent(), true);
         $entityManager = $this->getDoctrine()->getManager();
@@ -34,10 +28,9 @@ class Auth extends AbstractController
         if (!empty($payload)) {
             $loginData = $payload['login'];
 
-            $hashedPassword = hash('sha256', $loginData['password']);
+            $hashedPassword = $this->authenticator->generatePassword($loginData['password']);
 
-
-            $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
+            $user = $this->userRepository()->findOneBy([
                 'email' => $loginData['username'],
                 'password' => $hashedPassword
             ]);
@@ -53,62 +46,42 @@ class Auth extends AbstractController
                         //Generate new UserAuth
                         $userAuth = new UserAuth();
                         $userAuth->setUser($user);
-                        $userAuth->setToken($this->generateToken());
+                        $userAuth->setToken($this->authenticator->generateAuthToken());
                     } else {
-
                         //save new generated logintoken to user
-                        $userAuth->setToken($this->generateToken());
+                        $userAuth->setToken($this->authenticator->generateAuthToken());
                     }
 
-
-
                     //return data for app
-                    $token = $userAuth->getToken();
-                    $firstname = $user->getFirstname();
-                    $lastname = $user->getLastname();
-                    $userId = $user->getId();
-                    $userType = $user->getRole();
+                    $data['auth'] = $userAuth->getToken();
+                    $data['user']['firstname'] = $user->getFirstname();
+                    $data['user']['lastname'] = $user->getLastname();
+                    $data['user']['id'] = $user->getId();
+                    $data['user']['role'] = $user->getRole();
+                    $data['user']['email'] = $user->getEmail();
                     $user->setLastLogin();
 
                     $entityManager->persist($userAuth);
                     $entityManager->flush();
-                    $success = true;
-                    $message = 'login_success';
 
+                return $this->responseManager->successResponse($data, 'login_success');
+            } else {
+
+                return $this->responseManager->unauthorizedResponse();
             }
-
-
         }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'userData' => [
-                    'token' => $token,
-                    'userid' => $userId,
-                    'firstname' => $firstname,
-                    'lastname' => $lastname,
-                    'userType' => $userType
-                ]
-        ]);
 
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "POST");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
     }
 
 
     /**
-     * @Route("/auth/check", name="api_auth_check")
+     * @Route("/auth/check", name="api_auth_check", methods={"GET"})
      */
     public function Check(Request $request)
     {
-        $success = false;
-        $userType = 1;
+        $data = [];
 
-        //if its the actual get request
-        if ($request->getMethod() == 'GET') {
             $token = $request->headers->get('authorization');
 
             $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
@@ -117,23 +90,17 @@ class Auth extends AbstractController
 
             //auth token is still valid
             if($userAuth) {
-                $success = true;
-                $userType = $userAuth->getUser()->getRole();
+
+                $data['user']['firstname'] = $userAuth->getUser()->getFirstname();
+                $data['user']['lastname'] = $userAuth->getUser()->getLastname();
+                $data['user']['id'] = $userAuth->getUser()->getId();
+                $data['user']['role'] = $userAuth->getUser()->getRole();
+                $data['user']['email'] = $userAuth->getUser()->getEmail();
+
+                return $this->responseManager->successResponse($data, 'auth_valid');
+            } else {
+                return $this->responseManager->unauthorizedResponse();
             }
-        }
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'userType' => $userType
-        ]);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "GET");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
-    }
-
-    private function generateToken() {
-        return hash('sha256', time());
     }
 }

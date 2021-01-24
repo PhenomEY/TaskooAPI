@@ -4,31 +4,15 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use App\Api\TaskooResponseManager;
-use App\Entity\Organisations;
+use App\Api\TaskooApiController;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
-use App\Security\TaskooAuthenticator;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskGroup extends AbstractController
+class TaskGroup extends TaskooApiController
 {
-
-    protected $authenticator;
-
-    protected $responseManager;
-
-
-    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager)
-    {
-        $this->authenticator = $authenticator;
-        $this->responseManager = $responseManager;
-    }
-
 
     /**
      * @Route("/taskgroup", name="api_taskgroup_add", methods={"POST"})
@@ -51,7 +35,7 @@ class TaskGroup extends AbstractController
                     $projectId = $payload['projectId'];
                     $groupName = $payload['name'];
                     $position = $payload['position'];
-                    $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+                    $project = $this->projectsRepository()->find($projectId);
 
                     if($project) {
                         $auth = $this->authenticator->checkUserAuth($token, $project);
@@ -97,7 +81,7 @@ class TaskGroup extends AbstractController
         if(isset($token)) {
             $auth = $this->authenticator->checkUserAuth($token);
             if(isset($auth['user'])) {
-                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
+                $taskGroup = $this->taskGroupsRepository()->find($groupId);
 
                 if($taskGroup) {
                     $project = $taskGroup->getProject();
@@ -116,7 +100,7 @@ class TaskGroup extends AbstractController
                             if(isset($payload['taskPositions'])) {
                                 $positions = $payload['taskPositions'];
                                 foreach($positions as $position=>$id) {
-                                    $task = $this->getDoctrine()->getRepository(Tasks::class)->find($id);
+                                    $task = $this->tasksRepository()->find($id);
 
                                     //if task got moved into this group from another
                                     if($task->getTaskGroup() !== $taskGroup) {
@@ -156,7 +140,7 @@ class TaskGroup extends AbstractController
         if(isset($token)) {
             $auth = $this->authenticator->checkUserAuth($token);
             if(isset($auth['user'])) {
-                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
+                $taskGroup = $this->taskGroupsRepository()->find($groupId);
 
                 if($taskGroup) {
                     $project = $taskGroup->getProject();
@@ -193,7 +177,7 @@ class TaskGroup extends AbstractController
         if(isset($token)) {
             $auth = $this->authenticator->checkUserAuth($token);
             if(isset($auth['user'])) {
-                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($groupId);
+                $taskGroup = $this->taskGroupsRepository()->find($groupId);
 
                 if($taskGroup) {
                     $project = $taskGroup->getProject();
@@ -203,22 +187,22 @@ class TaskGroup extends AbstractController
                         $doneTasks = $request->query->get('done');
 
                         if($doneTasks === 'true') {
-                            $data['tasks'] = $this->getDoctrine()->getRepository(Tasks::class)->getDoneTasks($groupId);
+                            $data['tasks'] = $this->tasksRepository()->getDoneTasks($groupId);
 
                         } elseif ($doneTasks === 'false') {
-                            $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($groupId);
+                            $tasks = $this->tasksRepository()->getOpenTasks($groupId);
 
                             foreach($tasks as &$task) {
                                 if($task['description']) {
                                     $task['description'] = true;
                                 }
 
-                                $subTasks = $this->getDoctrine()->getRepository(Tasks::class)->getSubTasks($task['id']);
+                                $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
                                 if($subTasks) {
                                     $task['subTasks'] = true;
                                 }
 
-                                $users = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task['id']);
+                                $users = $this->tasksRepository()->getAssignedUsers($task['id']);
                                 if($users) {
                                     $task['user'] = $users[0];
                                 }

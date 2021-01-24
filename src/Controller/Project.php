@@ -4,6 +4,7 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 //date_default_timezone_set('Europe/Amsterdam');
 
+use App\Api\TaskooApiController;
 use App\Api\TaskooResponseManager;
 use App\Entity\Organisations;
 use App\Entity\Projects;
@@ -17,21 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
 use App\Entity\UserAuth;
 
-class Project extends AbstractController
+class Project extends TaskooApiController
 {
-
-    protected $authenticator;
-
-    protected $responseManager;
-
-
-    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager)
-    {
-        $this->authenticator = $authenticator;
-        $this->responseManager = $responseManager;
-    }
-
-
     /**
      * @Route("/project/{projectId}", name="api_project_load", methods={"GET"})
      */
@@ -49,7 +37,7 @@ class Project extends AbstractController
 
             if(isset($auth['user'])) {
                 //load project by id
-                $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+                $project = $this->projectsRepository()->find($projectId);
                 $auth = $this->authenticator->checkUserAuth($token, $project);
 
                 //if project for id was found
@@ -73,19 +61,19 @@ class Project extends AbstractController
                                 $tasks = [];
 
                                 if(!$group->getTasks()->isEmpty()) {
-                                    $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getOpenTasks($group->getId());
+                                    $tasks = $this->tasksRepository()->getOpenTasks($group->getId());
 
                                     foreach($tasks as &$task) {
                                         if($task['description']) {
                                             $task['description'] = true;
                                         }
 
-                                        $subTasks = $this->getDoctrine()->getRepository(Tasks::class)->getSubTasks($task['id']);
+                                        $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
                                         if($subTasks) {
                                             $task['subTasks'] = true;
                                         }
 
-                                        $users = $this->getDoctrine()->getRepository(Tasks::class)->getAssignedUsers($task['id']);
+                                        $users = $this->tasksRepository()->getAssignedUsers($task['id']);
                                         if($users) {
                                             $task['user'] = $users[0];
                                         }
@@ -123,15 +111,13 @@ class Project extends AbstractController
         $token = $request->headers->get('authorization');
         $userId = $request->headers->get('user');
 
-        $entityManager = $this->getDoctrine()->getManager();
-
         //check if auth data got sent
         if(isset($token) && isset($userId)) {
             $auth = $this->authenticator->checkUserAuth($userId, $token);
 
             if(isset($auth['user'])) {
                 //load project by id
-                $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+                $project = $this->projectsRepository()->find($projectId);
                 $auth = $this->authenticator->checkUserAuth($userId, $token, $project);
 
                 //if project for id was found
@@ -139,9 +125,9 @@ class Project extends AbstractController
                     //authentification process
                     if(isset($auth['user'])) {
                         if($project->getClosed()) {
-                            $data['users'] = $this->getDoctrine()->getRepository(Projects::class)->getProjectUsers($project->getId());
+                            $data['users'] = $this->projectsRepository()->getProjectUsers($project->getId());
                         } else {
-                            $data['users'] = $this->getDoctrine()->getRepository(Organisations::class)->getOrganisationUsers($project->getOrganisation()->getId());
+                            $data['users'] = $this->organisationsRepository()->getOrganisationUsers($project->getOrganisation()->getId());
                         }
 
                         return $this->responseManager->successResponse($data, 'project_loaded');
@@ -231,7 +217,7 @@ class Project extends AbstractController
         //check if auth token got sent
         if(isset($token)) {
             //load project by id
-            $project = $this->getDoctrine()->getRepository(Projects::class)->find($projectId);
+            $project = $this->projectsRepository()->find($projectId);
             $auth = $this->authenticator->checkUserAuth($token, $project);
             $entityManager = $this->getDoctrine()->getManager();
 
@@ -251,7 +237,7 @@ class Project extends AbstractController
                             $positions = $payload['groupPositions'];
 
                             foreach($positions as $position=>$id) {
-                                $taskGroup = $this->getDoctrine()->getRepository(TaskGroups::class)->find($id);
+                                $taskGroup = $this->taskGroupsRepository()->find($id);
                                 $taskGroup->setPosition($position);
                                 $entityManager->persist($taskGroup);
                             }

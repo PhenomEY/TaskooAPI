@@ -4,28 +4,12 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use App\Api\TaskooResponseManager;
-use App\Entity\Notifications;
-use App\Entity\Tasks;
-use App\Entity\User;
-use App\Security\TaskooAuthenticator;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Api\TaskooApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskooUser extends AbstractController
+class TaskooUser extends TaskooApiController
 {
-    protected $authenticator;
-
-    protected $responseManager;
-
-
-    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager)
-    {
-        $this->authenticator = $authenticator;
-        $this->responseManager = $responseManager;
-    }
 
     /**
      * @Route("/user/notifications", name="api_user_get_notifications", methods={"GET"})
@@ -43,10 +27,10 @@ class TaskooUser extends AbstractController
                 $isDashboard = $request->query->get('dashboard');
 
                 if($isDashboard === 'true') {
-                    $notifications = $this->getDoctrine()->getRepository(Notifications::class)->getUserNotifications($auth['user'], true);
+                    $notifications = $this->notificationsRepository()->getUserNotifications($auth['user'], true);
                     $data['notifications'] = $notifications;
                 } else {
-                    $notifications = $this->getDoctrine()->getRepository(Notifications::class)->getUserNotifications($auth['user']);
+                    $notifications = $this->notificationsRepository()->getUserNotifications($auth['user']);
                     $data['notifications'] = $notifications;
                 }
 
@@ -93,17 +77,28 @@ class TaskooUser extends AbstractController
 
             if(isset($auth['user'])) {
                 $dashboard = false;
+                $doneTasks = 0;
                 $isDashboard = $request->query->get('dashboard');
+                $isDoneTasks = $request->query->get('done');
 
                 if($isDashboard === 'true') {
                     $dashboard = true;
                 }
 
-                $tasks = $this->getDoctrine()->getRepository(Tasks::class)->getTasksForUser($auth['user'], $dashboard);
+                if($isDoneTasks === 'true') {
+                    $doneTasks = 1;
+                }
+
+                $tasks = $this->tasksRepository()->getTasksForUser($auth['user'], $dashboard, $doneTasks);
 
                 foreach($tasks as &$task) {
                     if($task['description']) {
                         $task['description'] = true;
+                    }
+
+                    $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
+                    if($subTasks) {
+                        $task['subTasks'] = true;
                     }
                 }
 

@@ -23,10 +23,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Api/TaskooApiController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Auth.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/TaskGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskGroup.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/TaskooUser.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskooUser.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Repository/NotificationsRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/NotificationsRepository.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Repository/TasksRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/TasksRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,6 +234,13 @@
       <workItem from="1608064227545" duration="727000" />
       <workItem from="1608149974137" duration="3040000" />
       <workItem from="1608323620691" duration="1424000" />
+      <workItem from="1610147752945" duration="221000" />
+      <workItem from="1610307913877" duration="726000" />
+      <workItem from="1610392604573" duration="1984000" />
+      <workItem from="1610519814462" duration="1265000" />
+      <workItem from="1610996538015" duration="29000" />
+      <workItem from="1611253350520" duration="2360000" />
+      <workItem from="1611496222452" duration="1298000" />
     </task>
     <servers />
   </component>
@@ -252,9 +264,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604420855917" />
-    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1606423338021">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="2524" y="278" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1611496429501">
+      <screen x="1920" y="0" width="1680" height="1050" />
     </state>
+    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1611253598839" />
+    <state x="2524" y="278" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@1920.0.1680.1050" timestamp="1611496429501" />
     <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1606423338021" />
     <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1604420419988">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -264,9 +278,11 @@
       <screen x="1920" y="23" width="1680" height="1050" />
     </state>
     <state x="2261" y="193" key="SettingsEditor/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1605554448671" />
-    <state x="667" y="253" width="585" height="534" key="find.popup" timestamp="1607977443368">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="2504" y="249" width="555" height="801" key="find.popup" timestamp="1611497428546">
+      <screen x="1920" y="0" width="1680" height="1050" />
     </state>
+    <state x="667" y="253" width="585" height="534" key="find.popup/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1611255688968" />
+    <state x="2504" y="249" width="555" height="801" key="find.popup/0.0.1920.1040/1920.0.1680.1050@1920.0.1680.1050" timestamp="1611497428546" />
     <state x="667" y="253" width="585" height="534" key="find.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607977443368" />
     <state x="646" y="224" width="812" height="717" key="find.popup/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1606168046763" />
     <state x="798" y="250" key="ftp.server.browser" timestamp="1604417367936">
