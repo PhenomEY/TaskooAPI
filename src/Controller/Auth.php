@@ -6,7 +6,6 @@ mb_http_output('UTF-8');
 use App\Api\TaskooApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\User;
 use App\Entity\UserAuth;
 
 class Auth extends TaskooApiController
@@ -18,7 +17,6 @@ class Auth extends TaskooApiController
      */
     public function Login(Request $request)
     {
-        $message = 'login_failed';
         $data = [];
 
         $payload = json_decode($request->getContent(), true);
@@ -32,7 +30,8 @@ class Auth extends TaskooApiController
 
             $user = $this->userRepository()->findOneBy([
                 'email' => $loginData['username'],
-                'password' => $hashedPassword
+                'password' => $hashedPassword,
+                'active' => true
             ]);
 
             //if user found
@@ -89,7 +88,7 @@ class Auth extends TaskooApiController
             ]);
 
             //auth token is still valid
-            if($userAuth) {
+            if($userAuth && $userAuth->getuser()->getActive()) {
 
                 $data['user']['firstname'] = $userAuth->getUser()->getFirstname();
                 $data['user']['lastname'] = $userAuth->getUser()->getLastname();

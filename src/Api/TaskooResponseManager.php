@@ -56,5 +56,14 @@ class TaskooResponseManager {
         return $response;
     }
 
+    public function createdResponse(array $data, string $message) {
+        $data['success'] = true;
+        $data['message'] = $message;
+
+        $response = new JsonResponse($data);
+        $response->setStatusCode(201);
+
+        return $response;
+    }
 
 }

@@ -6,11 +6,7 @@ date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
 use App\Entity\Notifications;
-use App\Entity\Organisations;
-use App\Entity\Projects;
-use App\Entity\TaskGroups;
 use App\Entity\Tasks;
-use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -73,7 +69,7 @@ class Task extends TaskooApiController
 
                             $data['createdId'] = $task->getId();
 
-                            return $this->responseManager->successResponse($data, 'task_created');
+                            return $this->responseManager->createdResponse($data, 'task_created');
 
                         } else {
                             return $this->responseManager->unauthorizedResponse();

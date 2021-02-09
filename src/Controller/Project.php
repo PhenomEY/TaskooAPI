@@ -5,18 +5,11 @@ mb_http_output('UTF-8');
 //date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
-use App\Api\TaskooResponseManager;
-use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
-use App\Entity\Tasks;
 use App\Security\TaskooAuthenticator;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\User;
-use App\Entity\UserAuth;
 
 class Project extends TaskooApiController
 {
@@ -193,7 +186,7 @@ class Project extends TaskooApiController
                     $entityManager->flush();
 
                     $data['projectId'] = $project->getId();
-                    return $this->responseManager->successResponse($data, 'project_created');
+                    return $this->responseManager->createdResponse($data, 'project_created');
                 } else {
                     return $this->responseManager->forbiddenResponse();
                 }

@@ -5,9 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
-use App\Entity\Projects;
 use App\Entity\TaskGroups;
-use App\Entity\Tasks;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -55,7 +53,7 @@ class TaskGroup extends TaskooApiController
                             $entityManager->flush();
 
                             $data['createdId'] = $taskGroup->getId();
-                            return $this->responseManager->successResponse($data, 'group_created');
+                            return $this->responseManager->createdResponse($data, 'group_created');
                         }
                     }
                 }
