@@ -23,14 +23,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Controller/Admin.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Service/TaskooMailerService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/emails/invite.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Api/TaskooApiController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Api/TaskooApiController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Api/TaskooResponseManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Api/TaskooResponseManager.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Auth.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Task.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Task.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/TaskGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TaskGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/User.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,6 +168,14 @@
     <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\TaskooAPI\templates" />
+      <recent name="D:\TaskooAPI\src\templates" />
+      <recent name="D:\TaskooAPI\src" />
+      <recent name="D:\TaskooAPI\src\Api\Controller" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -242,6 +249,10 @@
       <workItem from="1611496222452" duration="1671000" />
       <workItem from="1612653551996" duration="2622000" />
       <workItem from="1612808333399" duration="3140000" />
+      <workItem from="1612893147985" duration="695000" />
+      <workItem from="1612994775373" duration="1356000" />
+      <workItem from="1613031628738" duration="8953000" />
+      <workItem from="1613152400026" duration="915000" />
     </task>
     <servers />
   </component>
@@ -261,14 +272,15 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="552" y="178" key="#Deployment" timestamp="1604420855917">
+    <state x="552" y="178" key="#Deployment" timestamp="1613054474318">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1613054474318" />
     <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604420855917" />
-    <state x="2524" y="278" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1612653616296">
-      <screen x="1920" y="0" width="1680" height="1050" />
+    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1613057049798">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1611253598839" />
+    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1613057049798" />
     <state x="2524" y="278" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@1920.0.1680.1050" timestamp="1612653616296" />
     <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1606423338021" />
     <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1604420419988">

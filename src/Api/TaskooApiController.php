@@ -11,7 +11,6 @@ use App\Entity\User;
 use App\Security\TaskooAuthenticator;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 
 class TaskooApiController extends AbstractController
 {

@@ -11,6 +11,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TaskooAuthenticator {
 
+    private const IS_ADMIN = 10;
+    private const IS_DEFAULT = 1;
+
     protected $manager;
 
     public function __construct(EntityManagerInterface $manager)
@@ -33,7 +36,7 @@ class TaskooAuthenticator {
 
            //check if user got admin role
            $userRole = $userAuth->getUser()->getRole();
-           if($userRole == 10) {
+           if($userRole == static::IS_ADMIN) {
                $authData['user'] = $userAuth->getUser();
                $authData['type'] = 'is_admin';
 
@@ -48,7 +51,7 @@ class TaskooAuthenticator {
            }
 
            //role 1 = all
-           if ($role == 1) {
+           if ($role == static::IS_DEFAULT) {
                $authData['user'] = $userAuth->getUser();
                $authData['type'] = 'is_loggedin';
 
