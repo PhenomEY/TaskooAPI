@@ -45,10 +45,10 @@ class Auth extends TaskooApiController
                         //Generate new UserAuth
                         $userAuth = new UserAuth();
                         $userAuth->setUser($user);
-                        $userAuth->setToken($this->authenticator->generateAuthToken());
+                        $userAuth->setToken($this->authenticator->generateAuthToken($user->getEmail()));
                     } else {
                         //save new generated logintoken to user
-                        $userAuth->setToken($this->authenticator->generateAuthToken());
+                        $userAuth->setToken($this->authenticator->generateAuthToken($user->getEmail()));
                     }
 
                     //return data for app

@@ -21,9 +21,7 @@ class TaskooAuthenticator {
         $this->manager = $manager;
     }
 
-
-
-    public function checkUserAuth($token, Projects $project = null, $role = 1) {
+    public function checkUserAuth($token, Projects $project = null, $role = self::IS_DEFAULT) {
        $userAuth = $this->manager->getRepository(UserAuth::class)->findOneBy([
            'token' => $token
        ]);
@@ -110,7 +108,7 @@ class TaskooAuthenticator {
         return $hashedPassword;
     }
 
-    public function generateAuthToken() {
+    public function generateAuthToken(String $salt) {
         return hash('sha256', time().'tasko24781');
     }
 }

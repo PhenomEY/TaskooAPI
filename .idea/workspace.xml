@@ -23,12 +23,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Controller/Admin.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Service/TaskooMailerService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/emails/invite.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Api/TaskooApiController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Api/TaskooApiController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Auth.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -252,7 +248,8 @@
       <workItem from="1612893147985" duration="695000" />
       <workItem from="1612994775373" duration="1356000" />
       <workItem from="1613031628738" duration="8953000" />
-      <workItem from="1613152400026" duration="915000" />
+      <workItem from="1613152400026" duration="1690000" />
+      <workItem from="1613156450476" duration="3487000" />
     </task>
     <servers />
   </component>
