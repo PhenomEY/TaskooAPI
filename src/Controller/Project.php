@@ -15,6 +15,9 @@ class Project extends TaskooApiController
 {
     /**
      * @Route("/project/{projectId}", name="api_project_load", methods={"GET"})
+     * @param int $projectId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function getProject(int $projectId, Request $request)
     {
@@ -96,6 +99,9 @@ class Project extends TaskooApiController
 
     /**
      * @Route("/project/{projectId}/users", name="api_project_load_users", methods={"GET"})
+     * @param int $projectId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function getProjectUsers(int $projectId, Request $request)
     {
@@ -138,6 +144,10 @@ class Project extends TaskooApiController
 
     /**
      * @Route("/project", name="api_project_create", methods={"POST"})
+     * @param Request $request
+     * @param TaskooAuthenticator $authenticator
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws \Exception
      */
     public function createProject(Request $request, TaskooAuthenticator $authenticator)
     {

@@ -23,9 +23,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cf3cc3b-c420-41eb-acea-5ed9482952a1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Controller/Invite.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Service/TemporaryURLService.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Auth.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/TaskooAuthenticator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Project.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Project.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -249,7 +250,8 @@
       <workItem from="1612994775373" duration="1356000" />
       <workItem from="1613031628738" duration="8953000" />
       <workItem from="1613152400026" duration="1690000" />
-      <workItem from="1613156450476" duration="3487000" />
+      <workItem from="1613156450476" duration="3505000" />
+      <workItem from="1613328812864" duration="6696000" />
     </task>
     <servers />
   </component>
@@ -273,17 +275,12 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1613054474318" />
-    <state x="552" y="178" key="#Deployment/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604420855917" />
-    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1613057049798">
+    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1613339942175">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1613057049798" />
+    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1613339942175" />
     <state x="2524" y="278" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.0.1680.1050@1920.0.1680.1050" timestamp="1612653616296" />
     <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1606423338021" />
-    <state x="740" y="275" key="FileChooserDialogImpl" timestamp="1604420419988">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604420419988" />
     <state x="2261" y="193" key="SettingsEditor" timestamp="1605554448671">
       <screen x="1920" y="23" width="1680" height="1050" />
     </state>
@@ -295,13 +292,10 @@
     <state x="2504" y="249" width="566" height="801" key="find.popup/0.0.1920.1040/1920.0.1680.1050@1920.0.1680.1050" timestamp="1612657141222" />
     <state x="667" y="253" width="585" height="534" key="find.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607977443368" />
     <state x="646" y="224" width="812" height="717" key="find.popup/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1606168046763" />
-    <state x="798" y="250" key="ftp.server.browser" timestamp="1604417367936">
+    <state x="616" y="240" key="run.anything.popup" timestamp="1613342076721">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="798" y="250" key="ftp.server.browser/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1604417367936" />
-    <state x="616" y="240" key="run.anything.popup" timestamp="1607974242764">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
+    <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.0.1680.1050@0.0.1920.1040" timestamp="1613342076721" />
     <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@0.0.1920.1040" timestamp="1607974242764" />
     <state x="2459" y="265" key="run.anything.popup/0.0.1920.1040/1920.23.1680.1050@1920.23.1680.1050" timestamp="1606340313833" />
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1607980163680">
