@@ -15,13 +15,11 @@ class Admin extends TaskooApiController
     /**
      * @Route("/test/sendMail", name="api_test_sendmail", methods={"GET"})
      */
-    public function getUserNotifications(Request $request, MailerInterface $mailer)
+    public function getUserNotifications(Request $request, TaskooMailerService $mailService)
     {
         $data = [];
 
-        $mailService = new TaskooMailerService();
-
-        $mailService->sendMail($mailer);
+        $mailService->sendMail();
 
 
         return $this->responseManager->successResponse($data, 'sendMail');

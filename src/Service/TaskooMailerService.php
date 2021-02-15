@@ -11,9 +11,16 @@ use Symfony\Component\Mime\Address;
 
 class TaskooMailerService {
 
+    private $mailer;
+
     private const SENDER = 'Taskoo <noreply@taskoo.de>';
 
-    public function sendMail(MailerInterface $mailer)
+    public function __construct(MailerInterface $mailer)
+    {
+        $this->mailer = $mailer;
+    }
+
+    public function sendMail()
     {
         $email = (new TemplatedEmail())
             ->from(Address::create(static::SENDER))
@@ -29,7 +36,7 @@ class TaskooMailerService {
 //                'username' => 'foo',
 //            ]);
 
-        $mailer->send($email);
+        $this->mailer->send($email);
     }
 
 }

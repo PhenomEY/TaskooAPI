@@ -17,17 +17,14 @@ class Invite extends TaskooApiController
      * @Route("/invite/{inviteId}", name="api_user_get_invite", methods={"GET"})
      * @param $inviteId
      * @param Request $request
+     * @param TemporaryURLService $temporaryURLService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function getInvite($inviteId, Request $request)
+    public function getInvite($inviteId, Request $request, TemporaryURLService $temporaryURLService)
     {
         $data = [
             'inviteId' => $inviteId
         ];
-
-
-
-        $temporaryURLService = new TemporaryURLService($this->getDoctrine());
 
         /**
          * @var $invite TempUrls
