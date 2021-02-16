@@ -5,6 +5,7 @@ namespace App\Api;
 use App\Entity\Notifications;
 use App\Entity\Organisations;
 use App\Entity\Projects;
+use App\Entity\Settings;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Entity\User;
@@ -46,5 +47,9 @@ class TaskooApiController extends AbstractController
 
     protected function userRepository(): ObjectRepository {
         return $this->getDoctrine()->getRepository(User::class);
+    }
+
+    protected function settingsRepository(): ObjectRepository {
+        return $this->getDoctrine()->getRepository(Settings::class);
     }
 }

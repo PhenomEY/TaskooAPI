@@ -11,8 +11,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TaskooAuthenticator {
 
-    private const IS_ADMIN = 10;
-    private const IS_DEFAULT = 1;
+    public const IS_ADMIN = 10;
+    public const IS_DEFAULT = 1;
 
     protected $manager;
 
