@@ -13,7 +13,7 @@ use Symfony\Component\Mailer\MailerInterface;
 class Admin extends TaskooApiController
 {
     /**
-     * @Route("/test/sendMail", name="api_test_sendmail", methods={"GET"})
+     * @Route("/test/sendMailaa", name="api_test_sendmail", methods={"GET"})
      */
     public function getUserNotifications(Request $request, TaskooMailerService $mailService)
     {

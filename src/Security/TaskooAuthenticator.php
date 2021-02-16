@@ -109,6 +109,6 @@ class TaskooAuthenticator {
     }
 
     public function generateAuthToken(String $salt) {
-        return hash('sha256', time().'tasko24781');
+        return hash('sha256', time().$salt.bin2hex(random_bytes(16)));
     }
 }
