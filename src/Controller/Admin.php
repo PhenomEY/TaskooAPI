@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\User;
 use App\Service\TaskooMailerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -67,6 +68,47 @@ class Admin extends TaskooApiController
                 $entityManager->flush();
 
                 return $this->responseManager->successResponse($data, 'mainsettings_saved');
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
+     * @Route("/users", name="api_users_get", methods={"GET"})
+     */
+    public function getUsers(Request $request)
+    {
+        $data = [];
+        $token = $request->headers->get('authorization');
+
+        //check if auth token got sent
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token, null, $this->authenticator::IS_ADMIN);
+
+            if(isset($auth['user'])) {
+                $users = $this->userRepository()->findAll();
+
+                $data['users'] = [];
+
+                /**
+                 * @var $user User
+                 */
+                foreach($users as $user) {
+                    $userData = [
+                        'id' => $user->getId(),
+                        'firstname' => $user->getFirstname(),
+                        'lastname' => $user->getLastname(),
+                        'email' => $user->getEmail(),
+                        'role' => $user->getRole(),
+                        'active' => $user->getActive()
+                    ];
+
+                    array_push($data['users'], $userData);
+                    $userData = null;
+                }
+
+                return $this->responseManager->successResponse($data, 'userlist_loaded');
             }
         }
 
