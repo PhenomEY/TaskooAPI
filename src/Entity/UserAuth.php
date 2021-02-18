@@ -18,7 +18,8 @@ class UserAuth
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;

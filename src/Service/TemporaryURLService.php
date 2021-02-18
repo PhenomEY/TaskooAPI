@@ -7,6 +7,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * Class TemporaryURLService
+ * @package App\Service
+ */
 class TemporaryURLService
 {
     public const INVITE_ACTION = 'invite_action';
@@ -19,6 +23,11 @@ class TemporaryURLService
     }
 
 
+    /**
+     * @param String $action
+     * @param int $hours
+     * @param null $user
+     */
     public function generateURL(String $action, int $hours, $user = null)
     {
         $tempUrl = new TempUrls();
@@ -27,13 +36,15 @@ class TemporaryURLService
         $endDate = new \DateTime('now');
         $endDate->modify("+$hours hours");
         $tempUrl->setDeadAt($endDate);
-        $tempUrl->setHash('AAAA');
+        $tempUrl->setHash($this->generateHash());
         $tempUrl->setUser($user);
         $tempUrl->setAction($action);
 
         $entityManager = $this->doctrine->getManager();
         $entityManager->persist($tempUrl);
         $entityManager->flush();
+
+        return $tempUrl;
     }
 
     public function verifyURL($id, String $action)
@@ -55,5 +66,9 @@ class TemporaryURLService
         }
 
         return false;
+    }
+
+    private function generateHash() {
+        return hash('md5', time().bin2hex(random_bytes(16)));
     }
 }

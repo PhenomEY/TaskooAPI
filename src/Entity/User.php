@@ -46,7 +46,7 @@ class User
     private $role;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $lastlogin;
 
@@ -160,7 +160,7 @@ class User
         return $this->role;
     }
 
-    public function setRole(?Integer $role): self
+    public function setRole(?int $role): self
     {
         $this->role = $role;
 

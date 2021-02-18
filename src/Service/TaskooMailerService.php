@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\TempUrls;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Mailer;
 
@@ -20,21 +21,24 @@ class TaskooMailerService {
         $this->mailer = $mailer;
     }
 
-    public function sendMail()
-    {
+    public function sendInviteMail(TempUrls $inviteURL, int $hours) {
+
+        $user = $inviteURL->getUser();
+
         $email = (new TemplatedEmail())
             ->from(Address::create(static::SENDER))
-            ->to(new Address('damian95@gmx.de'))
-            ->subject('Thanks for signing up!')
+            ->to(new Address($user->getEmail()))
+            ->subject('Du wurdest zu Taskoo eingeladen!')
 
             // path of the Twig template to render
-            ->htmlTemplate('emails/invite.html.twig');
+            ->htmlTemplate('emails/invite.html.twig')
 
-            // pass variables (name => value) to the template
-//            ->context([
-//                'expiration_date' => new \DateTime('+7 days'),
-//                'username' => 'foo',
-//            ]);
+            ->context([
+                'expires_in' => $hours,
+                'firstname' => $user->getFirstname(),
+                'lastname' => $user->getLastname(),
+                'invite_url' => $inviteURL->getHash()
+            ]);
 
         $this->mailer->send($email);
     }

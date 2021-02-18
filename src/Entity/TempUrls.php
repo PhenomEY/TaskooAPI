@@ -38,7 +38,8 @@ class TempUrls
     private $action;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\ManyToOne(targetEntity=User::class, cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $user;
 

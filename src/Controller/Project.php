@@ -149,7 +149,7 @@ class Project extends TaskooApiController
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Exception
      */
-    public function createProject(Request $request, TaskooAuthenticator $authenticator)
+    public function createProject(Request $request)
     {
         $data = [];
 
@@ -160,7 +160,7 @@ class Project extends TaskooApiController
 
         //check if auth data got sent
         if(isset($token)) {
-            $auth = $authenticator->checkUserAuth($token, null,  10);
+            $auth = $this->authenticator->checkUserAuth($token, null,  10);
 
             //if payload exists
             if (!empty($payload)) {
