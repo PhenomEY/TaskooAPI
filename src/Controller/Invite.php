@@ -100,7 +100,6 @@ class Invite extends TaskooApiController
     public function createInvite(Request $request, TemporaryURLService $temporaryURLService, TaskooMailerService $mailerService)
     {
         $data = [];
-        $role = (Integer) 1;
         $payload = json_decode($request->getContent(), true);
         $token = $request->headers->get('authorization');
 
@@ -129,7 +128,7 @@ class Invite extends TaskooApiController
                 $user->setEmail($payload['email']);
                 $user->setFirstname($payload['firstname']);
                 $user->setLastname($payload['lastname']);
-                $user->setRole($role);
+                $user->setRole(1);
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);

@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -110,4 +111,55 @@ class TaskooUser extends TaskooApiController
         return $this->responseManager->forbiddenResponse();
     }
 
+
+    /**
+     * @Route("/user", name="api_user_create", methods={"POST"})
+     */
+    public function createUser(Request $request)
+    {
+        $data = [];
+
+        $token = $request->headers->get('authorization');
+        $payload = json_decode($request->getContent(), true);
+
+        if(isset($token) && isset($payload)) {
+            $auth = $this->authenticator->checkUserAuth($token, null, $this->authenticator::IS_ADMIN);
+
+            if(isset($auth['user'])) {
+                //check if email is valid
+                if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
+                    return $this->responseManager->errorResponse('invalid_email');
+                }
+
+                //check if send email is already in use
+                $emailInUse = $this->userRepository()->findOneBy([
+                    'email' => $payload['email']
+                ]);
+
+                //if mail already exists return error
+                if($emailInUse) {
+                    return $this->responseManager->errorResponse('already_registered');
+                }
+
+                $hashedPassword = $this->authenticator->generatePassword($payload['password']);
+
+                //else create new user
+                $user = new User();
+                $user->setEmail($payload['email']);
+                $user->setPassword($hashedPassword);
+                $user->setFirstname($payload['firstname']);
+                $user->setLastname($payload['lastname']);
+                $user->setRole(1);
+                $user->setActive(true);
+
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+
+                return $this->responseManager->successResponse($data, 'user_created');
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
 }
