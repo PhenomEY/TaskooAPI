@@ -56,7 +56,6 @@ class TaskooUser extends TaskooApiController
             $auth = $this->authenticator->checkUserAuth($token);
 
             if(isset($auth['user'])) {
-
                 return $this->responseManager->successResponse($data, 'notifications_updated');
             }
         }

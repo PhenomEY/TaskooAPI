@@ -104,6 +104,14 @@ class Admin extends TaskooApiController
                         'active' => $user->getActive()
                     ];
 
+                    if(!$user->getPassword()) {
+                        $userData['warnings']['password'] = true;
+                    }
+
+                    if($user->getOrganisations()->count() === 0) {
+                        $userData['warnings']['organisations'] = true;
+                    }
+
                     array_push($data['users'], $userData);
                     $userData = null;
                 }
