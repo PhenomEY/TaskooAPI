@@ -137,7 +137,7 @@ class TaskooUser extends TaskooApiController
 
                 //if mail already exists return error
                 if($emailInUse) {
-                    return $this->responseManager->errorResponse('already_registered');
+                    return $this->responseManager->errorResponse('email_in_use');
                 }
 
                 $hashedPassword = $this->authenticator->generatePassword($payload['password']);
@@ -156,6 +156,105 @@ class TaskooUser extends TaskooApiController
                 $entityManager->flush();
 
                 return $this->responseManager->successResponse($data, 'user_created');
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
+     * @Route("/user/{userId}", name="api_user_get", methods={"GET"})
+     */
+    public function getFullUser(int $userId, Request $request)
+    {
+        $data = [];
+
+        $token = $request->headers->get('authorization');
+
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
+
+            if(isset($auth['user'])) {
+                /**
+                 * @var $user User
+                 */
+                $user = $this->userRepository()->find($userId);
+
+                if($user) {
+                    $data['firstname'] = $user->getFirstname();
+                    $data['lastname'] = $user->getLastname();
+                    $data['email'] = $user->getEmail();
+
+                    return $this->responseManager->successResponse($data, 'user_loaded');
+                } else {
+                    return $this->responseManager->notFoundResponse();
+                }
+
+
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
+     * @Route("/user/{userId}", name="api_user_update", methods={"PUT"})
+     */
+    public function updateUser(int $userId, Request $request)
+    {
+        $data = [];
+
+        $token = $request->headers->get('authorization');
+        $payload = json_decode($request->getContent(), true);
+        if(isset($token) && isset($payload)) {
+            $auth = $this->authenticator->checkUserAuth($token);
+
+            if(isset($auth['user'])) {
+                /**
+                 * @var $user User
+                 */
+                $user = $this->userRepository()->find($userId);
+
+                if($user) {
+
+                    //if requesting user is the updated user or admin
+                    if($user->getId() === $auth['user']->getId() || $auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
+                        if(isset($payload['password'])) {
+                            $hashedPassword = $this->authenticator->generatePassword($payload['password']);
+                            $user->setPassword($hashedPassword);
+                        }
+
+                        if($payload['email'] !== $user->getEmail()) {
+                            //check if send email is already in use
+                            $emailInUse = $this->userRepository()->findOneBy([
+                                'email' => $payload['email']
+                            ]);
+
+                            //check if email is valid
+                            if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
+                                return $this->responseManager->errorResponse('invalid_email');
+                            }
+
+                            //if mail already exists return error
+                            if($emailInUse) {
+                                return $this->responseManager->errorResponse('email_in_use');
+                            }
+
+                            $user->setEmail($payload['email']);
+                        }
+
+                        $user->setFirstname($payload['firstname']);
+                        $user->setLastname($payload['lastname']);
+
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $entityManager->persist($user);
+                        $entityManager->flush();
+
+                        return $this->responseManager->successResponse($data, 'user_loaded');
+                    }
+                } else {
+                    return $this->responseManager->notFoundResponse();
+                }
             }
         }
 

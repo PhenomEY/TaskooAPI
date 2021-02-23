@@ -120,7 +120,7 @@ class Invite extends TaskooApiController
 
                 //if mail already exists return error
                 if($emailInUse) {
-                    return $this->responseManager->errorResponse('already_registered');
+                    return $this->responseManager->errorResponse('email_in_use');
                 }
 
                 //else create new user

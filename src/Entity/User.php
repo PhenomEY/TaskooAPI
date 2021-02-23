@@ -155,7 +155,7 @@ class User
         return $this;
     }
 
-    public function getRole(): ?string
+    public function getRole(): ?int
     {
         return $this->role;
     }
