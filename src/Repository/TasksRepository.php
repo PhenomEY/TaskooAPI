@@ -118,10 +118,8 @@ class TasksRepository extends ServiceEntityRepository
 
     public function getTasksForUser($user,$dashboard = false,$done = 0, $limit = 100)
     {
-
-
         $queryBuilder = $this->createQueryBuilder('t')
-            ->select('t.id, t.name, t.dateDue, t.description, t.done as isDone, t.doneAt, p.name as projectName, p.id as projectId, -t.dateDue as HIDDEN dateOrder')
+            ->select('t.id, t.name, t.dateDue, t.higherPriority, t.description, t.done as isDone, t.doneAt, p.name as projectName, p.id as projectId, -t.dateDue as HIDDEN dateOrder')
             ->where('t.done = :done')
             ->join('t.assignedUser', 'au', Expr\Join::WITH, 'au = :user')
             ->leftJoin('t.TaskGroup', 'tg')
@@ -129,12 +127,13 @@ class TasksRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('done', $done)
             ->orderBy('dateOrder', 'DESC')
+            ->addOrderBy('t.higherPriority', 'DESC')
             ->setMaxResults($limit)
         ;
 
-        if($dashboard === true) {
-            $queryBuilder->andWhere('t.dateDue IS NOT NULL');
-        }
+//        if($dashboard === true) {
+//            $queryBuilder->andWhere('t.dateDue IS NOT NULL');
+//        }
 
         if($done === 1) {
             $queryBuilder->orderBy('t.doneAt', 'DESC');

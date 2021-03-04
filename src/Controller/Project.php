@@ -42,15 +42,18 @@ class Project extends TaskooApiController
                     if(isset($auth['user'])) {
                         $data['project']['name'] = $project->getName();
                         $data['project']['deadline'] = $project->getDeadline();
+                        $data['project']['isClosed'] = $project->getClosed();
 
-                        $data['project']['users'] = $project->getProjectUsers()->map(function($user) {
-                            return [
-                                'firstname' => $user->getFirstname(),
-                                'lastname' => $user->getLastname(),
-                                'id' => $user->getId()
-                            ];
-                        })->toArray();
 
+                        if($project->getClosed()) {
+                            $data['project']['users'] = $project->getProjectUsers()->map(function($user) {
+                                return [
+                                    'firstname' => $user->getFirstname(),
+                                    'lastname' => $user->getLastname(),
+                                    'id' => $user->getId()
+                                ];
+                            })->toArray();
+                        }
 
                         $data['groups'] = $project->getTaskgroups()
                             ->map(function($group) {

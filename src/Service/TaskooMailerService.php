@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Service;
 
@@ -21,7 +21,7 @@ class TaskooMailerService {
         $this->mailer = $mailer;
     }
 
-    public function sendInviteMail(TempUrls $inviteURL, int $hours) {
+    public function sendInviteMail(TempUrls $inviteURL, int $hours): void {
 
         $user = $inviteURL->getUser();
 
@@ -29,8 +29,6 @@ class TaskooMailerService {
             ->from(Address::create(static::SENDER))
             ->to(new Address($user->getEmail()))
             ->subject('Du wurdest zu Taskoo eingeladen!')
-
-            // path of the Twig template to render
             ->htmlTemplate('emails/invite.html.twig')
 
             ->context([

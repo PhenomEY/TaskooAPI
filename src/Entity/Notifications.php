@@ -33,7 +33,8 @@ class Notifications
     private $project;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Tasks::class)
+     * @ORM\ManyToOne(targetEntity=Tasks::class, cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $task;
 

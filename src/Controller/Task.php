@@ -96,6 +96,11 @@ class Task extends TaskooApiController
             $payload = json_decode($request->getContent(), true);
 
             if(!empty($payload)) {
+
+
+                /**
+                 * @var $task Tasks
+                 */
                 $task = $this->tasksRepository()->find($taskId);
                 $project = $task->getTaskGroup()->getProject();
 
@@ -177,6 +182,10 @@ class Task extends TaskooApiController
                                 }
                             }
 
+                            if(isset($payload['priority'])) {
+                                $task->setHigherPriority($payload['priority']);
+                            }
+
                             $entityManager->persist($task);
                             $entityManager->flush();
 
@@ -205,6 +214,9 @@ class Task extends TaskooApiController
 
             if(isset($auth['user'])) {
                 //get Task
+                /**
+                 * @var $task Tasks
+                 */
                 $task = $this->tasksRepository()->find($taskId);
 
                 if($task) {
@@ -223,6 +235,10 @@ class Task extends TaskooApiController
                         $data['task']['subTasks'] = null;
                         $data['task']['projectName'] = $project->getName();
                         $data['task']['projectId'] = $project->getId();
+                        $data['task']['highPriority'] = $task->getHigherPriority();
+
+
+
 
                         $mainTask = $task->getMainTask();
                         if($mainTask) {
@@ -259,6 +275,39 @@ class Task extends TaskooApiController
                         $data['task']['doneAt'] = $task->getDoneAt();
 
                         return $this->responseManager->successResponse($data, 'task_loaded');
+                    }
+                }
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
+     * @Route("/task/{taskId}", name="api_task_delete", methods={"DELETE"})
+     */
+    public function deleteTask(int $taskId, Request $request)
+    {
+        $data = [];
+
+        $token = $request->headers->get('authorization');
+
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
+
+            if(isset($auth['user'])) {
+                //get Task
+                $task = $this->tasksRepository()->find($taskId);
+
+                if($task) {
+                    $project = $task->getTaskGroup()->getProject();
+                    //check if user is permitted to see the task
+                    $auth = $this->authenticator->checkUserAuth($token, $project);
+                    if(isset($auth['user'])) {
+                        $entityManager = $this->getDoctrine()->getManager();
+                        $entityManager->remove($task);
+                        $entityManager->flush();
+                        return $this->responseManager->successResponse($data, 'task_deleted');
                     }
                 }
             }

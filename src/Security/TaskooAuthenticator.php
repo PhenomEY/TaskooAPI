@@ -14,7 +14,7 @@ class TaskooAuthenticator {
     public const IS_ADMIN = 10;
     public const IS_DEFAULT = 1;
 
-    protected $manager;
+    protected EntityManagerInterface $manager;
 
     public function __construct(EntityManagerInterface $manager)
     {
@@ -102,13 +102,13 @@ class TaskooAuthenticator {
         return false;
     }
 
-    public function generatePassword($password) {
+    public function generatePassword($password): string {
         $hashedPassword = hash('sha256', $password.'taskoo7312');
 
         return $hashedPassword;
     }
 
-    public function generateAuthToken(String $salt) {
+    public function generateAuthToken(String $salt): string {
         return hash('sha256', time().$salt.bin2hex(random_bytes(16)));
     }
 }

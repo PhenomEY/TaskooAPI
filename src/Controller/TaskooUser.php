@@ -6,6 +6,7 @@ date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
 use App\Entity\User;
+use App\Entity\UserAuth;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -77,19 +78,21 @@ class TaskooUser extends TaskooApiController
 
             if(isset($auth['user'])) {
                 $dashboard = false;
+                $limit = 100;
                 $doneTasks = 0;
                 $isDashboard = $request->query->get('dashboard');
                 $isDoneTasks = $request->query->get('done');
 
                 if($isDashboard === 'true') {
                     $dashboard = true;
+                    $limit = 20;
                 }
 
                 if($isDoneTasks === 'true') {
                     $doneTasks = 1;
                 }
 
-                $tasks = $this->tasksRepository()->getTasksForUser($auth['user'], $dashboard, $doneTasks);
+                $tasks = $this->tasksRepository()->getTasksForUser($auth['user'], $dashboard, $doneTasks, $limit);
 
                 foreach($tasks as &$task) {
                     if($task['description']) {
@@ -185,6 +188,18 @@ class TaskooUser extends TaskooApiController
                     $data['lastname'] = $user->getLastname();
                     $data['email'] = $user->getEmail();
 
+                    if($auth['user']->getRole() === 10) {
+                        $data['active'] = $user->getActive();
+
+                        if(!$user->getPassword()) {
+                            $data['warnings']['password'] = true;
+                        }
+
+                        if($user->getOrganisations()->count() === 0) {
+                            $data['warnings']['organisations'] = true;
+                        }
+                    }
+
                     return $this->responseManager->successResponse($data, 'user_loaded');
                 } else {
                     return $this->responseManager->notFoundResponse();
@@ -219,6 +234,9 @@ class TaskooUser extends TaskooApiController
 
                     //if requesting user is the updated user or admin
                     if($user->getId() === $auth['user']->getId() || $auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
+
+                        $entityManager = $this->getDoctrine()->getManager();
+
                         if(isset($payload['password'])) {
                             $hashedPassword = $this->authenticator->generatePassword($payload['password']);
                             $user->setPassword($hashedPassword);
@@ -243,10 +261,21 @@ class TaskooUser extends TaskooApiController
                             $user->setEmail($payload['email']);
                         }
 
+                        if(isset($payload['active'])) {
+                            if ($payload['active'] === false) {
+                                //deactivate user and remove authtoken
+                                $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
+                                    'user' => $user->getId()
+                                ]);
+
+                                if($userAuth) $entityManager->remove($userAuth);
+                            }
+                            $user->setActive($payload['active']);
+                        }
+
                         $user->setFirstname($payload['firstname']);
                         $user->setLastname($payload['lastname']);
 
-                        $entityManager = $this->getDoctrine()->getManager();
                         $entityManager->persist($user);
                         $entityManager->flush();
 

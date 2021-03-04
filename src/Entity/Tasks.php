@@ -30,7 +30,7 @@ class Tasks
     private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TaskGroups::class, inversedBy="tasks", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=TaskGroups::class, inversedBy="tasks", cascade={"persist"})
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $TaskGroup;
@@ -66,7 +66,8 @@ class Tasks
     private $assignedUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Tasks::class, inversedBy="subTasks", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Tasks::class, inversedBy="subTasks", cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $mainTask;
 
@@ -84,6 +85,11 @@ class Tasks
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $higherPriority;
 
     public function __construct()
     {
@@ -278,6 +284,18 @@ class Tasks
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getHigherPriority(): ?bool
+    {
+        return $this->higherPriority;
+    }
+
+    public function setHigherPriority(?bool $higherPriority): self
+    {
+        $this->higherPriority = $higherPriority;
 
         return $this;
     }
