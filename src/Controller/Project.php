@@ -44,6 +44,14 @@ class Project extends TaskooApiController
                         $data['project']['deadline'] = $project->getDeadline();
                         $data['project']['isClosed'] = $project->getClosed();
 
+                        if($project->getOrganisation()) {
+                            $data['project']['organisation']['id'] = $project->getOrganisation()->getId();
+                            $data['project']['organisation']['name'] = $project->getOrganisation()->getName();
+
+                            if($project->getOrganisation()->getColor()) {
+                                $data['project']['organisation']['color'] = $project->getOrganisation()->getColor()->getHexCode();
+                            }
+                        }
 
                         if($project->getClosed()) {
                             $data['project']['users'] = $project->getProjectUsers()->map(function($user) {

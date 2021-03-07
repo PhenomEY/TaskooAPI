@@ -34,6 +34,11 @@ class Organisations
      */
     private $Users;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Color::class, inversedBy="organisations")
+     */
+    private $color;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
@@ -107,6 +112,18 @@ class Organisations
     public function removeUser(User $user): self
     {
         $this->Users->removeElement($user);
+
+        return $this;
+    }
+
+    public function getColor(): ?color
+    {
+        return $this->color;
+    }
+
+    public function setColor(?color $color): self
+    {
+        $this->color = $color;
 
         return $this;
     }

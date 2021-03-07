@@ -3,76 +3,103 @@ namespace App\Controller;
 
 mb_http_output('UTF-8');
 
+use App\Api\TaskooApiController;
 use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Security\TaskooAuthenticator;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Organisation extends AbstractController
+class Organisation extends TaskooApiController
 {
     /**
-     * @Route("/organisation/get", name="api_organisation_get")
+     * @Route("/organisation", name="api_organisation_get", methods={"GET"})
      */
-    public function getOrganisations(Request $request, TaskooAuthenticator $authenticator)
+    public function getOrganisations(Request $request)
     {
-        $success = false;
-        $message = null;
-        $data = null;
+        $data = [];
+        $token = $request->headers->get('authorization');
+        $entityManager = $this->getDoctrine()->getManager();
 
-        //if its the actual get request
-        if ($request->getMethod() == 'GET') {
-            $token = $request->headers->get('authorization');
+        //check if auth token got sent
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token, null, 10);
 
-            $entityManager = $this->getDoctrine()->getManager();
+            if(isset($auth['user'])) {
+                $organisations = $this->organisationsRepository()->findAll();
 
-            //authentification process
-            $auth = $authenticator->checkUserAuth($token);
-
-            //if user is admin, return every organisation
-            if (isset($auth['type']) && $auth['type'] == 'is_admin') {
-                $organisations = $this->getDoctrine()->getRepository(Organisations::class)->findAll();
-
-                $data = [];
-                foreach($organisations as $key=>&$org) {
-                    $data[$key]['name'] = $org->getName();
-                    $data[$key]['id'] = $org->getId();
+                foreach($organisations as $key=>$organisation) {
+                    $data['organisations'][$key] = [
+                        'id' => $organisation->getId(),
+                        'name' => $organisation->getName(),
+                        'color' => $organisation->getColor()->getHexCode()
+                    ];
                 }
 
-                $success = true;
-
-                //else return organisations for user
-            } elseif ($auth['user']) {
-                $organisations = $auth['user']->getOrganisations();
-
-                print_r($organisations->first()->getName());
-
-                $data = $organisations->map(function ($org) {
-                    return [
-                        'name' => $org->getName(),
-                        'id' => $org->getId()
-                    ];
-                })->toArray();
-                $success = true;
-
-            } else {
-                $message = 'permission_denied';
+                return $this->responseManager->successResponse($data, 'organisations_loaded');
             }
         }
 
+        return $this->responseManager->forbiddenResponse();
+    }
 
+    /**
+     * @Route("/organisation/{orgId}/projects", name="api_organisation_get_projects", methods={"GET"})
+     */
+    public function getOrganisationProjects(int $orgId, Request $request)
+    {
+        $data = [
+            'projects' => []
+        ];
+        $token = $request->headers->get('authorization');
+        $entityManager = $this->getDoctrine()->getManager();
 
-        $response = new JsonResponse([
-            'success' => $success,
-            'message' => $message,
-            'organisations' => $data
-        ]);
+        //check if auth token got sent
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
 
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set("Access-Control-Allow-Methods", "GET");
-        $response->headers->set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, User");
-        return $response;
+            if(isset($auth['user'])) {
+                /**
+                 * @var $organisation Organisations
+                 */
+                $organisation = $this->organisationsRepository()->find($orgId);
+
+                if($organisation) {
+                    $projects = $organisation->getProjects();
+
+                    foreach($projects as $project) {
+                        $projectData = [];
+                        if($project->getClosed() && $auth['user']->getRole() !== $this->authenticator::IS_ADMIN) {
+
+                            if($project->getProjectUsers()->contains($auth['user'])) {
+                                $projectData = [
+                                    'name' => $project->getName(),
+                                    'id' => $project->getId(),
+                                    'closed' => $project->getClosed()
+                                ];
+                                array_push($data, $projectData);
+                            } else {
+                                continue;
+                            }
+                        } else {
+                            $projectData = [
+                                'name' => $project->getName(),
+                                'id' => $project->getId(),
+                                'closed' => $project->getClosed()
+                            ];
+
+                            array_push($data['projects'], $projectData);
+                        }
+                    }
+
+                    return $this->responseManager->successResponse($data, 'projects_loaded');
+                }
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
     }
 }

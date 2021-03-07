@@ -233,33 +233,47 @@ class Task extends TaskooApiController
                         $data['task']['dateDue'] = $task->getDateDue();
                         $data['task']['isDone'] = $task->getDone();
                         $data['task']['subTasks'] = null;
-                        $data['task']['projectName'] = $project->getName();
-                        $data['task']['projectId'] = $project->getId();
+                        $data['task']['project']['name'] = $project->getName();
+                        $data['task']['project']['id'] = $project->getId();
+
+                        //project organisation data
+                        if($project->getOrganisation()) {
+                            $data['task']['project']['organisation']['id'] = $project->getOrganisation()->getId();
+                            $data['task']['project']['organisation']['name'] = $project->getOrganisation()->getName();
+                            if($project->getOrganisation()->getColor()) {
+                                $data['task']['project']['organisation']['color'] = $project->getOrganisation()->getColor()->getHexCode();
+                            }
+                        }
+
+                        //task priority
                         $data['task']['highPriority'] = $task->getHigherPriority();
 
-
-
-
+                        //mainTask data
                         $mainTask = $task->getMainTask();
                         if($mainTask) {
                             $data['task']['mainTaskId'] = $mainTask->getId();
                             $data['task']['mainTask'] = $mainTask->getName();
                         }
 
+                        //assignable users for task
                         if($project->getClosed()) {
                             $data['task']['availableUsers'] = $this->projectsRepository()->getProjectUsers($project->getId());
                         } else {
                             $data['task']['availableUsers'] = $this->organisationsRepository()->getOrganisationUsers($project->getOrganisation()->getId());
                         }
 
+                        //task finished data
                         if($task->getDone() === true) {
                             $data['task']['doneBy'] = [
                                 'firstname' => $task->getDoneBy()->getFirstname(),
                                 'lastname' => $task->getDoneBy()->getLastname(),
                                 'id' => $task->getDoneBy()->getId()
                             ];
+
+                            $data['task']['doneAt'] = $task->getDoneAt();
                         }
 
+                        //subTasks
                         if($getSubTasks === 'true') {
                             $data['task']['subTasks'] = $this->tasksRepository()->getSubTasks($task->getId());
 
@@ -270,9 +284,9 @@ class Task extends TaskooApiController
                             }
                         }
 
+                        //assigned users
                         $data['task']['users'] = $this->tasksRepository()->getAssignedUsers($task->getId());
 
-                        $data['task']['doneAt'] = $task->getDoneAt();
 
                         return $this->responseManager->successResponse($data, 'task_loaded');
                     }

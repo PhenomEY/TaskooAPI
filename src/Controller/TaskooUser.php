@@ -168,7 +168,7 @@ class TaskooUser extends TaskooApiController
     /**
      * @Route("/user/{userId}", name="api_user_get", methods={"GET"})
      */
-    public function getFullUser(int $userId, Request $request)
+    public function getUserbyId(int $userId, Request $request)
     {
         $data = [];
 
@@ -197,6 +197,16 @@ class TaskooUser extends TaskooApiController
 
                         if($user->getOrganisations()->count() === 0) {
                             $data['warnings']['organisations'] = true;
+                        }
+                    }
+
+                    if($user->getOrganisations()->count() > 0) {
+                        $organisations = $user->getOrganisations();
+                        foreach($organisations as $key=>$organisation) {
+                            $data['organisations'][$key] = [
+                                'name' => $organisation->getName(),
+                                'id' => $organisation->getId()
+                            ];
                         }
                     }
 
@@ -231,18 +241,17 @@ class TaskooUser extends TaskooApiController
                 $user = $this->userRepository()->find($userId);
 
                 if($user) {
-
                     //if requesting user is the updated user or admin
                     if($user->getId() === $auth['user']->getId() || $auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
 
                         $entityManager = $this->getDoctrine()->getManager();
 
-                        if(isset($payload['password'])) {
+                        if(isset($payload['password']) && !empty($payload['password'])) {
                             $hashedPassword = $this->authenticator->generatePassword($payload['password']);
                             $user->setPassword($hashedPassword);
                         }
 
-                        if($payload['email'] !== $user->getEmail()) {
+                        if(isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
                             //check if send email is already in use
                             $emailInUse = $this->userRepository()->findOneBy([
                                 'email' => $payload['email']
@@ -273,8 +282,21 @@ class TaskooUser extends TaskooApiController
                             $user->setActive($payload['active']);
                         }
 
-                        $user->setFirstname($payload['firstname']);
-                        $user->setLastname($payload['lastname']);
+                        if(isset($payload['firstname']) && $payload['lastname']) {
+                            $user->setFirstname($payload['firstname']);
+                            $user->setLastname($payload['lastname']);
+                        }
+
+
+                        if(isset($payload['addOrganisation']) && $auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
+                                        $organisation = $this->organisationsRepository()->find($payload['addOrganisation']);
+                                        $user->addOrganisation($organisation);
+                        }
+
+                        if(isset($payload['removeOrganisation']) && $auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
+                            $organisation = $this->organisationsRepository()->find($payload['removeOrganisation']);
+                            $user->removeOrganisation($organisation);
+                        }
 
                         $entityManager->persist($user);
                         $entityManager->flush();

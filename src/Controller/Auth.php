@@ -4,6 +4,7 @@ namespace App\Controller;
 mb_http_output('UTF-8');
 
 use App\Api\TaskooApiController;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\UserAuth;
@@ -28,6 +29,9 @@ class Auth extends TaskooApiController
 
             $hashedPassword = $this->authenticator->generatePassword($loginData['password']);
 
+            /**
+             * @var $user User
+             */
             $user = $this->userRepository()->findOneBy([
                 'email' => $loginData['username'],
                 'password' => $hashedPassword,
@@ -58,6 +62,26 @@ class Auth extends TaskooApiController
                     $data['user']['id'] = $user->getId();
                     $data['user']['role'] = $user->getRole();
                     $data['user']['email'] = $user->getEmail();
+
+
+                    if($user->getRole() === $this->authenticator::IS_ADMIN) {
+                        $organisations = $this->organisationsRepository()->findAll();
+                    } else {
+                        $organisations = $user->getOrganisations();
+                    }
+
+
+                    foreach($organisations as $key=>$organisation) {
+                        $data['organisations'][$key] = [
+                            'name' => $organisation->getName(),
+                            'id' => $organisation->getId(),
+                        ];
+
+                        if($organisation->getColor()) {
+                            $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
+                        }
+                    }
+
                     $user->setLastLogin();
 
                     $entityManager->persist($userAuth);
@@ -95,6 +119,24 @@ class Auth extends TaskooApiController
                 $data['user']['id'] = $userAuth->getUser()->getId();
                 $data['user']['role'] = $userAuth->getUser()->getRole();
                 $data['user']['email'] = $userAuth->getUser()->getEmail();
+
+                if($userAuth->getUser()->getRole() === $this->authenticator::IS_ADMIN) {
+                    $organisations = $this->organisationsRepository()->findAll();
+                } else {
+                    $organisations = $userAuth->getUser()->getOrganisations();
+                }
+
+
+                foreach($organisations as $key=>$organisation) {
+                    $data['organisations'][$key] = [
+                        'name' => $organisation->getName(),
+                        'id' => $organisation->getId(),
+                    ];
+
+                    if($organisation->getColor()) {
+                        $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
+                    }
+                }
 
                 return $this->responseManager->successResponse($data, 'auth_valid');
             } else {
