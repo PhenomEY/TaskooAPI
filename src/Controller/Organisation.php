@@ -5,11 +5,6 @@ mb_http_output('UTF-8');
 
 use App\Api\TaskooApiController;
 use App\Entity\Organisations;
-use App\Entity\Projects;
-use App\Security\TaskooAuthenticator;
-use Doctrine\Common\Collections\Criteria;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -26,7 +21,7 @@ class Organisation extends TaskooApiController
 
         //check if auth token got sent
         if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token, null, 10);
+            $auth = $this->authenticator->checkUserAuth($token, null, $this->authenticator::IS_ADMIN);
 
             if(isset($auth['user'])) {
                 $organisations = $this->organisationsRepository()->findAll();
@@ -35,8 +30,16 @@ class Organisation extends TaskooApiController
                     $data['organisations'][$key] = [
                         'id' => $organisation->getId(),
                         'name' => $organisation->getName(),
-                        'color' => $organisation->getColor()->getHexCode()
+                        'projectCount' => $organisation->getProjects()->count(),
+                        'userCount' => $organisation->getUsers()->count()
                     ];
+
+                    if($organisation->getColor()) {
+                        $data['organisations'][$key]['color'] = [
+                            'id' => $organisation->getColor()->getId(),
+                            'hexCode' => $organisation->getColor()->getHexCode()
+                        ];
+                    }
                 }
 
                 return $this->responseManager->successResponse($data, 'organisations_loaded');
@@ -47,7 +50,123 @@ class Organisation extends TaskooApiController
     }
 
     /**
+     * @Route("/organisation", name="api_organisation_create", methods={"POST"})
+     */
+    public function createOrganisations(Request $request)
+    {
+        $data = [];
+        $payload = json_decode($request->getContent(), true);
+        $token = $request->headers->get('authorization');
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //check if auth token got sent
+        if(isset($token) && isset($payload['name'])) {
+            $auth = $this->authenticator->checkUserAuth($token, null, $this->authenticator::IS_ADMIN);
+
+            if(isset($auth['user'])) {
+                $organisation = new Organisations();
+
+                $organisation->setName($payload['name']);
+
+                //get random color
+                $allColors = $this->colorsRepository()->findAll();
+                $colorId = rand ( 1, count($allColors));
+                $organisationColor = $this->colorsRepository()->find($colorId);
+
+                $organisation->setColor($organisationColor);
+
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($organisation);
+                $entityManager->flush();
+
+                return $this->responseManager->successResponse($data, 'organisations_created');
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
+     * @Route("/organisation/{orgId}", name="api_organisation_update", methods={"PUT"})
+     * @param int $orgId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function updateOrganisation(int $orgId, Request $request)
+    {
+        $data = [];
+        $payload = json_decode($request->getContent(), true);
+        $token = $request->headers->get('authorization');
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //check if auth token got sent
+        if(isset($token) && isset($payload['name'])) {
+            $auth = $this->authenticator->checkUserAuth($token, null, $this->authenticator::IS_ADMIN);
+
+            /**
+             * @var $organisation Organisations
+             */
+            $organisation = $this->organisationsRepository()->find($orgId);
+
+            if(isset($auth['user']) && isset($organisation)) {
+                if(isset($payload['color'])) {
+                    $color = $this->colorsRepository()->find($payload['color']);
+
+                    if($color) $organisation->setColor($color);
+                }
+
+                if(isset($payload['name']) && $payload['name'] !== '') {
+                    $organisation->setName($payload['name']);
+                }
+
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($organisation);
+                $entityManager->flush();
+
+                return $this->responseManager->successResponse($data, 'organisation_updated');
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
+     * @Route("/organisation/{orgId}", name="api_organisation_delete", methods={"DELETE"})
+     * @param int $orgId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function deleteOrganisation(int $orgId, Request $request)
+    {
+        $data = [];
+        $token = $request->headers->get('authorization');
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //check if auth token got sent
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token, null, $this->authenticator::IS_ADMIN);
+
+            /**
+             * @var $organisation Organisations
+             */
+            $organisation = $this->organisationsRepository()->find($orgId);
+
+            if(isset($auth['user']) && isset($organisation)) {
+                $entityManager->remove($organisation);
+                $entityManager->flush();
+
+                return $this->responseManager->successResponse($data, 'organisation_deleted');
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
+
+    /**
      * @Route("/organisation/{orgId}/projects", name="api_organisation_get_projects", methods={"GET"})
+     * @param int $orgId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function getOrganisationProjects(int $orgId, Request $request)
     {

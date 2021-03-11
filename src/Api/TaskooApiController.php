@@ -2,6 +2,7 @@
 
 namespace App\Api;
 
+use App\Entity\Color;
 use App\Entity\Notifications;
 use App\Entity\Organisations;
 use App\Entity\Projects;
@@ -52,4 +53,9 @@ class TaskooApiController extends AbstractController
     protected function settingsRepository(): ObjectRepository {
         return $this->getDoctrine()->getRepository(Settings::class);
     }
+
+    protected function colorsRepository(): ObjectRepository {
+        return $this->getDoctrine()->getRepository(Color::class);
+    }
+
 }

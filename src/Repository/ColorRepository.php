@@ -34,7 +34,19 @@ class ColorRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
-    */
+
+
+ */
+
+    public function getAvailableColors()
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.hexCode, c.id')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
 
     /*
     public function findOneBySomeField($value): ?Color

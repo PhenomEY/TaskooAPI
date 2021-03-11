@@ -25,7 +25,8 @@ class Organisations
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity=Projects::class, mappedBy="organisation")
+     * @ORM\OneToMany(targetEntity=Projects::class, mappedBy="organisation", cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $projects;
 

@@ -28,7 +28,8 @@ class Notifications
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Projects::class)
+     * @ORM\ManyToOne(targetEntity=Projects::class, cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $project;
 
