@@ -28,8 +28,10 @@ class ProjectsRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->select('u.id, u.firstname, u.lastname')
             ->andWhere('p.id = :project')
+            ->andWhere('u.active = :active')
             ->join('p.ProjectUsers', 'u')
             ->setParameter('project', $id)
+            ->setParameter('active', true)
             ->getQuery()
             ->getResult()
             ;

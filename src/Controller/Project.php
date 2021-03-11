@@ -33,6 +33,10 @@ class Project extends TaskooApiController
 
             if(isset($auth['user'])) {
                 //load project by id
+
+                /**
+                 * @var $project Projects
+                 */
                 $project = $this->projectsRepository()->find($projectId);
                 $auth = $this->authenticator->checkUserAuth($token, $project);
 
@@ -54,13 +58,15 @@ class Project extends TaskooApiController
                         }
 
                         if($project->getClosed()) {
-                            $data['project']['users'] = $project->getProjectUsers()->map(function($user) {
-                                return [
-                                    'firstname' => $user->getFirstname(),
-                                    'lastname' => $user->getLastname(),
-                                    'id' => $user->getId()
-                                ];
-                            })->toArray();
+                            $data['project']['users'] = $this->projectsRepository()->getProjectUsers($projectId);
+                        }
+
+                        if($project->getMainUser()) {
+                            $data['project']['mainUser'] = [
+                                'firstname' => $project->getMainUser()->getFirstname(),
+                                'lastname' => $project->getMainUser()->getLastname(),
+                                'id' => $project->getMainUser()->getId()
+                            ];
                         }
 
                         $data['groups'] = $project->getTaskgroups()
@@ -171,45 +177,37 @@ class Project extends TaskooApiController
 
         //check if auth data got sent
         if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token, null,  10);
+            $auth = $this->authenticator->checkUserAuth($token, null,  $this->authenticator::IS_ADMIN);
 
             //if payload exists
             if (!empty($payload)) {
                 if(isset($auth['user'])) {
-                    $projectName = $payload['projectName'];
-                    $deadline = $payload['deadline'];
-                    $groupName = $payload['groupName'];
-                    $organisationId = 1;
-                    $user = null;
-
                     //Create new Project
                     $project = new Projects();
-                    $project->setName($projectName);
-                    $dateTime = new \DateTime($deadline);
-                    $project->setDeadline($dateTime);
+                    $project->setName($payload['projectName']);
+
+                    $organisation = $this->organisationsRepository()->find($payload['organisationId']);
+                    $project->setOrganisation($organisation);
+
+                    if(isset($payload['deadline'])) {
+                        $dateTime = new \DateTime($payload['deadline']);
+                        $project->setDeadline($dateTime);
+                    }
+
+                    if(isset($payload['mainUser'])) {
+                        $mainUser = $this->userRepository()->find($payload['mainUser']);
+                        $project->setMainUser($mainUser);
+                    }
+
+
                     $project->setCreatedAt(new \DateTime('now'));
-                    $project->setClosed(true);
+                    $project->setClosed($payload['closed']);
                     $project->addProjectUser($auth['user']);
-                    $entityManager->persist($project);
-                    $entityManager->flush();
-
-                    //Create default Group
-                    $taskGroup = new TaskGroups();
-                    $taskGroup->setCreatedAt(new \DateTime('now'));
-                    $taskGroup->setProject($project);
-                    $taskGroup->setName($groupName);
-                    $taskGroup->setPosition(0);
-                    $entityManager->persist($taskGroup);
-                    $entityManager->flush();
-
-                    $project->addTaskGroup($taskGroup);
                     $entityManager->persist($project);
                     $entityManager->flush();
 
                     $data['projectId'] = $project->getId();
                     return $this->responseManager->createdResponse($data, 'project_created');
-                } else {
-                    return $this->responseManager->forbiddenResponse();
                 }
             } else {
                 return $this->responseManager->badRequestResponse();

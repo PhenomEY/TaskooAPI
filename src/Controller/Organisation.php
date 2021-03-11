@@ -221,4 +221,49 @@ class Organisation extends TaskooApiController
 
         return $this->responseManager->forbiddenResponse();
     }
+
+    /**
+     * @Route("/organisation/{orgId}/users", name="api_organisation_get_users", methods={"GET"})
+     * @param int $orgId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function getOrganisationUsers(int $orgId, Request $request)
+    {
+        $data = [
+            'users' => []
+        ];
+        $token = $request->headers->get('authorization');
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //check if auth token got sent
+        if(isset($token)) {
+            $auth = $this->authenticator->checkUserAuth($token);
+
+            if(isset($auth['user'])) {
+                /**
+                 * @var $organisation Organisations
+                 */
+                $organisation = $this->organisationsRepository()->find($orgId);
+
+                if($organisation) {
+                    $users = $organisation->getUsers();
+
+                    foreach($users as $user) {
+                        if(!$user->getActive()) continue;
+
+                        $data['users'][] = [
+                          'id' => $user->getId(),
+                          'firstname' => $user->getFirstname(),
+                          'lastname' => $user->getLastname()
+                        ];
+                    }
+
+                    return $this->responseManager->successResponse($data, 'users_loaded');
+                }
+            }
+        }
+
+        return $this->responseManager->forbiddenResponse();
+    }
 }

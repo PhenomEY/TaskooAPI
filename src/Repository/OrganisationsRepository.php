@@ -24,8 +24,10 @@ class OrganisationsRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->select('u.id, u.firstname, u.lastname')
             ->andWhere('p.id = :id')
+            ->andWhere('u.active = :active')
             ->join('p.Users', 'u')
             ->setParameter('id', $id)
+            ->setParameter('active', true)
             ->getQuery()
             ->getResult()
             ;
