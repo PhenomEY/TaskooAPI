@@ -44,6 +44,7 @@ class Project extends TaskooApiController
                 if($project !== null) {
                     //authentification process
                     if(isset($auth['user'])) {
+                        $data['project']['id'] = $project->getId();
                         $data['project']['name'] = $project->getName();
                         $data['project']['deadline'] = $project->getDeadline();
                         $data['project']['isClosed'] = $project->getClosed();
@@ -197,6 +198,7 @@ class Project extends TaskooApiController
                     if(isset($payload['mainUser'])) {
                         $mainUser = $this->userRepository()->find($payload['mainUser']);
                         $project->setMainUser($mainUser);
+                        $project->addProjectUser($mainUser);
                     }
 
 
@@ -234,6 +236,7 @@ class Project extends TaskooApiController
             $entityManager = $this->getDoctrine()->getManager();
 
             //if project for id was found
+            /** @var $project Projects */
             if($project) {
                 //authentification process
                 if(isset($auth['user'])) {
@@ -241,9 +244,30 @@ class Project extends TaskooApiController
 
                     if(!empty($payload)) {
 
-                        if(isset($payload['name'])) {
-                            $project->setName($payload['name']);
+
+                        //if user is admin
+                        if($auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
+                            if(isset($payload['name'])) {
+                                $project->setName($payload['name']);
+                            }
+
+                            if(isset($payload['isClosed'])) {
+                                $project->setClosed($payload['isClosed']);
+                            }
+
+                            if(isset($payload['mainUser'])) {
+                                $mainUser = $this->userRepository()->find($payload['mainUser']);
+
+                                if($mainUser) $project->setMainUser($mainUser);
+                            }
+
+                            if(isset($payload['deadline'])) {
+                                $dateTime = new \DateTime($payload['deadline']);
+                                $project->setDeadline($dateTime);
+                            }
                         }
+
+
 
                         if(isset($payload['groupPositions'])) {
                             $positions = $payload['groupPositions'];
