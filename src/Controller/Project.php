@@ -244,7 +244,6 @@ class Project extends TaskooApiController
 
                     if(!empty($payload)) {
 
-
                         //if user is admin
                         if($auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
                             if(isset($payload['name'])) {
@@ -264,6 +263,31 @@ class Project extends TaskooApiController
                             if(isset($payload['deadline'])) {
                                 $dateTime = new \DateTime($payload['deadline']);
                                 $project->setDeadline($dateTime);
+                            }
+
+                            if(isset($payload['addUser'])){
+                                $user = $this->userRepository()->find($payload['addUser']);
+
+                                if($user && !$project->getProjectUsers()->contains($user)) {
+                                    $project->addProjectUser($user);
+                                } else {
+                                    return $this->responseManager->errorResponse('adduser_failed');
+                                }
+                            }
+
+                            if(isset($payload['removeUser'])){
+                                $user = $this->userRepository()->find($payload['removeUser']);
+
+                                if($user && $project->getProjectUsers()->contains($user)) {
+                                    $project->removeProjectUser($user);
+
+                                    //if removed user was mainuser, remove him too
+                                    if($project->getMainUser()) {
+                                        if($project->getMainUser()->getId() === $user->getId()) {
+                                            $project->setMainUser(null);
+                                        }
+                                    }
+                                }
                             }
                         }
 

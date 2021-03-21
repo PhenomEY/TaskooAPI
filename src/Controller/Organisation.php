@@ -199,7 +199,7 @@ class Organisation extends TaskooApiController
                                     'id' => $project->getId(),
                                     'closed' => $project->getClosed()
                                 ];
-                                array_push($data, $projectData);
+                                array_push($data['projects'], $projectData);
                             } else {
                                 continue;
                             }
