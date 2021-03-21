@@ -198,6 +198,8 @@ class TaskooUser extends TaskooApiController
                         if($user->getOrganisations()->count() === 0) {
                             $data['warnings']['organisations'] = true;
                         }
+
+                        $data['role'] = $user->getRole();
                     }
 
                     if($user->getOrganisations()->count() > 0) {
@@ -296,6 +298,13 @@ class TaskooUser extends TaskooApiController
                         if(isset($payload['removeOrganisation']) && $auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
                             $organisation = $this->organisationsRepository()->find($payload['removeOrganisation']);
                             $user->removeOrganisation($organisation);
+                        }
+
+
+                        if($auth['user']->getRole() === $this->authenticator::IS_ADMIN) {
+                            if(isset($payload['role'])) {
+                                $user->setRole($payload['role']);
+                            }
                         }
 
                         $entityManager->persist($user);
