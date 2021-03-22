@@ -131,7 +131,7 @@ class Invite extends TaskooApiController
         $user->setLastname($payload['lastname']);
 
         $userRights = new UserRights();
-        $userRights->setDefaults();
+        $userRights->setDefaults($user);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($user);

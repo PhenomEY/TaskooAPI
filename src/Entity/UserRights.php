@@ -91,11 +91,12 @@ class UserRights
         return $this;
     }
 
-    public function setDefaults()
+    public function setDefaults($user)
     {
         $this->administration = false;
         $this->projectCreate = false;
         $this->projectEdit = false;
+        $this->user = $user;
 
         return $this;
     }

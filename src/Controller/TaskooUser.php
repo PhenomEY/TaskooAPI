@@ -137,7 +137,7 @@ class TaskooUser extends TaskooApiController
         $user->setActive(true);
 
         $userRights = new UserRights();
-        $userRights->setDefaults();
+        $userRights->setDefaults($user);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($userRights);
