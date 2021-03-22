@@ -6,6 +6,7 @@ date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
 use App\Entity\TaskGroups;
+use App\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,52 +19,34 @@ class TaskGroup extends TaskooApiController
     public function addTaskGroup(Request $request)
     {
         $data = [];
-
+        $payload = json_decode($request->getContent(), true);
+        if(!$payload) throw new InvalidRequestException();
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
+        $projectId = $payload['projectId'];
+        $project = $this->authenticator->checkProjectPermission($auth, $projectId);
 
-            if(isset($auth['user'])) {
+        $entityManager = $this->getDoctrine()->getManager();
 
-                $entityManager = $this->getDoctrine()->getManager();
-                $payload = json_decode($request->getContent(), true);
+        $groupName = $payload['name'];
+        $position = $payload['position'];
 
-                if(!empty($payload)) {
-                    $projectId = $payload['projectId'];
-                    $groupName = $payload['name'];
-                    $position = $payload['position'];
-                    $project = $this->projectsRepository()->find($projectId);
+        $taskGroup = new TaskGroups();
+        $taskGroup->setName($groupName);
+        $taskGroup->setProject($project);
+        $taskGroup->setPosition($position);
+        $taskGroup->setCreatedAt(new \DateTime('now'));
 
-                    if($project) {
-                        $auth = $this->authenticator->checkUserAuth($token, $project);
+        $entityManager->persist($taskGroup);
 
-                        if(isset($auth['user'])) {
-                            $taskGroup = new TaskGroups();
-                            $taskGroup->setName($groupName);
-                            $taskGroup->setProject($project);
-                            $taskGroup->setPosition($position);
-                            $taskGroup->setCreatedAt(new \DateTime('now'));
+        $project->addTaskGroup($taskGroup);
 
-                            $entityManager->persist($taskGroup);
+        $entityManager->persist($project);
+        $entityManager->flush();
 
-                            $project->addTaskGroup($taskGroup);
-
-                            $entityManager->persist($project);
-                            $entityManager->flush();
-
-                            $data['createdId'] = $taskGroup->getId();
-                            return $this->responseManager->createdResponse($data, 'group_created');
-                        }
-                    }
-                }
-
-            } else {
-                $this->responseManager->unauthorizedResponse();
-            }
-        }
-
-        return $this->responseManager->forbiddenResponse();
+        $data['createdId'] = $taskGroup->getId();
+        return $this->responseManager->createdResponse($data, 'group_created');
     }
 
 
@@ -73,93 +56,64 @@ class TaskGroup extends TaskooApiController
     public function updateTaskgroup(int $groupId, Request $request)
     {
         $data = [];
+        $payload = json_decode($request->getContent(), true);
+        if(!$payload) throw new InvalidRequestException();
 
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        $taskGroup = $this->taskGroupsRepository()->find($groupId);
+        if(!$taskGroup) throw new InvalidRequestException();
+        $project = $this->authenticator->checkProjectPermission($auth, $taskGroup->getProject()->getId());
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
-            if(isset($auth['user'])) {
-                $taskGroup = $this->taskGroupsRepository()->find($groupId);
+        $entityManager = $this->getDoctrine()->getManager();
 
-                if($taskGroup) {
-                    $project = $taskGroup->getProject();
-                    $auth = $this->authenticator->checkUserAuth($token, $project);
+        if(isset($payload['name'])) {
+            $taskGroup->setName($payload['name']);
+        }
 
-                    if(isset($auth['user'])) {
-                        $entityManager = $this->getDoctrine()->getManager();
-                        $payload = json_decode($request->getContent(), true);
+        if(isset($payload['taskPositions'])) {
+            $positions = $payload['taskPositions'];
+            foreach($positions as $position=>$id) {
+                $task = $this->tasksRepository()->find($id);
 
-                        if(!empty($payload)) {
-
-                            if(isset($payload['name'])) {
-                                $taskGroup->setName($payload['name']);
-                            }
-
-                            if(isset($payload['taskPositions'])) {
-                                $positions = $payload['taskPositions'];
-                                foreach($positions as $position=>$id) {
-                                    $task = $this->tasksRepository()->find($id);
-
-                                    //if task got moved into this group from another
-                                    if($task->getTaskGroup() !== $taskGroup) {
-                                        $task->setTaskGroup($taskGroup);
-                                    }
-
-                                    $task->setPosition($position);
-                                    $entityManager->persist($task);
-                                }
-                            }
-
-                            $entityManager->persist($taskGroup);
-                            $entityManager->flush();
-
-                            return $this->responseManager->successResponse($data, 'taskgroup_updated');
-                        }
-                    }
+                //if task got moved into this group from another
+                if($task->getTaskGroup() !== $taskGroup) {
+                    $task->setTaskGroup($taskGroup);
                 }
 
-            } else {
-                return $this->responseManager->unauthorizedResponse();
+                $task->setPosition($position);
+                $entityManager->persist($task);
             }
         }
 
-        return $this->responseManager->forbiddenResponse();
+        $entityManager->persist($taskGroup);
+        $entityManager->flush();
+
+        return $this->responseManager->successResponse($data, 'taskgroup_updated');
     }
 
     /**
      * @Route("/taskgroup/{groupId}", name="api_taskgroup_delete", methods={"DELETE"})
+     * @param int $groupId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function deleteTaskgroup(int $groupId, Request $request)
     {
         $data = [];
 
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        /** @var TaskGroups $taskGroup */
+        $taskGroup = $this->taskGroupsRepository()->find($groupId);
+        if(!$taskGroup) throw new InvalidRequestException();
+        $project = $this->authenticator->checkProjectPermission($auth, $taskGroup->getProject()->getId());
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
-            if(isset($auth['user'])) {
-                $taskGroup = $this->taskGroupsRepository()->find($groupId);
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($taskGroup);
+        $entityManager->flush();
 
-                if($taskGroup) {
-                    $project = $taskGroup->getProject();
-                    $auth = $this->authenticator->checkUserAuth($token, $project);
-
-                    if(isset($auth['user'])) {
-                        $entityManager = $this->getDoctrine()->getManager();
-
-                        $entityManager->remove($taskGroup);
-                        $entityManager->flush();
-
-                        return $this->responseManager->successResponse($data, 'taskgroup_deleted');
-                    }
-                }
-
-            } else {
-                return $this->responseManager->unauthorizedResponse();
-            }
-        }
-
-        return $this->responseManager->forbiddenResponse();
+        return $this->responseManager->successResponse($data, 'taskgroup_deleted');
     }
 
 
@@ -169,56 +123,42 @@ class TaskGroup extends TaskooApiController
     public function getTaskgroup(int $groupId, Request $request)
     {
         $data = [];
-
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        /** @var TaskGroups $taskGroup */
+        $taskGroup = $this->taskGroupsRepository()->find($groupId);
+        if(!$taskGroup) throw new InvalidRequestException();
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
-            if(isset($auth['user'])) {
-                $taskGroup = $this->taskGroupsRepository()->find($groupId);
+        $project = $this->authenticator->checkProjectPermission($auth, $taskGroup->getProject()->getId());
 
-                if($taskGroup) {
-                    $project = $taskGroup->getProject();
-                    $auth = $this->authenticator->checkUserAuth($token, $project);
+        $doneTasks = $request->query->get('done');
 
-                    if(isset($auth['user'])) {
-                        $doneTasks = $request->query->get('done');
+        if($doneTasks === 'true') {
+            $data['tasks'] = $this->tasksRepository()->getDoneTasks($groupId);
 
-                        if($doneTasks === 'true') {
-                            $data['tasks'] = $this->tasksRepository()->getDoneTasks($groupId);
+        } elseif ($doneTasks === 'false') {
+            $tasks = $this->tasksRepository()->getOpenTasks($groupId);
 
-                        } elseif ($doneTasks === 'false') {
-                            $tasks = $this->tasksRepository()->getOpenTasks($groupId);
-
-                            foreach($tasks as &$task) {
-                                if($task['description']) {
-                                    $task['description'] = true;
-                                }
-
-                                $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
-                                if($subTasks) {
-                                    $task['subTasks'] = true;
-                                }
-
-                                $users = $this->tasksRepository()->getAssignedUsers($task['id']);
-                                if($users) {
-                                    $task['user'] = $users[0];
-                                }
-                            }
-
-                            $data['tasks'] = $tasks;
-                        }
-
-
-                        return $this->responseManager->successResponse($data, 'taskgroup_loaded');
-                    }
+            foreach($tasks as &$task) {
+                if($task['description']) {
+                    $task['description'] = true;
                 }
 
-            } else {
-                return $this->responseManager->unauthorizedResponse();
+                $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
+                if($subTasks) {
+                    $task['subTasks'] = true;
+                }
+
+                $users = $this->tasksRepository()->getAssignedUsers($task['id']);
+                if($users) {
+                    $task['user'] = $users[0];
+                }
             }
+
+            $data['tasks'] = $tasks;
         }
 
-        return $this->responseManager->forbiddenResponse();
+        return $this->responseManager->successResponse($data, 'taskgroup_loaded');
+
     }
 }

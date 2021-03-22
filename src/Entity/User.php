@@ -41,11 +41,6 @@ class User
     private $lastname;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $role;
-
-    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $lastlogin;
@@ -89,6 +84,11 @@ class User
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $active;
+
+    /**
+     * @ORM\OneToOne(targetEntity=UserRights::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $userRights;
 
     public function __construct()
     {
@@ -151,18 +151,6 @@ class User
     public function setLastname(?string $lastname): self
     {
         $this->lastname = $lastname;
-
-        return $this;
-    }
-
-    public function getRole(): ?int
-    {
-        return $this->role;
-    }
-
-    public function setRole(?int $role): self
-    {
-        $this->role = $role;
 
         return $this;
     }
@@ -389,6 +377,23 @@ class User
     public function setActive(?bool $active): self
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function getUserRights(): ?UserRights
+    {
+        return $this->userRights;
+    }
+
+    public function setUserRights(UserRights $userRights): self
+    {
+        // set the owning side of the relation if necessary
+        if ($userRights->getUser() !== $this) {
+            $userRights->setUser($this);
+        }
+
+        $this->userRights = $userRights;
 
         return $this;
     }

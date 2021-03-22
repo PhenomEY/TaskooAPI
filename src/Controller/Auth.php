@@ -60,11 +60,25 @@ class Auth extends TaskooApiController
                     $data['user']['firstname'] = $user->getFirstname();
                     $data['user']['lastname'] = $user->getLastname();
                     $data['user']['id'] = $user->getId();
-                    $data['user']['role'] = $user->getRole();
                     $data['user']['email'] = $user->getEmail();
 
+                    $userRights = $user->getUserRights();
 
-                    if($user->getRole() === $this->authenticator::IS_ADMIN) {
+                    if($userRights->getAdministration()) {
+                        $data['user']['permissions']['administration'] = true;
+                    }
+
+                    if($userRights->getProjectCreate()) {
+                        $data['user']['permissions']['projectCreate'] = true;
+                    }
+
+                    if($userRights->getProjectEdit()) {
+                        $data['user']['permissions']['projectEdit'] = true;
+                    }
+
+
+
+                    if($user->getUserRights()->getAdministration()) {
                         $organisations = $this->organisationsRepository()->findAll();
                     } else {
                         $organisations = $user->getOrganisations();
@@ -105,43 +119,57 @@ class Auth extends TaskooApiController
     {
         $data = [];
 
-            $token = $request->headers->get('authorization');
+        $token = $request->headers->get('authorization');
 
-            $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
-                'token' => $token
-            ]);
+        /** @var UserAuth $userAuth */
+        $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
+            'token' => $token
+        ]);
 
-            //auth token is still valid
-            if($userAuth && $userAuth->getuser()->getActive()) {
+        //auth token is still valid
+        if($userAuth && $userAuth->getUser()->getActive()) {
 
-                $data['user']['firstname'] = $userAuth->getUser()->getFirstname();
-                $data['user']['lastname'] = $userAuth->getUser()->getLastname();
-                $data['user']['id'] = $userAuth->getUser()->getId();
-                $data['user']['role'] = $userAuth->getUser()->getRole();
-                $data['user']['email'] = $userAuth->getUser()->getEmail();
+            $data['user']['firstname'] = $userAuth->getUser()->getFirstname();
+            $data['user']['lastname'] = $userAuth->getUser()->getLastname();
+            $data['user']['id'] = $userAuth->getUser()->getId();
+            $data['user']['email'] = $userAuth->getUser()->getEmail();
 
-                if($userAuth->getUser()->getRole() === $this->authenticator::IS_ADMIN) {
-                    $organisations = $this->organisationsRepository()->findAll();
-                } else {
-                    $organisations = $userAuth->getUser()->getOrganisations();
-                }
+            $userRights = $userAuth->getUser()->getUserRights();
 
-
-                foreach($organisations as $key=>$organisation) {
-                    $data['organisations'][$key] = [
-                        'name' => $organisation->getName(),
-                        'id' => $organisation->getId(),
-                    ];
-
-                    if($organisation->getColor()) {
-                        $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
-                    }
-                }
-
-                return $this->responseManager->successResponse($data, 'auth_valid');
-            } else {
-                return $this->responseManager->unauthorizedResponse();
+            if($userRights->getAdministration()) {
+                $data['user']['permissions']['administration'] = true;
             }
+
+            if($userRights->getProjectCreate()) {
+                $data['user']['permissions']['projectCreate'] = true;
+            }
+
+            if($userRights->getProjectEdit()) {
+                $data['user']['permissions']['projectEdit'] = true;
+            }
+
+            if($userAuth->getUser()->getUserRights()->getAdministration()) {
+                $organisations = $this->organisationsRepository()->findAll();
+            } else {
+                $organisations = $userAuth->getUser()->getOrganisations();
+            }
+
+
+            foreach($organisations as $key=>$organisation) {
+                $data['organisations'][$key] = [
+                    'name' => $organisation->getName(),
+                    'id' => $organisation->getId(),
+                ];
+
+                if($organisation->getColor()) {
+                    $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
+                }
+            }
+
+            return $this->responseManager->successResponse($data, 'auth_valid');
+        } else {
+            return $this->responseManager->unauthorizedResponse();
+        }
 
     }
 }

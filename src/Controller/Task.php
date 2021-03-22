@@ -6,7 +6,10 @@ date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
 use App\Entity\Notifications;
+use App\Entity\TaskGroups;
 use App\Entity\Tasks;
+use App\Exception\InvalidRequestException;
+use App\Exception\NotAuthorizedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,66 +22,56 @@ class Task extends TaskooApiController
     public function addTask(Request $request)
     {
         $data = [];
+        $payload = json_decode($request->getContent(), true);
+        if(!$payload) throw new InvalidRequestException();
 
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        $entityManager = $this->getDoctrine()->getManager();
 
-        if(isset($token)) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $payload = json_decode($request->getContent(), true);
 
-            if(!empty($payload)) {
-                if(isset($payload['mainTaskId'])) {
-                    $mainTaskId = $payload['mainTaskId'];
-                    $mainTask = $this->tasksRepository()->find($mainTaskId);
-                    $taskGroup = $mainTask->getTaskGroup();
+        if(isset($payload['mainTaskId'])) {
+            $mainTaskId = $payload['mainTaskId'];
+            $mainTask = $this->tasksRepository()->find($mainTaskId);
+            /** @var TaskGroups $taskGroup */
+            $taskGroup = $mainTask->getTaskGroup();
 
-                } else {
-                    $groupId = $payload['groupId'];
-                    $taskGroup = $this->taskGroupsRepository()->find($groupId);
-                }
-
-                if($taskGroup) {
-                    $taskName = $payload['taskName'];
-                    $project = $taskGroup->getProject();
-
-                        $auth = $this->authenticator->checkUserAuth($token, $project);
-
-                        if(isset($auth['user'])) {
-                            if(isset($mainTask)) {
-                                $this->increaseSubPositions($mainTaskId);
-                            } else {
-                                $this->increasePositions($taskGroup->getId());
-                            }
-
-                            $task = new Tasks();
-                            $task->setName($taskName);
-                            $task->setPosition(0);
-                            $task->setDone(false);
-                            $task->setCreatedBy($auth['user']);
-                            $task->setCreatedAt(new \DateTime('now'));
-
-                            if(isset($mainTask)) {
-                                $task->setMainTask($mainTask);
-                            }
-
-                            $entityManager->persist($task);
-
-                            $taskGroup->addTask($task);
-                            $entityManager->persist($taskGroup);
-                            $entityManager->flush();
-
-                            $data['createdId'] = $task->getId();
-
-                            return $this->responseManager->createdResponse($data, 'task_created');
-
-                        } else {
-                            return $this->responseManager->unauthorizedResponse();
-                        }
-                }
-            }
+        } else {
+            $groupId = $payload['groupId'];
+            /** @var TaskGroups $taskGroup */
+            $taskGroup = $this->taskGroupsRepository()->find($groupId);
         }
 
-        return $this->responseManager->forbiddenResponse();
+        if(!$taskGroup) throw new InvalidRequestException();
+        $project = $this->authenticator->checkProjectPermission($auth, $taskGroup->getProject()->getId());
+        $taskName = $payload['taskName'];
+
+        if(isset($mainTask)) {
+            $this->increaseSubPositions($mainTaskId);
+        } else {
+            $this->increasePositions($taskGroup->getId());
+        }
+
+        $task = new Tasks();
+        $task->setName($taskName);
+        $task->setPosition(0);
+        $task->setDone(false);
+        $task->setCreatedBy($auth->getUser());
+        $task->setCreatedAt(new \DateTime('now'));
+
+        if(isset($mainTask)) {
+            $task->setMainTask($mainTask);
+        }
+
+        $entityManager->persist($task);
+
+        $taskGroup->addTask($task);
+        $entityManager->persist($taskGroup);
+        $entityManager->flush();
+
+        $data['createdId'] = $task->getId();
+
+        return $this->responseManager->createdResponse($data, 'task_created');
     }
 
     /**
@@ -86,118 +79,98 @@ class Task extends TaskooApiController
      */
     public function updateTask(int $taskId, Request $request)
     {
+        $payload = json_decode($request->getContent(), true);
+        if(!$payload) throw new InvalidRequestException();
+
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        /** @var $task Tasks */
+        $task = $this->tasksRepository()->find($taskId);
+        if(!$task) throw new InvalidRequestException();
+
+        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
 
         $data = [];
+        $entityManager = $this->getDoctrine()->getManager();
 
-        //check if auth data was sent
-        if(isset($token)) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $payload = json_decode($request->getContent(), true);
+        if(isset($payload['name'])) {
+            $task->setName($payload['name']);
+        }
 
-            if(!empty($payload)) {
+        if(isset($payload['description'])) {
+            $task->setDescription($payload['description']);
+        }
 
-
-                /**
-                 * @var $task Tasks
-                 */
-                $task = $this->tasksRepository()->find($taskId);
-                $project = $task->getTaskGroup()->getProject();
-
-                    $auth = $this->authenticator->checkUserAuth($token, $project);
-
-                    if(isset($auth['user'])) {
-                        if($task) {
-                            if(isset($payload['name'])) {
-                                $task->setName($payload['name']);
-                            }
-
-                            if(isset($payload['description'])) {
-                                $task->setDescription($payload['description']);
-                            }
-
-                            if(isset($payload['dateDue'])) {
-                                if($payload['dateDue'] === 'null') {
-                                    $task->setDateDue(null);
-                                } else {
-                                    $task->setDateDue(new \DateTime($payload['dateDue']));
-                                }
-                            }
-
-                            if(isset($payload['addUser'])) {
-                                $user = $this->userRepository()->find($payload['addUser']);
-
-                                //check if user is permitted to work in task
-                                if($user) {
-                                    $check = $this->authenticator->checkUserTaskAssignment($project, $user);
-                                    if($check) {
-                                        $task->addAssignedUser($user);
-
-                                        if($user !== $auth['user']) {
-
-                                            $notification = new Notifications();
-                                            $notification->setTask($task);
-                                            $notification->setByUser($auth['user']);
-                                            $notification->setUser($user);
-                                            $notification->setTime(new \DateTime('now'));
-                                            $notification->setMessage('task_assigned');
-
-                                            $entityManager->persist($notification);
-                                        }
-
-
-                                    } else {
-                                        $this->responseManager->unauthorizedResponse();
-                                    }
-                                }
-                            }
-
-                            if(isset($payload['removeUser'])) {
-                                $user = $this->userRepository()->find($payload['removeUser']);
-
-                                $task->removeAssignedUser($user);
-                            }
-
-                            if(isset($payload['done'])) {
-                                $task->setDone($payload['done']);
-
-                                if($payload['done'] === true) {
-                                    $task->setDoneBy($auth['user']);
-                                    $task->setDoneAt(new \DateTime('now'));
-
-                                    $data['doneAt'] = new \DateTime('now');
-                                    $data['doneBy'] = [
-                                        'firstname' => $auth['user']->getFirstname(),
-                                        'lastname' => $auth['user']->getLastname(),
-                                    ];
-                                }
-                            }
-
-                            if(isset($payload['subTaskPositions'])) {
-                                $positions = $payload['subTaskPositions'];
-                                foreach($positions as $position=>$id) {
-                                    $task = $this->tasksRepository()->find($id);
-                                    $task->setPosition($position);
-                                    $entityManager->persist($task);
-                                }
-                            }
-
-                            if(isset($payload['priority'])) {
-                                $task->setHigherPriority($payload['priority']);
-                            }
-
-                            $entityManager->persist($task);
-                            $entityManager->flush();
-
-                            return $this->responseManager->successResponse($data, 'task_updated');
-                        }
-                    } else {
-                        return $this->responseManager->unauthorizedResponse();
-                    }
+        if(isset($payload['dateDue'])) {
+            if($payload['dateDue'] === 'null') {
+                $task->setDateDue(null);
+            } else {
+                $task->setDateDue(new \DateTime($payload['dateDue']));
             }
         }
 
-        return $this->responseManager->forbiddenResponse();
+        if(isset($payload['addUser'])) {
+            $user = $this->userRepository()->find($payload['addUser']);
+
+            if($project->getClosed()) {
+                if(!$project->getProjectUsers()->contains($user)) throw new NotAuthorizedException();
+            } else {
+                if(!$project->getOrganisation()->getUsers()->contains($user)) throw new NotAuthorizedException();
+            }
+
+            $task->addAssignedUser($user);
+
+            if($user->getId() !== $auth->getUser()->getId()) {
+                $notification = new Notifications();
+                $notification->setTask($task);
+                $notification->setByUser($auth->getUser());
+                $notification->setUser($user);
+                $notification->setTime(new \DateTime('now'));
+                $notification->setMessage('task_assigned');
+
+                $entityManager->persist($notification);
+            }
+
+        }
+
+        if(isset($payload['removeUser'])) {
+            $user = $this->userRepository()->find($payload['removeUser']);
+
+            $task->removeAssignedUser($user);
+        }
+
+        if(isset($payload['done'])) {
+            $task->setDone($payload['done']);
+
+            if($payload['done'] === true) {
+                $task->setDoneBy($auth->getUser());
+                $task->setDoneAt(new \DateTime('now'));
+
+                $data['doneAt'] = new \DateTime('now');
+                $data['doneBy'] = [
+                    'firstname' => $auth->getUser()->getFirstname(),
+                    'lastname' => $auth->getUser()->getLastname(),
+                ];
+            }
+        }
+
+        if(isset($payload['subTaskPositions'])) {
+            $positions = $payload['subTaskPositions'];
+            foreach($positions as $position=>$id) {
+                $task = $this->tasksRepository()->find($id);
+                $task->setPosition($position);
+                $entityManager->persist($task);
+            }
+        }
+
+        if(isset($payload['priority'])) {
+            $task->setHigherPriority($payload['priority']);
+        }
+
+        $entityManager->persist($task);
+        $entityManager->flush();
+
+        return $this->responseManager->successResponse($data, 'task_updated');
     }
 
     /**
@@ -208,93 +181,79 @@ class Task extends TaskooApiController
         $data = [];
 
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        //get Task
+        /** @var $task Tasks */
+        $task = $this->tasksRepository()->find($taskId);
+        if(!$task) throw new InvalidRequestException();
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
+        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
 
-            if(isset($auth['user'])) {
-                //get Task
-                /**
-                 * @var $task Tasks
-                 */
-                $task = $this->tasksRepository()->find($taskId);
+        $getSubTasks = $request->query->get('subTasks');
 
-                if($task) {
-                    $project = $task->getTaskGroup()->getProject();
-                    //check if user is permitted to see the task
-                    $auth = $this->authenticator->checkUserAuth($token, $project);
-                    if(isset($auth['user'])) {
-                        $getSubTasks = $request->query->get('subTasks');
+        //collect data for app
+        $data['task']['id'] = $taskId;
+        $data['task']['name'] = $task->getName();
+        $data['task']['description'] = $task->getDescription();
+        $data['task']['dateDue'] = $task->getDateDue();
+        $data['task']['isDone'] = $task->getDone();
+        $data['task']['subTasks'] = null;
+        $data['task']['project']['name'] = $project->getName();
+        $data['task']['project']['id'] = $project->getId();
 
-                        //collect data for app
-                        $data['task']['id'] = $taskId;
-                        $data['task']['name'] = $task->getName();
-                        $data['task']['description'] = $task->getDescription();
-                        $data['task']['dateDue'] = $task->getDateDue();
-                        $data['task']['isDone'] = $task->getDone();
-                        $data['task']['subTasks'] = null;
-                        $data['task']['project']['name'] = $project->getName();
-                        $data['task']['project']['id'] = $project->getId();
+        //project organisation data
+        if($project->getOrganisation()) {
+            $data['task']['project']['organisation']['id'] = $project->getOrganisation()->getId();
+            $data['task']['project']['organisation']['name'] = $project->getOrganisation()->getName();
+            if($project->getOrganisation()->getColor()) {
+                $data['task']['project']['organisation']['color'] = $project->getOrganisation()->getColor()->getHexCode();
+            }
+        }
 
-                        //project organisation data
-                        if($project->getOrganisation()) {
-                            $data['task']['project']['organisation']['id'] = $project->getOrganisation()->getId();
-                            $data['task']['project']['organisation']['name'] = $project->getOrganisation()->getName();
-                            if($project->getOrganisation()->getColor()) {
-                                $data['task']['project']['organisation']['color'] = $project->getOrganisation()->getColor()->getHexCode();
-                            }
-                        }
+        //task priority
+        $data['task']['highPriority'] = $task->getHigherPriority();
 
-                        //task priority
-                        $data['task']['highPriority'] = $task->getHigherPriority();
+        //mainTask data
+        $mainTask = $task->getMainTask();
+        if($mainTask) {
+            $data['task']['mainTaskId'] = $mainTask->getId();
+            $data['task']['mainTask'] = $mainTask->getName();
+        }
 
-                        //mainTask data
-                        $mainTask = $task->getMainTask();
-                        if($mainTask) {
-                            $data['task']['mainTaskId'] = $mainTask->getId();
-                            $data['task']['mainTask'] = $mainTask->getName();
-                        }
+        //assignable users for task
+        if($project->getClosed()) {
+            $data['task']['availableUsers'] = $this->projectsRepository()->getProjectUsers($project->getId());
+        } else {
+            $data['task']['availableUsers'] = $this->organisationsRepository()->getOrganisationUsers($project->getOrganisation()->getId());
+        }
 
-                        //assignable users for task
-                        if($project->getClosed()) {
-                            $data['task']['availableUsers'] = $this->projectsRepository()->getProjectUsers($project->getId());
-                        } else {
-                            $data['task']['availableUsers'] = $this->organisationsRepository()->getOrganisationUsers($project->getOrganisation()->getId());
-                        }
+        //task finished data
+        if($task->getDone() === true) {
+            $data['task']['doneBy'] = [
+                'firstname' => $task->getDoneBy()->getFirstname(),
+                'lastname' => $task->getDoneBy()->getLastname(),
+                'id' => $task->getDoneBy()->getId()
+            ];
 
-                        //task finished data
-                        if($task->getDone() === true) {
-                            $data['task']['doneBy'] = [
-                                'firstname' => $task->getDoneBy()->getFirstname(),
-                                'lastname' => $task->getDoneBy()->getLastname(),
-                                'id' => $task->getDoneBy()->getId()
-                            ];
+            $data['task']['doneAt'] = $task->getDoneAt();
+        }
 
-                            $data['task']['doneAt'] = $task->getDoneAt();
-                        }
+        //subTasks
+        if($getSubTasks === 'true') {
+            $data['task']['subTasks'] = $this->tasksRepository()->getSubTasks($task->getId());
 
-                        //subTasks
-                        if($getSubTasks === 'true') {
-                            $data['task']['subTasks'] = $this->tasksRepository()->getSubTasks($task->getId());
-
-                            foreach($data['task']['subTasks'] as &$subTask) {
-                                if($subTask['description']) {
-                                    $subTask['description'] = true;
-                                }
-                            }
-                        }
-
-                        //assigned users
-                        $data['task']['users'] = $this->tasksRepository()->getAssignedUsers($task->getId());
-
-
-                        return $this->responseManager->successResponse($data, 'task_loaded');
-                    }
+            foreach($data['task']['subTasks'] as &$subTask) {
+                if($subTask['description']) {
+                    $subTask['description'] = true;
                 }
             }
         }
 
-        return $this->responseManager->forbiddenResponse();
+        //assigned users
+        $data['task']['users'] = $this->tasksRepository()->getAssignedUsers($task->getId());
+
+
+        return $this->responseManager->successResponse($data, 'task_loaded');
     }
 
     /**
@@ -305,29 +264,18 @@ class Task extends TaskooApiController
         $data = [];
 
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
+        //get Task
+        /** @var Tasks $task */
+        $task = $this->tasksRepository()->find($taskId);
+        if(!$task) throw new InvalidRequestException();
+        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
 
-            if(isset($auth['user'])) {
-                //get Task
-                $task = $this->tasksRepository()->find($taskId);
-
-                if($task) {
-                    $project = $task->getTaskGroup()->getProject();
-                    //check if user is permitted to see the task
-                    $auth = $this->authenticator->checkUserAuth($token, $project);
-                    if(isset($auth['user'])) {
-                        $entityManager = $this->getDoctrine()->getManager();
-                        $entityManager->remove($task);
-                        $entityManager->flush();
-                        return $this->responseManager->successResponse($data, 'task_deleted');
-                    }
-                }
-            }
-        }
-
-        return $this->responseManager->forbiddenResponse();
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($task);
+        $entityManager->flush();
+        return $this->responseManager->successResponse($data, 'task_deleted');
     }
 
     private function increaseSubPositions($mainTaskId) {

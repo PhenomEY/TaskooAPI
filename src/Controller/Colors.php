@@ -19,22 +19,15 @@ class Colors extends TaskooApiController
         $token = $request->headers->get('authorization');
         $entityManager = $this->getDoctrine()->getManager();
 
-        //check if auth token got sent
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
+        $auth = $this->authenticator->verifyToken($token);
 
-            if(isset($auth['user'])) {
-                $colorsRepository = $this->colorsRepository();
+        $colorsRepository = $this->colorsRepository();
 
-                $colors = $colorsRepository->getAvailableColors();
+        $colors = $colorsRepository->getAvailableColors();
 
-                $data['colors'] = $colors;
+        $data['colors'] = $colors;
 
-                return $this->responseManager->successResponse($data, 'colors_loaded');
-            }
+        return $this->responseManager->successResponse($data, 'colors_loaded');
 
-        }
-
-        return $this->responseManager->forbiddenResponse();
     }
 }

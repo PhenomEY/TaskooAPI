@@ -7,6 +7,8 @@ date_default_timezone_set('Europe/Amsterdam');
 use App\Api\TaskooApiController;
 use App\Entity\TempUrls;
 use App\Entity\User;
+use App\Entity\UserRights;
+use App\Exception\InvalidRequestException;
 use App\Service\TaskooMailerService;
 use App\Service\TemporaryURLService;
 use phpDocumentor\Reflection\Types\Integer;
@@ -101,49 +103,45 @@ class Invite extends TaskooApiController
     {
         $data = [];
         $payload = json_decode($request->getContent(), true);
+        if(!$payload) throw new InvalidRequestException();
+
         $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
 
-        //check if auth data got sent
-        if(isset($token) && isset($payload)) {
-            $auth = $this->authenticator->checkUserAuth($token, null,  10);
 
-            if(isset($auth['user'])) {
-                //check if email is valid
-                if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
-                    return $this->responseManager->errorResponse('invalid_email');
-                }
-
-                //check if send email is already in use
-                $emailInUse = $this->userRepository()->findOneBy([
-                    'email' => $payload['email']
-                ]);
-
-                //if mail already exists return error
-                if($emailInUse) {
-                    return $this->responseManager->errorResponse('email_in_use');
-                }
-
-                //else create new user
-                $user = new User();
-                $user->setEmail($payload['email']);
-                $user->setFirstname($payload['firstname']);
-                $user->setLastname($payload['lastname']);
-                $user->setRole(1);
-
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($user);
-                $entityManager->flush();
-
-                $inviteURL = $temporaryURLService->generateURL($temporaryURLService::INVITE_ACTION, 24, $user);
-
-                $mailerService->sendInviteMail($inviteURL, 24);
-
-                return $this->responseManager->successResponse($data, 'user_invite_send');
-            }
+        //check if email is valid
+        if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
+            return $this->responseManager->errorResponse('invalid_email');
         }
 
-//        $temporaryURLService->generateURL($temporaryURLService::INVITE_ACTION, 24);
+        //check if send email is already in use
+        $emailInUse = $this->userRepository()->findOneBy([
+            'email' => $payload['email']
+        ]);
 
-        return $this->responseManager->forbiddenResponse();
+        //if mail already exists return error
+        if($emailInUse) {
+            return $this->responseManager->errorResponse('email_in_use');
+        }
+
+        //else create new user
+        $user = new User();
+        $user->setEmail($payload['email']);
+        $user->setFirstname($payload['firstname']);
+        $user->setLastname($payload['lastname']);
+
+        $userRights = new UserRights();
+        $userRights->setDefaults();
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($user);
+        $entityManager->persist($userRights);
+        $entityManager->flush();
+
+        $inviteURL = $temporaryURLService->generateURL($temporaryURLService::INVITE_ACTION, 24, $user);
+
+        $mailerService->sendInviteMail($inviteURL, 24);
+
+        return $this->responseManager->successResponse($data, 'user_invite_send');
     }
 }

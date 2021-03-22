@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Security;
 
@@ -6,13 +6,24 @@ use App\Entity\Organisations;
 use App\Entity\Projects;
 use App\Entity\User;
 use App\Entity\UserAuth;
+use App\Exception\InvalidAuthenticationException;
+use App\Exception\InvalidRequestException;
+use App\Exception\NoAuthenticationException;
+use App\Exception\NotAuthorizedException;
+use App\Struct\AuthStruct;
 use Doctrine\ORM\EntityManagerInterface;
 
 
 class TaskooAuthenticator {
 
-    public const IS_ADMIN = 10;
-    public const IS_DEFAULT = 1;
+    public const PERMISSIONS = [
+        'ADMINISTRATION',
+        'PROJECT_CREATE',
+        'PROJECT_EDIT'
+    ];
+
+    public const IS_USER = 'IS_USER';
+    public const IS_API = 'IS_API';
 
     protected EntityManagerInterface $manager;
 
@@ -21,85 +32,52 @@ class TaskooAuthenticator {
         $this->manager = $manager;
     }
 
-    public function checkUserAuth($token, Projects $project = null, $role = self::IS_DEFAULT) {
-       $userAuth = $this->manager->getRepository(UserAuth::class)->findOneBy([
-           'token' => $token
-       ]);
+    public function verifyToken(?string $token, ?string $permission = null, ?int $id = null): ?AuthStruct {
+        if(!$token) throw new NoAuthenticationException();
 
-       if($userAuth) {
-           $authData = [
-             'user' => null,
-             'type' => null
-           ];
+        /** @var AuthStruct $auth */
+        $auth = $this->checkAuthToken($token);
 
-           //check if user got admin role
-           $userRole = $userAuth->getUser()->getRole();
-           if($userRole == static::IS_ADMIN) {
-               $authData['user'] = $userAuth->getUser();
-               $authData['type'] = 'is_admin';
+        if($permission) {
+            $this->checkPermission($permission, $auth);
+        }
 
-               return $authData;
-           }
-
-           if($project) {
-               //check if user is permitted in project
-               $user = $this->checkProjectPermission($project, $userAuth->getUser());
-
-               return $user;
-           }
-
-           //role 1 = all
-           if ($role == static::IS_DEFAULT) {
-               $authData['user'] = $userAuth->getUser();
-               $authData['type'] = 'is_loggedin';
-
-               return $authData;
-           } elseif ($userRole == $role) {
-               $authData['user'] = $userAuth->getUser();
-               $authData['type'] = 'role_'.$role;
-
-               return $authData;
-           }
-       }
-
-       return false;
+        return $auth;
     }
 
-    public function checkUserTaskAssignment(Projects $project, User $user) {
-        return $this->checkProjectPermission($project, $user);
-    }
+    public function checkProjectPermission(AuthStruct $auth, int $projectId): Projects {
+        /** @var Projects $project */
+        $project = $this->manager->getRepository(Projects::class)->find($projectId);
+        if(!$project) throw new InvalidRequestException();
 
-    private function checkProjectPermission(Projects $project, User $user) {
+        //if user is admin, do nothing
+        if(!$auth->getUser()->getUserRights()->getAdministration()) {
+            $user = $auth->getUser();
 
-        $authData = [
-            'user' => null,
-            'type' => null
-        ];
-
-        //check if project is closed (only for assigned users)
-        if($project->getClosed() === true) {
-
-            //check if user is assigned to project
-            $projectUsers = $project->getProjectUsers();
-            if($projectUsers->contains($user)) {
-                //return assigned user
-
-                $authData['user'] = $user;
-                $authData['type'] = 'is_in_project';
-
-                return $authData;
-            }
-        } else {
-            //project is visible for whole organisation - check if user is part of organisation
-            $organisationUsers = $project->getOrganisation()->getUsers();
-            if($organisationUsers->contains($user)) {
-                $authData['user'] = $user;
-                $authData['type'] = 'project_open';
-                return $authData;
+            if($project->getClosed()) {
+                //project is closed, check if user is assigned to project
+                if(!$project->getProjectUsers()->contains($user)) throw new NotAuthorizedException();
+            } else {
+                //project is open, check if user is assigned to organisation
+                $organisation = $project->getOrganisation();
+                if(!$organisation->getUsers()->contains($user)) throw new NotAuthorizedException();
             }
         }
 
-        return false;
+        return $project;
+    }
+
+    public function checkOrganisationPermission(AuthStruct $auth, int $organisationId): Organisations {
+        /** @var Organisations $organisation */
+        $organisation = $this->manager->getRepository(Organisations::class)->find($organisationId);
+        if(!$organisation) throw new InvalidRequestException();
+        //if user is admin, do nothing
+        if(!$auth->getUser()->getUserRights()->getAdministration()) {
+            $user = $auth->getUser();
+            if(!$organisation->getUsers()->contains($user)) throw new NotAuthorizedException();
+        }
+
+        return $organisation;
     }
 
     public function generatePassword($password): string {
@@ -110,5 +88,44 @@ class TaskooAuthenticator {
 
     public function generateAuthToken(String $salt): string {
         return hash('sha256', time().$salt.bin2hex(random_bytes(16)));
+    }
+
+    private function checkAuthToken($token): ?AuthStruct {
+        /** @var UserAuth $userAuth */
+       $userAuth = $this->manager->getRepository(UserAuth::class)->findOneBy([
+           'token' => $token
+       ]);
+
+       //if token doesnt exist
+       if(!$userAuth) throw new InvalidAuthenticationException();
+
+       //if user is inactive
+       if(!$userAuth->getUser()->getActive()) throw new NotAuthorizedException();
+
+       $authStruct = new AuthStruct(self::IS_USER, $userAuth->getUser());
+
+       return $authStruct;
+    }
+
+    private function checkPermission(string $permission, AuthStruct $auth): bool {
+        //todo: check if api request got send
+        if($auth->getType() === self::IS_USER) {
+            $user = $auth->getUser();
+        }
+
+        //if user is admin, let him PASS!!
+        if($user->getUserRights()->getAdministration()) return true;
+
+        if(!in_array($permission, self::PERMISSIONS)) throw new InvalidRequestException();
+
+        if($permission === 'ADMINISTRATION') {
+            if(!$user->getUserRights()->getAdministration()) throw new NotAuthorizedException();
+        } else if ($permission === 'PROJECT_CREATE') {
+            if(!$user->getUserRights()->getProjectCreate()) throw new NotAuthorizedException();
+        } else if ($permission === 'PROJECT_EDIT') {
+            if(!$user->getUserRights()->getProjectEdit()) throw new NotAuthorizedException();
+        }
+
+        return true;
     }
 }
