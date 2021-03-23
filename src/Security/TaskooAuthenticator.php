@@ -15,16 +15,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 
 class TaskooAuthenticator {
-
-    /**
-     * @deprecated use constants below instead
-     */
-    public const PERMISSIONS = [
-        'ADMINISTRATION',
-        'PROJECT_CREATE',
-        'PROJECT_EDIT'
-    ];
-    
     public const PERMISSIONS_ADMINISTRATION = 'ADMINISTRATION';
     public const PERMISSIONS_PROJECT_CREATE = 'PROJECT_CREATE';
     public const PERMISSIONS_PROJECT_EDIT   = 'PROJECT_EDIT';
