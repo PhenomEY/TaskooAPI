@@ -15,12 +15,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 
 class TaskooAuthenticator {
-
-    public const PERMISSIONS = [
-        'ADMINISTRATION',
-        'PROJECT_CREATE',
-        'PROJECT_EDIT'
-    ];
+    public const PERMISSIONS_ADMINISTRATION = 'ADMINISTRATION';
+    public const PERMISSIONS_PROJECT_CREATE = 'PROJECT_CREATE';
+    public const PERMISSIONS_PROJECT_EDIT   = 'PROJECT_EDIT';
 
     public const IS_USER = 'IS_USER';
     public const IS_API = 'IS_API';
@@ -115,15 +112,19 @@ class TaskooAuthenticator {
 
         //if user is admin, let him PASS!!
         if($user->getUserRights()->getAdministration()) return true;
-
-        if(!in_array($permission, self::PERMISSIONS)) throw new InvalidRequestException();
-
-        if($permission === 'ADMINISTRATION') {
-            if(!$user->getUserRights()->getAdministration()) throw new NotAuthorizedException();
-        } else if ($permission === 'PROJECT_CREATE') {
-            if(!$user->getUserRights()->getProjectCreate()) throw new NotAuthorizedException();
-        } else if ($permission === 'PROJECT_EDIT') {
-            if(!$user->getUserRights()->getProjectEdit()) throw new NotAuthorizedException();
+      
+        switch($permission) {
+            case self::PERMISSIONS_ADMINISTRATION:
+                if(!$user->getUserRights()->getAdministration()) throw new NotAuthorizedException();
+                break;
+            case self::PERMISSIONS_PROJECT_CREATE:
+                if(!$user->getUserRights()->getProjectCreate()) throw new NotAuthorizedException();
+                break;
+            case self::PERMISSIONS_PROJECT_EDIT:
+                if(!$user->getUserRights()->getProjectEdit()) throw new NotAuthorizedException();
+                break;
+            default:
+                throw new InvalidRequestException();
         }
 
         return true;
