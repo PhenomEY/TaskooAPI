@@ -174,6 +174,13 @@ class TaskooUser extends TaskooApiController
             if($user->getOrganisations()->count() === 0) {
                 $data['warnings']['organisations'] = true;
             }
+
+            $permissions = $user->getUserRights();
+
+            $data['permissions']['administration'] = $permissions->getAdministration();
+            $data['permissions']['project_edit'] = $permissions->getProjectEdit();
+            $data['permissions']['project_create'] = $permissions->getProjectCreate();
+
         }
 
         if($user->getOrganisations()->count() > 0) {
@@ -250,15 +257,36 @@ class TaskooUser extends TaskooApiController
             }
 
 
-            if (isset($payload['addOrganisation']) && $auth->getUser()->getUserRights()->getAdministration()) {
-                $organisation = $this->organisationsRepository()->find($payload['addOrganisation']);
-                $user->addOrganisation($organisation);
+
+            if($auth->getUser()->getUserRights()->getAdministration()) {
+                $userRights = $user->getUserRights();
+
+                if (isset($payload['addOrganisation'])) {
+                    $organisation = $this->organisationsRepository()->find($payload['addOrganisation']);
+                    $user->addOrganisation($organisation);
+                }
+
+                if (isset($payload['removeOrganisation'])) {
+                    $organisation = $this->organisationsRepository()->find($payload['removeOrganisation']);
+                    $user->removeOrganisation($organisation);
+                }
+
+                if(isset($payload['permissions']['administration'])) {
+                    $userRights->setAdministration($payload['permissions']['administration']);
+                }
+
+                if(isset($payload['permissions']['project_edit'])) {
+                    $userRights->setProjectEdit($payload['permissions']['project_edit']);
+                }
+
+                if(isset($payload['permissions']['project_create'])) {
+                    $userRights->setProjectCreate($payload['permissions']['project_create']);
+                }
+
+                $entityManager->persist($userRights);
             }
 
-            if (isset($payload['removeOrganisation']) && $auth->getUser()->getUserRights()->getAdministration()) {
-                $organisation = $this->organisationsRepository()->find($payload['removeOrganisation']);
-                $user->removeOrganisation($organisation);
-            }
+
 
             $entityManager->persist($user);
             $entityManager->flush();

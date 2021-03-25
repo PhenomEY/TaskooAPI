@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 
 use App\Api\TaskooApiController;
 use App\Entity\User;
+use App\Exception\NotAuthorizedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\UserAuth;
@@ -69,11 +70,11 @@ class Auth extends TaskooApiController
                     }
 
                     if($userRights->getProjectCreate()) {
-                        $data['user']['permissions']['projectCreate'] = true;
+                        $data['user']['permissions']['project_create'] = true;
                     }
 
                     if($userRights->getProjectEdit()) {
-                        $data['user']['permissions']['projectEdit'] = true;
+                        $data['user']['permissions']['project_edit'] = true;
                     }
 
 
@@ -104,7 +105,7 @@ class Auth extends TaskooApiController
                 return $this->responseManager->successResponse($data, 'login_success');
             } else {
 
-                return $this->responseManager->unauthorizedResponse();
+                throw new NotAuthorizedException();
             }
         }
 
@@ -141,11 +142,11 @@ class Auth extends TaskooApiController
             }
 
             if($userRights->getProjectCreate()) {
-                $data['user']['permissions']['projectCreate'] = true;
+                $data['user']['permissions']['project_create'] = true;
             }
 
             if($userRights->getProjectEdit()) {
-                $data['user']['permissions']['projectEdit'] = true;
+                $data['user']['permissions']['project_edit'] = true;
             }
 
             if($userAuth->getUser()->getUserRights()->getAdministration()) {
