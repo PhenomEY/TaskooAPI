@@ -6,14 +6,13 @@ mb_http_output('UTF-8');
 use App\Api\TaskooApiController;
 use App\Entity\User;
 use App\Exception\NotAuthorizedException;
+use App\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\UserAuth;
 
 class Auth extends TaskooApiController
 {
-
-
     /**
      * @Route("/auth/login", name="api_auth_login", methods={"POST"})
      */
@@ -24,94 +23,87 @@ class Auth extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         $entityManager = $this->getDoctrine()->getManager();
 
-        //if payload exists
-        if (!empty($payload)) {
-            $loginData = $payload['login'];
+        if (empty($payload)) {
+           throw new InvalidRequestException();
+        }
+        
+        $loginData = $payload['login'];
 
-            $hashedPassword = $this->authenticator->generatePassword($loginData['password']);
+        $hashedPassword = $this->authenticator->generatePassword($loginData['password']);
 
-            /**
-             * @var $user User
-             */
-            $user = $this->userRepository()->findOneBy([
-                'email' => $loginData['username'],
-                'password' => $hashedPassword,
-                'active' => true
-            ]);
+        /**
+         * @var $user User
+         */
+        $user = $this->userRepository()->findOneBy([
+            'email' => $loginData['username'],
+            'password' => $hashedPassword,
+            'active' => true
+        ]);
 
-            //if user found
-            if ($user !== null) {
-                    $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
-                        'user' => $user->getId()
-                    ]);
+        if ($user === null) {
+            throw new NotAuthorizedException();    
+        }
+        
+        $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
+            'user' => $user->getId()
+        ]);
 
-                    //no token found for user
-                    if($userAuth == null) {
-                        //Generate new UserAuth
-                        $userAuth = new UserAuth();
-                        $userAuth->setUser($user);
-                        $userAuth->setToken($this->authenticator->generateAuthToken($user->getEmail()));
-                    } else {
-                        //save new generated logintoken to user
-                        $userAuth->setToken($this->authenticator->generateAuthToken($user->getEmail()));
-                    }
+        //no token found for user
+        if($userAuth == null) {
+            //Generate new UserAuth
+            $userAuth = new UserAuth();
+            $userAuth->setUser($user);
+            $userAuth->setToken($this->authenticator->generateAuthToken($user->getEmail()));
+        } else {
+            //save new generated logintoken to user
+            $userAuth->setToken($this->authenticator->generateAuthToken($user->getEmail()));
+        }
 
-                    //return data for app
-                    $data['auth'] = $userAuth->getToken();
-                    $data['user']['firstname'] = $user->getFirstname();
-                    $data['user']['lastname'] = $user->getLastname();
-                    $data['user']['id'] = $user->getId();
-                    $data['user']['email'] = $user->getEmail();
+        //return data for app
+        $data['auth'] = $userAuth->getToken();
+        $data['user']['firstname'] = $user->getFirstname();
+        $data['user']['lastname'] = $user->getLastname();
+        $data['user']['id'] = $user->getId();
+        $data['user']['email'] = $user->getEmail();
 
-                    $userRights = $user->getUserRights();
+        $userRights = $user->getUserRights();
 
-                    if($userRights->getAdministration()) {
-                        $data['user']['permissions']['administration'] = true;
-                    }
+        if($userRights->getAdministration()) {
+            $data['user']['permissions']['administration'] = true;
+        }
 
-                    if($userRights->getProjectCreate()) {
-                        $data['user']['permissions']['project_create'] = true;
-                    }
+        if($userRights->getProjectCreate()) {
+            $data['user']['permissions']['project_create'] = true;
+        }
 
-                    if($userRights->getProjectEdit()) {
-                        $data['user']['permissions']['project_edit'] = true;
-                    }
+        if($userRights->getProjectEdit()) {
+            $data['user']['permissions']['project_edit'] = true;
+        }
 
+        if($user->getUserRights()->getAdministration()) {
+            $organisations = $this->organisationsRepository()->findAll();
+        } else {
+            $organisations = $user->getOrganisations();
+        }
 
+        foreach($organisations as $key=>$organisation) {
+            $data['organisations'][$key] = [
+                'name' => $organisation->getName(),
+                'id' => $organisation->getId(),
+            ];
 
-                    if($user->getUserRights()->getAdministration()) {
-                        $organisations = $this->organisationsRepository()->findAll();
-                    } else {
-                        $organisations = $user->getOrganisations();
-                    }
-
-
-                    foreach($organisations as $key=>$organisation) {
-                        $data['organisations'][$key] = [
-                            'name' => $organisation->getName(),
-                            'id' => $organisation->getId(),
-                        ];
-
-                        if($organisation->getColor()) {
-                            $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
-                        }
-                    }
-
-                    $user->setLastLogin();
-
-                    $entityManager->persist($userAuth);
-                    $entityManager->flush();
-
-                return $this->responseManager->successResponse($data, 'login_success');
-            } else {
-
-                throw new NotAuthorizedException();
+            if($organisation->getColor()) {
+                $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
             }
         }
 
+        $user->setLastLogin();
 
+        $entityManager->persist($userAuth);
+        $entityManager->flush();
+
+        return $this->responseManager->successResponse($data, 'login_success');
     }
-
 
     /**
      * @Route("/auth/check", name="api_auth_check", methods={"GET"})
