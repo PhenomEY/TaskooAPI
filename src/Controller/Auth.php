@@ -23,7 +23,7 @@ class Auth extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         $entityManager = $this->getDoctrine()->getManager();
 
-        if (empty($payload)) {
+        if(empty($payload)) {
            throw new InvalidRequestException();
         }
         
@@ -40,8 +40,8 @@ class Auth extends TaskooApiController
             'active' => true
         ]);
 
-        if ($user === null) {
-            throw new NotAuthorizedException();    
+        if($user === null) {
+            throw new NotAuthorizedException();
         }
         
         $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
@@ -119,50 +119,49 @@ class Auth extends TaskooApiController
             'token' => $token
         ]);
 
+        
+        if(!$userAuth || !$userAuth->getUser()->getActive()) {
+            throw new NotAuthorizedException();
+        }
+        
         //auth token is still valid
-        if($userAuth && $userAuth->getUser()->getActive()) {
+        $data['user']['firstname'] = $userAuth->getUser()->getFirstname();
+        $data['user']['lastname'] = $userAuth->getUser()->getLastname();
+        $data['user']['id'] = $userAuth->getUser()->getId();
+        $data['user']['email'] = $userAuth->getUser()->getEmail();
 
-            $data['user']['firstname'] = $userAuth->getUser()->getFirstname();
-            $data['user']['lastname'] = $userAuth->getUser()->getLastname();
-            $data['user']['id'] = $userAuth->getUser()->getId();
-            $data['user']['email'] = $userAuth->getUser()->getEmail();
+        $userRights = $userAuth->getUser()->getUserRights();
 
-            $userRights = $userAuth->getUser()->getUserRights();
-
-            if($userRights->getAdministration()) {
-                $data['user']['permissions']['administration'] = true;
-            }
-
-            if($userRights->getProjectCreate()) {
-                $data['user']['permissions']['project_create'] = true;
-            }
-
-            if($userRights->getProjectEdit()) {
-                $data['user']['permissions']['project_edit'] = true;
-            }
-
-            if($userAuth->getUser()->getUserRights()->getAdministration()) {
-                $organisations = $this->organisationsRepository()->findAll();
-            } else {
-                $organisations = $userAuth->getUser()->getOrganisations();
-            }
-
-
-            foreach($organisations as $key=>$organisation) {
-                $data['organisations'][$key] = [
-                    'name' => $organisation->getName(),
-                    'id' => $organisation->getId(),
-                ];
-
-                if($organisation->getColor()) {
-                    $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
-                }
-            }
-
-            return $this->responseManager->successResponse($data, 'auth_valid');
-        } else {
-            return $this->responseManager->unauthorizedResponse();
+        if($userRights->getAdministration()) {
+            $data['user']['permissions']['administration'] = true;
         }
 
+        if($userRights->getProjectCreate()) {
+            $data['user']['permissions']['project_create'] = true;
+        }
+
+        if($userRights->getProjectEdit()) {
+            $data['user']['permissions']['project_edit'] = true;
+        }
+
+        if($userAuth->getUser()->getUserRights()->getAdministration()) {
+            $organisations = $this->organisationsRepository()->findAll();
+        } else {
+            $organisations = $userAuth->getUser()->getOrganisations();
+        }
+
+
+        foreach($organisations as $key=>$organisation) {
+            $data['organisations'][$key] = [
+                'name' => $organisation->getName(),
+                'id' => $organisation->getId(),
+            ];
+
+            if($organisation->getColor()) {
+                $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
+            }
+        }
+
+        return $this->responseManager->successResponse($data, 'auth_valid');
     }
 }
