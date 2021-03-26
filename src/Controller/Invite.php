@@ -37,7 +37,7 @@ class Invite extends TaskooApiController
         $invite = $temporaryURLService->verifyURL($inviteId, $temporaryURLService::INVITE_ACTION);
 
         if(!$invite) {
-            return $this->responseManager->forbiddenResponse();
+            throw new InvalidRequestException();
         }
         
         $data['user'] = [
@@ -67,7 +67,7 @@ class Invite extends TaskooApiController
         $invite = $temporaryURLService->verifyURL($inviteId, $temporaryURLService::INVITE_ACTION);
 
         if(!$invite || !isset($payload['password'])) {
-            return $this->responseManager->forbiddenResponse();
+            throw new InvalidRequestException();
         }
         
         $user = $invite->getUser();
