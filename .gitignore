@@ -60,7 +60,8 @@
 /web/css/
 /web/js/
 
-.env
+### User Files ###
+.env.local
 .idea
 
 # End of https://www.toptal.com/developers/gitignore/api/symfony
