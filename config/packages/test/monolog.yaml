@@ -1,10 +1,9 @@
 monolog:
     handlers:
         main:
-            type: fingers_crossed
+            type: stream
             action_level: error
             handler: nested
-            excluded_http_codes: [404, 405]
             channels: ["!event"]
         nested:
             type: stream
