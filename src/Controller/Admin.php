@@ -84,7 +84,7 @@ class Admin extends TaskooApiController
                 'active' => $user->getActive()
             ];
 
-            if($user->getUserRights()->getAdministration()) {
+            if($user->getUserPermissions()->getAdministration()) {
                 $userData['isAdmin'] = true;
             }
 

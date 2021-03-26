@@ -7,7 +7,7 @@ date_default_timezone_set('Europe/Amsterdam');
 use App\Api\TaskooApiController;
 use App\Entity\TempUrls;
 use App\Entity\User;
-use App\Entity\UserRights;
+use App\Entity\UserPermissions;
 use App\Exception\InvalidRequestException;
 use App\Service\TaskooMailerService;
 use App\Service\TemporaryURLService;
@@ -130,12 +130,12 @@ class Invite extends TaskooApiController
         $user->setFirstname($payload['firstname']);
         $user->setLastname($payload['lastname']);
 
-        $userRights = new UserRights();
-        $userRights->setDefaults($user);
+        $permissions = new UserPermissions();
+        $permissions->setDefaults($user);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($user);
-        $entityManager->persist($userRights);
+        $entityManager->persist($permissions);
         $entityManager->flush();
 
         $inviteURL = $temporaryURLService->generateURL($temporaryURLService::INVITE_ACTION, 24, $user);

@@ -163,7 +163,7 @@ class Project extends TaskooApiController
         $entityManager = $this->getDoctrine()->getManager();
 
         //if user has rights to edit projects or is admin
-        if($auth->getUser()->getUserRights()->getAdministration() || $auth->getUser()->getUserRights()->getProjectEdit()) {
+        if($auth->getUser()->getUserPermissions()->getAdministration() || $auth->getUser()->getUserPermissions()->getProjectEdit()) {
             if(isset($payload['name'])) {
                 $project->setName($payload['name']);
             }

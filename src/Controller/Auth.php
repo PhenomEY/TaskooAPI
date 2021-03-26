@@ -66,21 +66,21 @@ class Auth extends TaskooApiController
         $data['user']['id'] = $user->getId();
         $data['user']['email'] = $user->getEmail();
 
-        $userRights = $user->getUserRights();
+        $userPermissions = $user->getUserPermissions();
 
-        if($userRights->getAdministration()) {
+        if($userPermissions->getAdministration()) {
             $data['user']['permissions']['administration'] = true;
         }
 
-        if($userRights->getProjectCreate()) {
+        if($userPermissions->getProjectCreate()) {
             $data['user']['permissions']['project_create'] = true;
         }
 
-        if($userRights->getProjectEdit()) {
+        if($userPermissions->getProjectEdit()) {
             $data['user']['permissions']['project_edit'] = true;
         }
 
-        if($user->getUserRights()->getAdministration()) {
+        if($user->getUserPermissions()->getAdministration()) {
             $organisations = $this->organisationsRepository()->findAll();
         } else {
             $organisations = $user->getOrganisations();
@@ -130,21 +130,21 @@ class Auth extends TaskooApiController
         $data['user']['id'] = $userAuth->getUser()->getId();
         $data['user']['email'] = $userAuth->getUser()->getEmail();
 
-        $userRights = $userAuth->getUser()->getUserRights();
+        $userPermissions = $userAuth->getUser()->getUserPermissions();
 
-        if($userRights->getAdministration()) {
+        if($userPermissions->getAdministration()) {
             $data['user']['permissions']['administration'] = true;
         }
 
-        if($userRights->getProjectCreate()) {
+        if($userPermissions->getProjectCreate()) {
             $data['user']['permissions']['project_create'] = true;
         }
 
-        if($userRights->getProjectEdit()) {
+        if($userPermissions->getProjectEdit()) {
             $data['user']['permissions']['project_edit'] = true;
         }
 
-        if($userAuth->getUser()->getUserRights()->getAdministration()) {
+        if($userAuth->getUser()->getUserPermissions()->getAdministration()) {
             $organisations = $this->organisationsRepository()->findAll();
         } else {
             $organisations = $userAuth->getUser()->getOrganisations();

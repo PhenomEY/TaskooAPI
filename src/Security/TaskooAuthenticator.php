@@ -48,7 +48,7 @@ class TaskooAuthenticator {
         if(!$project) throw new InvalidRequestException();
 
         //if user is admin, do nothing
-        if(!$auth->getUser()->getUserRights()->getAdministration()) {
+        if(!$auth->getUser()->getUserPermissions()->getAdministration()) {
             $user = $auth->getUser();
 
             if($project->getClosed()) {
@@ -69,7 +69,7 @@ class TaskooAuthenticator {
         $organisation = $this->manager->getRepository(Organisations::class)->find($organisationId);
         if(!$organisation) throw new InvalidRequestException();
         //if user is admin, do nothing
-        if(!$auth->getUser()->getUserRights()->getAdministration()) {
+        if(!$auth->getUser()->getUserPermissions()->getAdministration()) {
             $user = $auth->getUser();
             if(!$organisation->getUsers()->contains($user)) throw new NotAuthorizedException();
         }
@@ -111,17 +111,17 @@ class TaskooAuthenticator {
         }
 
         //if user is admin, let him PASS!!
-        if($user->getUserRights()->getAdministration()) return true;
+        if($user->getUserPermissions()->getAdministration()) return true;
       
         switch($permission) {
             case self::PERMISSIONS_ADMINISTRATION:
-                if(!$user->getUserRights()->getAdministration()) throw new NotAuthorizedException();
+                if(!$user->getUserPermissions()->getAdministration()) throw new NotAuthorizedException();
                 break;
             case self::PERMISSIONS_PROJECT_CREATE:
-                if(!$user->getUserRights()->getProjectCreate()) throw new NotAuthorizedException();
+                if(!$user->getUserPermissions()->getProjectCreate()) throw new NotAuthorizedException();
                 break;
             case self::PERMISSIONS_PROJECT_EDIT:
-                if(!$user->getUserRights()->getProjectEdit()) throw new NotAuthorizedException();
+                if(!$user->getUserPermissions()->getProjectEdit()) throw new NotAuthorizedException();
                 break;
             default:
                 throw new InvalidRequestException();

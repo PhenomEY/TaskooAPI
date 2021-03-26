@@ -86,9 +86,9 @@ class User
     private $active;
 
     /**
-     * @ORM\OneToOne(targetEntity=UserRights::class, mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=UserPermissions::class, mappedBy="user", cascade={"persist", "remove"})
      */
-    private $userRights;
+    private $userPermissions;
 
     public function __construct()
     {
@@ -381,19 +381,19 @@ class User
         return $this;
     }
 
-    public function getUserRights(): ?UserRights
+    public function getUserPermissions(): ?UserPermissions
     {
-        return $this->userRights;
+        return $this->userPermissions;
     }
 
-    public function setUserRights(UserRights $userRights): self
+    public function setUserPermissions(UserPermissions $userPermissions): self
     {
         // set the owning side of the relation if necessary
-        if ($userRights->getUser() !== $this) {
-            $userRights->setUser($this);
+        if ($userPermissions->getUser() !== $this) {
+            $userPermissions->setUser($this);
         }
 
-        $this->userRights = $userRights;
+        $this->userPermissions = $userPermissions;
 
         return $this;
     }

@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRightsRepository;
+use App\Repository\UserPermissionsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=UserRightsRepository::class)
+ * @ORM\Entity(repositoryClass=UserPermissionsRepository::class)
  */
-class UserRights
+class UserPermissions
 {
     /**
      * @ORM\Id
@@ -33,7 +33,7 @@ class UserRights
     private $projectEdit;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userRights", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userPermissions", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;

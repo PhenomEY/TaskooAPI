@@ -7,7 +7,7 @@ date_default_timezone_set('Europe/Amsterdam');
 use App\Api\TaskooApiController;
 use App\Entity\User;
 use App\Entity\UserAuth;
-use App\Entity\UserRights;
+use App\Entity\UserPermissions;
 use App\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -136,11 +136,11 @@ class TaskooUser extends TaskooApiController
         $user->setLastname($payload['lastname']);
         $user->setActive(true);
 
-        $userRights = new UserRights();
-        $userRights->setDefaults($user);
+        $userPermissions = new UserPermissions();
+        $userPermissions->setDefaults($user);
 
         $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($userRights);
+        $entityManager->persist($userPermissions);
         $entityManager->persist($user);
         $entityManager->flush();
 
@@ -164,7 +164,7 @@ class TaskooUser extends TaskooApiController
         $data['lastname'] = $user->getLastname();
         $data['email'] = $user->getEmail();
 
-        if($auth->getUser()->getUserRights()->getAdministration()) {
+        if($auth->getUser()->getUserPermissions()->getAdministration()) {
             $data['active'] = $user->getActive();
 
             if(!$user->getPassword()) {
@@ -175,7 +175,7 @@ class TaskooUser extends TaskooApiController
                 $data['warnings']['organisations'] = true;
             }
 
-            $permissions = $user->getUserRights();
+            $permissions = $user->getUserPermissions();
 
             $data['permissions']['administration'] = $permissions->getAdministration();
             $data['permissions']['project_edit'] = $permissions->getProjectEdit();
@@ -211,7 +211,7 @@ class TaskooUser extends TaskooApiController
         if(!$user) throw new InvalidRequestException();
 
         //if requesting user is the updated user or admin
-        if($user->getId() === $auth->getUser()->getId() || $auth->getUser()->getUserRights()->getAdministration()) {
+        if($user->getId() === $auth->getUser()->getId() || $auth->getUser()->getUserPermissions()->getAdministration()) {
 
             $entityManager = $this->getDoctrine()->getManager();
 
@@ -258,8 +258,8 @@ class TaskooUser extends TaskooApiController
 
 
 
-            if($auth->getUser()->getUserRights()->getAdministration()) {
-                $userRights = $user->getUserRights();
+            if($auth->getUser()->getUserPermissions()->getAdministration()) {
+                $permissions = $user->getUserPermissions();
 
                 if (isset($payload['addOrganisation'])) {
                     $organisation = $this->organisationsRepository()->find($payload['addOrganisation']);
@@ -272,18 +272,18 @@ class TaskooUser extends TaskooApiController
                 }
 
                 if(isset($payload['permissions']['administration'])) {
-                    $userRights->setAdministration($payload['permissions']['administration']);
+                    $permissions->setAdministration($payload['permissions']['administration']);
                 }
 
                 if(isset($payload['permissions']['project_edit'])) {
-                    $userRights->setProjectEdit($payload['permissions']['project_edit']);
+                    $permissions->setProjectEdit($payload['permissions']['project_edit']);
                 }
 
                 if(isset($payload['permissions']['project_create'])) {
-                    $userRights->setProjectCreate($payload['permissions']['project_create']);
+                    $permissions->setProjectCreate($payload['permissions']['project_create']);
                 }
 
-                $entityManager->persist($userRights);
+                $entityManager->persist($permissions);
             }
 
 

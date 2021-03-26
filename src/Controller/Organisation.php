@@ -152,7 +152,7 @@ class Organisation extends TaskooApiController
 
         foreach($projects as $project) {
             $projectData = [];
-            if($project->getClosed() && !$auth->getUser()->getUserRights()->getAdministration()) {
+            if($project->getClosed() && !$auth->getUser()->getUserPermissions()->getAdministration()) {
 
                 if($project->getProjectUsers()->contains($auth->getUser())) {
                     $projectData = [
