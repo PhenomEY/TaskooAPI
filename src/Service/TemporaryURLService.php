@@ -56,16 +56,12 @@ class TemporaryURLService
             'action' => $action
         ]);
 
-        if($currentURL) {
-            //check if url is already dead
-            if($currentURL->getDeadAt() <= new \DateTime('now')) {
-                return false;
-            }
-
-            return $currentURL;
+        //check if url is already dead
+        if(!$currentURL || $currentURL->getDeadAt() <= new \DateTime('now')) {
+            return false;
         }
 
-        return false;
+        return $currentURL;
     }
 
     private function generateHash() {
