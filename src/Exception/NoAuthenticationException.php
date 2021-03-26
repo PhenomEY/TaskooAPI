@@ -9,7 +9,7 @@ class NoAuthenticationException extends HttpException
 {
     public function __construct()
     {
-        parent::__construct(Response::HTTP_FORBIDDEN, 'No authentication provided');
+        parent::__construct(Response::HTTP_FORBIDDEN, 'no_authentication_provided');
     }
 
     public function getErrorCode(): string

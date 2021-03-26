@@ -9,7 +9,7 @@ class InvalidAuthenticationException extends HttpException
 {
     public function __construct()
     {
-        parent::__construct(Response::HTTP_FORBIDDEN, 'Invalid authentication token');
+        parent::__construct(Response::HTTP_FORBIDDEN, 'invalid_authentication_token');
     }
 
     public function getErrorCode(): string

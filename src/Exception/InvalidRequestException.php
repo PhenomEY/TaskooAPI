@@ -9,7 +9,7 @@ class InvalidRequestException extends HttpException
 {
     public function __construct()
     {
-        parent::__construct(Response::HTTP_FORBIDDEN, 'Invalid request');
+        parent::__construct(Response::HTTP_FORBIDDEN, 'invalid_request');
     }
 
     public function getErrorCode(): string

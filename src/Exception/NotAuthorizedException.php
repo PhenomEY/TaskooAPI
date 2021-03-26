@@ -9,7 +9,7 @@ class NotAuthorizedException extends HttpException
 {
     public function __construct()
     {
-        parent::__construct(Response::HTTP_FORBIDDEN, 'User not Authorized.');
+        parent::__construct(Response::HTTP_FORBIDDEN, 'permission_denied');
     }
 
     public function getErrorCode(): string
