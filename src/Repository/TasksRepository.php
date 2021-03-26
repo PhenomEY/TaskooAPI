@@ -94,9 +94,10 @@ class TasksRepository extends ServiceEntityRepository
     public function getAssignedUsers($id)
     {
         return $this->createQueryBuilder('p')
-            ->select('u.id, u.firstname, u.lastname')
+            ->select('u.id, u.firstname, u.lastname, c.hexCode')
             ->andWhere('p.id = :task')
             ->join('p.assignedUser', 'u')
+            ->leftJoin('u.color', 'c')
             ->setParameter('task', $id)
             ->getQuery()
             ->getResult()

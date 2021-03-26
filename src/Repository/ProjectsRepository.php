@@ -26,10 +26,11 @@ class ProjectsRepository extends ServiceEntityRepository
     public function getProjectUsers($id)
     {
         return $this->createQueryBuilder('p')
-            ->select('u.id, u.firstname, u.lastname')
+            ->select('u.id, u.firstname, u.lastname, c.hexCode')
             ->andWhere('p.id = :project')
             ->andWhere('u.active = :active')
             ->join('p.ProjectUsers', 'u')
+            ->leftJoin('u.color', 'c')
             ->setParameter('project', $id)
             ->setParameter('active', true)
             ->getQuery()

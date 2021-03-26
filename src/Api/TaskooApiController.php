@@ -11,6 +11,7 @@ use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Entity\User;
 use App\Security\TaskooAuthenticator;
+use App\Service\TaskooColorService;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -20,10 +21,13 @@ class TaskooApiController extends AbstractController
 
     protected $responseManager;
 
-    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager)
+    protected $colorService;
+
+    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager, TaskooColorService $colorService)
     {
         $this->authenticator = $authenticator;
         $this->responseManager = $responseManager;
+        $this->colorService = $colorService;
     }
 
     protected function projectsRepository(): ObjectRepository {

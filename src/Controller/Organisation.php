@@ -6,6 +6,7 @@ mb_http_output('UTF-8');
 use App\Api\TaskooApiController;
 use App\Entity\Organisations;
 use App\Exception\InvalidRequestException;
+use App\Service\TaskooColorService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -59,10 +60,7 @@ class Organisation extends TaskooApiController
 
         $organisation->setName($payload['name']);
 
-        //get random color
-        $allColors = $this->colorsRepository()->findAll();
-        $colorId = rand ( 1, count($allColors));
-        $organisationColor = $this->colorsRepository()->find($colorId);
+        $organisationColor = $this->colorService->getRandomColor();
 
         $organisation->setColor($organisationColor);
 

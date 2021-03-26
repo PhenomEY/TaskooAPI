@@ -96,6 +96,10 @@ class Admin extends TaskooApiController
                 $userData['warnings']['organisations'] = true;
             }
 
+            if($user->getColor()) {
+                $userData['color']['hexCode'] = $user->getColor()->getHexCode();
+            }
+
             array_push($data['users'], $userData);
             $userData = null;
         }

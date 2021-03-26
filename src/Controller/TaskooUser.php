@@ -135,6 +135,7 @@ class TaskooUser extends TaskooApiController
         $user->setFirstname($payload['firstname']);
         $user->setLastname($payload['lastname']);
         $user->setActive(true);
+        $user->setColor($this->colorService->getRandomColor());
 
         $userPermissions = new UserPermissions();
         $userPermissions->setDefaults($user);

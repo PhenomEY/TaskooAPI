@@ -129,6 +129,7 @@ class Invite extends TaskooApiController
         $user->setEmail($payload['email']);
         $user->setFirstname($payload['firstname']);
         $user->setLastname($payload['lastname']);
+        $user->setColor($this->colorService->getRandomColor());
 
         $permissions = new UserPermissions();
         $permissions->setDefaults($user);

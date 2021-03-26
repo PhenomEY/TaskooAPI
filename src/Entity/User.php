@@ -90,6 +90,11 @@ class User
      */
     private $userPermissions;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Color::class, cascade={"persist"})
+     */
+    private $color;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
@@ -394,6 +399,18 @@ class User
         }
 
         $this->userPermissions = $userPermissions;
+
+        return $this;
+    }
+
+    public function getColor(): ?Color
+    {
+        return $this->color;
+    }
+
+    public function setColor(?Color $color): self
+    {
+        $this->color = $color;
 
         return $this;
     }
