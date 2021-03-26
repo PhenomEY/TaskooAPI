@@ -110,8 +110,6 @@ class Project extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        throw new InvalidRequestException();
-
         $token = $request->headers->get('authorization');
 
         $auth = $this->authenticator->verifyToken($token, 'PROJECT_CREATE');
