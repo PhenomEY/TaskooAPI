@@ -36,17 +36,17 @@ class Invite extends TaskooApiController
          */
         $invite = $temporaryURLService->verifyURL($inviteId, $temporaryURLService::INVITE_ACTION);
 
-        if($invite) {
-            $data['user'] = [
-                'firstname' => $invite->getUser()->getFirstname(),
-                'lastname' => $invite->getUser()->getLastname(),
-                'email' => $invite->getUser()->getEmail()
-            ];
-
-            return $this->responseManager->successResponse($data, 'invite_valid');
+        if(!$invite) {
+            throw new InvalidRequestException();
         }
+        
+        $data['user'] = [
+            'firstname' => $invite->getUser()->getFirstname(),
+            'lastname' => $invite->getUser()->getLastname(),
+            'email' => $invite->getUser()->getEmail()
+        ];
 
-        return $this->responseManager->forbiddenResponse();
+        return $this->responseManager->successResponse($data, 'invite_valid');
     }
 
     /**
@@ -66,30 +66,30 @@ class Invite extends TaskooApiController
          */
         $invite = $temporaryURLService->verifyURL($inviteId, $temporaryURLService::INVITE_ACTION);
 
-        if($invite && isset($payload['password'])) {
-            $user = $invite->getUser();
-
-            $hashedPassword = $this->authenticator->generatePassword($payload['password']);
-
-            $user->setPassword($hashedPassword);
-            $user->setActive(true);
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $deleteManager = clone $entityManager;
-
-            //set user
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            //delete invite URL
-            $deleteManager->remove($invite);
-            $deleteManager->flush();
-
-
-            return $this->responseManager->successResponse($data, 'invite_finished');
+        if(!$invite || !isset($payload['password'])) {
+            throw new InvalidRequestException();
         }
+        
+        $user = $invite->getUser();
 
-        return $this->responseManager->forbiddenResponse();
+        $hashedPassword = $this->authenticator->generatePassword($payload['password']);
+
+        $user->setPassword($hashedPassword);
+        $user->setActive(true);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $deleteManager = clone $entityManager;
+
+        //set user
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        //delete invite URL
+        $deleteManager->remove($invite);
+        $deleteManager->flush();
+
+
+        return $this->responseManager->successResponse($data, 'invite_finished');
     }
 
     /**
