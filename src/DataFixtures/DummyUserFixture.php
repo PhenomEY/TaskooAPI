@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
-use App\Entity\UserRights;
+use App\Entity\UserPermissions;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -26,10 +26,10 @@ class DummyUserFixture extends Fixture
 		    ->setLastname(self::LASTNAME)
 		    ->setActive(true);
 
-	    $userRights = new UserRights();
-	    $userRights->setDefaults($user);
+	    $userPermissions = new UserPermissions();
+	    $userPermissions->setDefaults($user);
 
-	    $manager->persist($userRights);
+	    $manager->persist($userPermissions);
         $manager->persist($user);
         $manager->flush();
     }
