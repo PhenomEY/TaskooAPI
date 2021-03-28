@@ -35,6 +35,7 @@
 !bin/console
 !bin/symfony_requirements
 /vendor/
+/composer.lock
 
 # Assets and user uploads
 /web/bundles/
@@ -60,7 +61,23 @@
 /web/css/
 /web/js/
 
-.env
+### User Files ###
+.env.local
 .idea
 
 # End of https://www.toptal.com/developers/gitignore/api/symfony
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
