@@ -17,9 +17,8 @@ class TaskooColorService {
     public function getRandomColor(): object {
         //get random color
         $allColors = $this->doctrine->getRepository(Color::class)->findAll();
-        $colorId = rand ( 1, count($allColors));
-        $organisationColor = $this->doctrine->getRepository(Color::class)->find($colorId);
+        $colorKey = rand ( 0, (count($allColors) - 1));
 
-        return $organisationColor;
+        return $allColors[$colorKey];
     }
 }

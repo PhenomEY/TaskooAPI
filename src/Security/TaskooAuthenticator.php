@@ -87,6 +87,15 @@ class TaskooAuthenticator {
         return hash('sha256', time().$salt.bin2hex(random_bytes(16)));
     }
 
+    public function verifyEmail(String $email): Bool|String {
+        //check if email is valid
+       return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+
+    public function verifyPassword(String $password): Bool {
+        return (strlen($password) >= 8);
+    }
+
     private function checkAuthToken($token): ?AuthStruct {
         /** @var UserAuth $userAuth */
        $userAuth = $this->manager->getRepository(UserAuth::class)->findOneBy([

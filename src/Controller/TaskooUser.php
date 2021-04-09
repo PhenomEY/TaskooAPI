@@ -8,6 +8,8 @@ use App\Api\TaskooApiController;
 use App\Entity\User;
 use App\Entity\UserAuth;
 use App\Entity\UserPermissions;
+use App\Exception\InvalidEmailException;
+use App\Exception\InvalidPasswordException;
 use App\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -112,7 +114,7 @@ class TaskooUser extends TaskooApiController
         $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
 
         //check if email is valid
-        if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
+        if(!$this->authenticator->verifyEmail($payload['email'])) {
             return $this->responseManager->errorResponse('invalid_email');
         }
 
@@ -216,41 +218,36 @@ class TaskooUser extends TaskooApiController
 
             $entityManager = $this->getDoctrine()->getManager();
 
-            if (isset($payload['password']) && !empty($payload['password'])) {
-                $hashedPassword = $this->authenticator->generatePassword($payload['password']);
-                $user->setPassword($hashedPassword);
-            }
+            //user actions with password verification
+            if(isset($payload['password_current'])) {
+                $hashedPassword = $this->authenticator->generatePassword($payload['password_current']);
 
-            if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
-                //check if send email is already in use
-                $emailInUse = $this->userRepository()->findOneBy([
-                    'email' => $payload['email']
-                ]);
+                if($user->getPassword() !== $hashedPassword) throw new InvalidPasswordException();
 
-                //check if email is valid
-                if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
-                    return $this->responseManager->errorResponse('invalid_email');
-                }
-
-                //if mail already exists return error
-                if ($emailInUse) {
-                    return $this->responseManager->errorResponse('email_in_use');
-                }
-
-                $user->setEmail($payload['email']);
-            }
-
-            if (isset($payload['active'])) {
-                if ($payload['active'] === false) {
-                    //deactivate user and remove authtoken
-                    $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
-                        'user' => $user->getId()
+                if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
+                    //check if send email is already in use
+                    $emailInUse = $this->userRepository()->findOneBy([
+                        'email' => $payload['email']
                     ]);
 
-                    if ($userAuth) $entityManager->remove($userAuth);
+                    //check if email is valid
+                    if (!$this->authenticator->verifyEmail($payload['email'])) throw new InvalidEmailException();
+
+                    //if mail already exists return error
+                    if ($emailInUse) {
+                        return $this->responseManager->errorResponse('email_in_use');
+                    }
+
+                    $user->setEmail($payload['email']);
                 }
-                $user->setActive($payload['active']);
+
+                if (isset($payload['password']) && !empty($payload['password'])) {
+                    if (!$this->authenticator->verifyPassword($payload['password'])) throw new InvalidPasswordException();
+                    $hashedPassword = $this->authenticator->generatePassword($payload['password']);
+                    $user->setPassword($hashedPassword);
+                }
             }
+
 
             if (isset($payload['firstname']) && $payload['lastname']) {
                 $user->setFirstname($payload['firstname']);
@@ -258,9 +255,32 @@ class TaskooUser extends TaskooApiController
             }
 
 
-
+            //administrator actions
             if($auth->getUser()->getUserPermissions()->getAdministration()) {
                 $permissions = $user->getUserPermissions();
+
+                if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
+                    //check if send email is already in use
+                    $emailInUse = $this->userRepository()->findOneBy([
+                        'email' => $payload['email']
+                    ]);
+
+                    //check if email is valid
+                    if (!$this->authenticator->verifyEmail($payload['email'])) throw new InvalidEmailException();
+
+                    //if mail already exists return error
+                    if ($emailInUse) {
+                        return $this->responseManager->errorResponse('email_in_use');
+                    }
+
+                    $user->setEmail($payload['email']);
+                }
+
+                if (isset($payload['password']) && !empty($payload['password'])) {
+                    if (!$this->authenticator->verifyPassword($payload['password'])) throw new InvalidPasswordException();
+                    $hashedPassword = $this->authenticator->generatePassword($payload['password']);
+                    $user->setPassword($hashedPassword);
+                }
 
                 if (isset($payload['addOrganisation'])) {
                     $organisation = $this->organisationsRepository()->find($payload['addOrganisation']);
@@ -284,7 +304,21 @@ class TaskooUser extends TaskooApiController
                     $permissions->setProjectCreate($payload['permissions']['project_create']);
                 }
 
+                if (isset($payload['active'])) {
+                    if ($payload['active'] === false) {
+                        //deactivate user and remove authtoken
+                        $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
+                            'user' => $user->getId()
+                        ]);
+
+                        if ($userAuth) $entityManager->remove($userAuth);
+                    }
+                    $user->setActive($payload['active']);
+                }
+
                 $entityManager->persist($permissions);
+
+
             }
 
 
@@ -292,7 +326,7 @@ class TaskooUser extends TaskooApiController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->responseManager->successResponse($data, 'user_loaded');
+            return $this->responseManager->successResponse($data, 'user_updated');
         }
     }
 }
