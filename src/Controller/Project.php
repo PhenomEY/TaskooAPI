@@ -36,6 +36,7 @@ class Project extends TaskooApiController
         $data['project']['name'] = $project->getName();
         $data['project']['deadline'] = $project->getDeadline();
         $data['project']['isClosed'] = $project->getClosed();
+        $data['project']['description'] = $project->getDescription();
 
         if($project->getOrganisation()) {
             $data['project']['organisation']['id'] = $project->getOrganisation()->getId();
@@ -170,6 +171,10 @@ class Project extends TaskooApiController
             }
             if(isset($payload['isClosed'])) {
                 $project->setClosed($payload['isClosed']);
+            }
+
+            if(isset($payload['description'])) {
+                $project->setDescription($payload['description']);
             }
 
             if(isset($payload['mainUser'])) {

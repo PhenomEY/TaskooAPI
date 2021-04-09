@@ -87,7 +87,7 @@ class TaskooAuthenticator {
         return hash('sha256', time().$salt.bin2hex(random_bytes(16)));
     }
 
-    public function verifyEmail(String $email): Bool|String {
+    public function verifyEmail(String $email) {
         //check if email is valid
        return filter_var($email, FILTER_VALIDATE_EMAIL);
     }

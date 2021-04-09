@@ -62,6 +62,11 @@ class Projects
      */
     private $ProjectUsers;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $description;
+
     public function __construct()
     {
         $this->taskGroups = new ArrayCollection();
@@ -195,6 +200,18 @@ class Projects
     public function removeProjectUser(User $projectUser): self
     {
         $this->ProjectUsers->removeElement($projectUser);
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }
