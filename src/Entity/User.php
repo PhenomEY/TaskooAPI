@@ -95,6 +95,11 @@ class User
      */
     private $color;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Favorites::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $favorites;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
@@ -104,6 +109,7 @@ class User
         $this->doneTasks = new ArrayCollection();
         $this->assignedTasks = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
 
 
@@ -411,6 +417,36 @@ class User
     public function setColor(?Color $color): self
     {
         $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Favorites[]
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Favorites $favorite): self
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites[] = $favorite;
+            $favorite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Favorites $favorite): self
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            // set the owning side to null (unless already changed)
+            if ($favorite->getUser() === $this) {
+                $favorite->setUser(null);
+            }
+        }
 
         return $this;
     }

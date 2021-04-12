@@ -140,7 +140,8 @@ class Organisation extends TaskooApiController
     public function getOrganisationProjects(int $orgId, Request $request)
     {
         $data = [
-            'projects' => []
+            'projects' => [],
+            'favorites'=> []
         ];
         $token = $request->headers->get('authorization');
         $auth = $this->authenticator->verifyToken($token);
@@ -172,6 +173,31 @@ class Organisation extends TaskooApiController
                 array_push($data['projects'], $projectData);
             }
         }
+
+        //load users favorite projects
+        $favorites = $auth->getUser()->getFavorites();
+
+        foreach($favorites as $favorite) {
+            $project = $favorite->getProject();
+
+            $projectData = [
+                'name' => $project->getName(),
+                'id' => $project->getId(),
+                'closed' => $project->getClosed(),
+                'favId' => $favorite->getId(),
+                'position' => $favorite->getPosition()
+            ];
+
+            if($project->getOrganisation()->getColor()) {
+                $projectData['color'] = $project->getOrganisation()->getColor()->getHexCode();
+            }
+
+            array_push($data['favorites'], $projectData);
+        }
+
+        usort($data['favorites'], function($a, $b) {
+            return $a['position'] <=> $b['position'];
+        });
 
         return $this->responseManager->successResponse($data, 'projects_loaded');
 

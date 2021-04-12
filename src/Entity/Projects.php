@@ -63,7 +63,7 @@ class Projects
     private $ProjectUsers;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", length=555, nullable=true)
      */
     private $description;
 

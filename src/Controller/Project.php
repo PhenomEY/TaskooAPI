@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 //date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\Favorites;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Exception\InvalidRequestException;
@@ -37,6 +38,14 @@ class Project extends TaskooApiController
         $data['project']['deadline'] = $project->getDeadline();
         $data['project']['isClosed'] = $project->getClosed();
         $data['project']['description'] = $project->getDescription();
+        $data['project']['isFavorite'] = false;
+
+        if($this->favoritesRepository()->findOneBy([
+            'project' => $project->getId(),
+            'user' => $auth->getUser()->getId()
+        ])) {
+            $data['project']['isFavorite'] = true;
+        };
 
         if($project->getOrganisation()) {
             $data['project']['organisation']['id'] = $project->getOrganisation()->getId();
@@ -228,7 +237,78 @@ class Project extends TaskooApiController
         $entityManager->flush();
 
         return $this->responseManager->successResponse($data, 'project_updated');
+    }
 
+    /**
+     * @Route("/project/favorite/{projectId}", name="api_project_favorize", methods={"POST"})
+     */
+    public function favorizeProject(int $projectId, Request $request)
+    {
+        $data = [];
+        $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        $project = $this->authenticator->checkProjectPermission($auth, $projectId);
+        $entityManager = $this->getDoctrine()->getManager();
 
+        $favorite = new Favorites();
+        $favorite->setProject($project);
+        $favorite->setUser($auth->getUser());
+        $favorite->setPosition(0);
+        $entityManager->persist($favorite);
+        $entityManager->flush();
+
+        return $this->responseManager->successResponse($data, 'favorite_added');
+    }
+
+    /**
+     * @Route("/project/favorite/{projectId}", name="api_project_defavorize", methods={"DELETE"})
+     */
+    public function defavorizeProject(int $projectId, Request $request)
+    {
+        $data = [];
+        $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        $project = $this->authenticator->checkProjectPermission($auth, $projectId);
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $favorite = $this->favoritesRepository()->findOneBy([
+            'project' => $project->getId(),
+            'user' => $auth->getUser()->getId()
+        ]);
+
+        if(!$favorite) throw new InvalidRequestException();
+
+        $entityManager->remove($favorite);
+        $entityManager->flush();
+        return $this->responseManager->successResponse($data, 'favorite_removed');
+    }
+
+    /**
+     * @Route("/favorites", name="api_project_favorite_update", methods={"PUT"})
+     */
+    public function updateFavoritesPositions(Request $request)
+    {
+        $data = [];
+
+        $payload = json_decode($request->getContent(), true);
+        if(!$payload) throw new InvalidRequestException();
+
+        $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        $entityManager = $this->getDoctrine()->getManager();
+
+        if(isset($payload['positions'])) {
+            $positions = $payload['positions'];
+            foreach($positions as $position=>$id) {
+                $favorite = $this->favoritesRepository()->find($id);
+
+                $favorite->setPosition($position);
+                $entityManager->persist($favorite);
+            }
+        }
+
+        $entityManager->flush();
+
+        return $this->responseManager->successResponse($data, 'favorites_updated');
     }
 }
