@@ -5,11 +5,13 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\Media;
 use App\Entity\Notifications;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Exception\InvalidRequestException;
 use App\Exception\NotAuthorizedException;
+use App\Service\TaskooFileService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -252,6 +254,20 @@ class Task extends TaskooApiController
         //assigned users
         $data['task']['users'] = $this->tasksRepository()->getAssignedUsers($task->getId());
 
+        //task media
+        $data['task']['files'] = [];
+        if($task->getMedia()) {
+            $files = $task->getMedia();
+
+            foreach($files as $file) {
+                $data['task']['files'][] = [
+                    'fileName' => $file->getFileName(),
+                    'fileSize' => $file->getFileSize(),
+                    'fileExtension' => $file->getExtension(),
+                    'id' => $file->getId()
+                ];
+            }
+        }
 
         return $this->responseManager->successResponse($data, 'task_loaded');
     }
@@ -276,6 +292,43 @@ class Task extends TaskooApiController
         $entityManager->remove($task);
         $entityManager->flush();
         return $this->responseManager->successResponse($data, 'task_deleted');
+    }
+
+    /**
+     * @Route("/task/{taskId}/file", name="api_task_add_file", methods={"POST"})
+     */
+    public function addFileToTask(int $taskId, Request $request, TaskooFileService $fileService)
+    {
+        $data = [];
+        $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+        //get Task
+        /** @var $task Tasks */
+        $task = $this->tasksRepository()->find($taskId);
+        if(!$task) throw new InvalidRequestException();
+
+        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
+
+        $uploadedFile = $request->files->get('file');
+
+        $fileService->upload($uploadedFile, $task);
+
+        $task = $this->tasksRepository()->find($taskId);
+
+        if($task->getMedia()) {
+            $files = $task->getMedia();
+
+            foreach($files as $file) {
+                $data['files'][] = [
+                    'fileName' => $file->getFileName(),
+                    'fileSize' => $file->getFileSize(),
+                    'fileExtension' => $file->getExtension(),
+                    'id' => $file->getId()
+                ];
+            }
+        }
+
+        return $this->responseManager->successResponse($data, 'file_uploaded');
     }
 
     private function increaseSubPositions($mainTaskId) {

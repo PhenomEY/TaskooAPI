@@ -95,6 +95,10 @@ class TaskooUser extends TaskooApiController
             if($subTasks) {
                 $task['subTasks'] = true;
             }
+
+            if($this->mediaRepository()->findOneBy(['task' => $task['id']])) {
+                $task['hasFiles'] = true;
+            }
         }
 
         $data['tasks'] = $tasks;

@@ -4,6 +4,7 @@ namespace App\Api;
 
 use App\Entity\Color;
 use App\Entity\Favorites;
+use App\Entity\Media;
 use App\Entity\Notifications;
 use App\Entity\Organisations;
 use App\Entity\Projects;
@@ -65,6 +66,10 @@ class TaskooApiController extends AbstractController
 
     protected function favoritesRepository(): ObjectRepository {
         return $this->getDoctrine()->getRepository(Favorites::class);
+    }
+
+    protected function mediaRepository(): ObjectRepository {
+        return $this->getDoctrine()->getRepository(Media::class);
     }
 
 }

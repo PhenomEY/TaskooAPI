@@ -89,6 +89,10 @@ class Project extends TaskooApiController
                         if($users) {
                             $task['user'] = $users[0];
                         }
+
+                        if($this->mediaRepository()->findOneBy(['task' => $task['id']])) {
+                            $task['hasFiles'] = true;
+                        }
                     }
 
                     $data['tasks'] = $tasks;
