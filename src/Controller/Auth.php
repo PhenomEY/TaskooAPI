@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\NotAuthorizedException;
 use App\Exception\InvalidRequestException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use App\Entity\UserAuth;
@@ -162,7 +163,6 @@ class Auth extends TaskooApiController
                 $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
             }
         }
-
 
         return $this->responseManager->successResponse($data, 'auth_valid');
     }

@@ -1,3 +1,9 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+
+file:
+  path: /file/{filePath}
+  controller: App\Controller\Files::getFile
+  requirements:
+    filePath: .+

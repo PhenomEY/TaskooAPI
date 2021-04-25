@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\TasksRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\OrderBy;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -92,7 +93,9 @@ class Tasks
     private $higherPriority;
 
     /**
-     * @ORM\OneToMany(targetEntity=Media::class, mappedBy="task")
+     * @ORM\OneToMany(targetEntity=Media::class, mappedBy="task", cascade={"remove"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @OrderBy({"uploadedAt" = "ASC"})
      */
     private $media;
 

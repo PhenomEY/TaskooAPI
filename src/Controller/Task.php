@@ -12,6 +12,7 @@ use App\Entity\Tasks;
 use App\Exception\InvalidRequestException;
 use App\Exception\NotAuthorizedException;
 use App\Service\TaskooFileService;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -248,6 +249,10 @@ class Task extends TaskooApiController
                 if($subTask['description']) {
                     $subTask['description'] = true;
                 }
+
+                if($this->mediaRepository()->findOneBy(['task' => $subTask['id']])) {
+                    $subTask['hasFiles'] = true;
+                }
             }
         }
 
@@ -264,6 +269,7 @@ class Task extends TaskooApiController
                     'fileName' => $file->getFileName(),
                     'fileSize' => $file->getFileSize(),
                     'fileExtension' => $file->getExtension(),
+                    'filePath' => $file->getFilePath(),
                     'id' => $file->getId()
                 ];
             }
@@ -274,8 +280,12 @@ class Task extends TaskooApiController
 
     /**
      * @Route("/task/{taskId}", name="api_task_delete", methods={"DELETE"})
+     * @param int $taskId
+     * @param Request $request
+     * @param TaskooFileService $fileService
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function deleteTask(int $taskId, Request $request)
+    public function deleteTask(int $taskId, Request $request, TaskooFileService $fileService)
     {
         $data = [];
 
@@ -288,6 +298,11 @@ class Task extends TaskooApiController
         if(!$task) throw new InvalidRequestException();
         $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
 
+        //delete files uploaded to task
+        $fileSystem = new Filesystem();
+        $taskMedia = $fileService->getTargetDirectory().'/'.$task->getId();
+        if($fileSystem->exists($taskMedia)) $fileSystem->remove($taskMedia);
+
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($task);
         $entityManager->flush();
@@ -296,10 +311,15 @@ class Task extends TaskooApiController
 
     /**
      * @Route("/task/{taskId}/file", name="api_task_add_file", methods={"POST"})
+     * @param int $taskId
+     * @param Request $request
+     * @param TaskooFileService $fileService
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function addFileToTask(int $taskId, Request $request, TaskooFileService $fileService)
     {
         $data = [];
+
         $token = $request->headers->get('authorization');
         $auth = $this->authenticator->verifyToken($token);
         //get Task
@@ -311,7 +331,7 @@ class Task extends TaskooApiController
 
         $uploadedFile = $request->files->get('file');
 
-        $fileService->upload($uploadedFile, $task);
+        $fileService->upload($uploadedFile, $auth->getUser(), $task);
 
         $task = $this->tasksRepository()->find($taskId);
 
@@ -323,6 +343,7 @@ class Task extends TaskooApiController
                     'fileName' => $file->getFileName(),
                     'fileSize' => $file->getFileSize(),
                     'fileExtension' => $file->getExtension(),
+                    'filePath' => $file->getFilePath(),
                     'id' => $file->getId()
                 ];
             }

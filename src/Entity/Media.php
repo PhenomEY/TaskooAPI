@@ -42,6 +42,21 @@ class Media
      */
     private $task;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     */
+    private $uploadedBy;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $uploadedAt;
+
+    /**
+     * @ORM\Column(type="string", length=255, unique=true)
+     */
+    private $filePath;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -103,6 +118,42 @@ class Media
     public function setTask(?Tasks $task): self
     {
         $this->task = $task;
+
+        return $this;
+    }
+
+    public function getUploadedBy(): ?User
+    {
+        return $this->uploadedBy;
+    }
+
+    public function setUploadedBy(?User $uploadedBy): self
+    {
+        $this->uploadedBy = $uploadedBy;
+
+        return $this;
+    }
+
+    public function getUploadedAt(): ?\DateTimeInterface
+    {
+        return $this->uploadedAt;
+    }
+
+    public function setUploadedAt(\DateTimeInterface $uploadedAt): self
+    {
+        $this->uploadedAt = $uploadedAt;
+
+        return $this;
+    }
+
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    public function setFilePath(string $filePath): self
+    {
+        $this->filePath = $filePath;
 
         return $this;
     }

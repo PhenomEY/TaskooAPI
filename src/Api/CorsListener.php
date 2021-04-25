@@ -3,6 +3,7 @@
 namespace App\Api;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -45,6 +46,7 @@ class CorsListener implements EventSubscriberInterface
         ];
 
         $response = $event->getResponse();
+
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
         $response->headers->set('Access-Control-Allow-Headers', implode(',', $corsHeaders));
