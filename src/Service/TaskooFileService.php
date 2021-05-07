@@ -51,6 +51,7 @@ class TaskooFileService
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
         $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+        $altFileName = $safeFilename.'.'.$file->guessExtension();
         $mimeType = $file->getMimeType();
         $fileSize = $file->getSize();
         $fileExtension = $file->guessExtension();
@@ -70,7 +71,7 @@ class TaskooFileService
             $file->move($this->getTargetDirectory().'/'.$fileDirectory, $fileName);
 
             $media = new Media();
-            $media->setFileName($fileName);
+            $media->setFileName($altFileName);
             $media->setExtension($fileExtension);
             $media->setFileSize($fileSize);
             $media->setMimeType($mimeType);

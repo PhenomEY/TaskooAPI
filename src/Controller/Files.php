@@ -6,6 +6,7 @@ mb_http_output('UTF-8');
 use App\Api\TaskooApiController;
 use App\Api\TaskooResponseManager;
 use App\Entity\Media;
+use App\Entity\Tasks;
 use App\Exception\InvalidRequestException;
 use App\Exception\NotAuthorizedException;
 use App\Security\TaskooAuthenticator;
@@ -46,6 +47,10 @@ class Files extends TaskooApiController
 
     /**
      * @Route("/file/{fileId}", name="api_file_get", methods={"DELETE"})
+     * @param int $fileId
+     * @param Request $request
+     * @param TaskooFileService $fileService
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function deleteFile(int $fileId, Request $request, TaskooFileService $fileService)
     {
@@ -73,4 +78,46 @@ class Files extends TaskooApiController
         return $this->responseManager->successResponse($data, 'file_deleted');
     }
 
+    /**
+     * @Route("/file", name="api_file_upload", methods={"POST"})
+     * @param Request $request
+     * @param TaskooFileService $fileService
+     */
+    public function uploadFile(Request $request, TaskooFileService $fileService)
+    {
+        $data = [];
+        $taskId = $request->get('taskId');
+        $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($token);
+
+        //get Task
+        /** @var $task Tasks */
+        $task = $this->tasksRepository()->find($taskId);
+        if(!$task) throw new InvalidRequestException();
+
+        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
+
+        $uploadedFile = $request->files->get('file');
+
+        $fileService->upload($uploadedFile, $auth->getUser(), $task);
+
+        $task = $this->tasksRepository()->find($taskId);
+
+        if($task->getMedia()) {
+            $files = $task->getMedia();
+
+            foreach($files as $file) {
+                $data['files'][] = [
+                    'fileName' => $file->getFileName(),
+                    'fileSize' => $file->getFileSize(),
+                    'fileExtension' => $file->getExtension(),
+                    'filePath' => $file->getFilePath(),
+                    'id' => $file->getId()
+                ];
+            }
+        }
+
+
+        return $this->responseManager->successResponse($data, 'file_uploaded');
+    }
 }

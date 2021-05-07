@@ -309,49 +309,6 @@ class Task extends TaskooApiController
         return $this->responseManager->successResponse($data, 'task_deleted');
     }
 
-    /**
-     * @Route("/task/{taskId}/file", name="api_task_add_file", methods={"POST"})
-     * @param int $taskId
-     * @param Request $request
-     * @param TaskooFileService $fileService
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
-     */
-    public function addFileToTask(int $taskId, Request $request, TaskooFileService $fileService)
-    {
-        $data = [];
-
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
-        //get Task
-        /** @var $task Tasks */
-        $task = $this->tasksRepository()->find($taskId);
-        if(!$task) throw new InvalidRequestException();
-
-        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
-
-        $uploadedFile = $request->files->get('file');
-
-        $fileService->upload($uploadedFile, $auth->getUser(), $task);
-
-        $task = $this->tasksRepository()->find($taskId);
-
-        if($task->getMedia()) {
-            $files = $task->getMedia();
-
-            foreach($files as $file) {
-                $data['files'][] = [
-                    'fileName' => $file->getFileName(),
-                    'fileSize' => $file->getFileSize(),
-                    'fileExtension' => $file->getExtension(),
-                    'filePath' => $file->getFilePath(),
-                    'id' => $file->getId()
-                ];
-            }
-        }
-
-        return $this->responseManager->successResponse($data, 'file_uploaded');
-    }
-
     private function increaseSubPositions($mainTaskId) {
         $this->getDoctrine()->getRepository(Tasks::class)->increaseSubPositionsByOne($mainTaskId);
     }
