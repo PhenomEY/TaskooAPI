@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\InvalidFileTypeException;
 use App\Exception\InvalidRequestException;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -94,6 +95,18 @@ class TaskooFileService
         }
 
         return null;
+    }
+
+    public function delete(Media $media) {
+        $mediaPath = $this->getTargetDirectory();
+        $filePath = $media->getFilePath();
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->remove($media);
+        $entityManager->flush();
+
+        $fileSystem = new Filesystem();
+        $fileSystem->remove($mediaPath.'/'.$filePath);
     }
 
     public function getTargetDirectory()

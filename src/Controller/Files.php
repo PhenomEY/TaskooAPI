@@ -65,15 +65,7 @@ class Files extends TaskooApiController
 
         if($media->getTask()) $this->authenticator->checkProjectPermission($auth, $media->getTask()->getTaskGroup()->getProject()->getId());
 
-        $mediaPath = $fileService->getTargetDirectory();
-        $filePath = $media->getFilePath();
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($media);
-        $entityManager->flush();
-
-        $fileSystem = new Filesystem();
-        $fileSystem->remove($mediaPath.'/'.$filePath);
+        $fileService->delete($media);
 
         return $this->responseManager->successResponse($data, 'file_deleted');
     }
