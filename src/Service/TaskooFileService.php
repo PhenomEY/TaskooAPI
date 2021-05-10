@@ -51,7 +51,6 @@ class TaskooFileService
     {
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
-        $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
         $altFileName = $safeFilename.'.'.$file->guessExtension();
         $mimeType = $file->getMimeType();
         $fileSize = $file->getSize();
@@ -60,11 +59,13 @@ class TaskooFileService
         $allowedTypes = self::ALLOWED_IMAGES;
 
         try {
-            $fileDirectory = 'avatars';
+            $fileDirectory = 'avatars/'.$user->getId();
+            $fileName = 'avatar-'.uniqid().'.'.$file->guessExtension();
 
             if($task) {
                 $fileDirectory = $task->getId();
                 $allowedTypes = array_merge(self::ALLOWED_IMAGES, self::ALLOWED_FILES);
+                $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
             }
 
             if(!in_array($fileExtension, $allowedTypes)) throw new InvalidFileTypeException();
@@ -80,11 +81,17 @@ class TaskooFileService
             $media->setUploadedAt(new \DateTime('now'));
             $media->setFilePath($fileDirectory.'/'.$fileName);
 
+            $entityManager = $this->doctrine->getManager();
+
             if($task) {
                 $media->setTask($task);
+            } else {
+                if($user->getAvatar()) $this->delete($user->getAvatar());
+
+                $user->setAvatar($media);
+                $entityManager->persist($user);
             }
 
-            $entityManager = $this->doctrine->getManager();
             $entityManager->persist($media);
             $entityManager->flush();
 

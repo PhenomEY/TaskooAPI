@@ -81,21 +81,23 @@ class Files extends TaskooApiController
         $taskId = $request->get('taskId');
         $token = $request->headers->get('authorization');
         $auth = $this->authenticator->verifyToken($token);
+        $task = null;
 
         //get Task
-        /** @var $task Tasks */
-        $task = $this->tasksRepository()->find($taskId);
-        if(!$task) throw new InvalidRequestException();
+        if($taskId) {
+            /** @var $task Tasks */
+            $task = $this->tasksRepository()->find($taskId);
+            if(!$task) throw new InvalidRequestException();
 
-        $project = $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
+            //check auth
+            $this->authenticator->checkProjectPermission($auth, $task->getTaskGroup()->getProject()->getId());
+        }
 
         $uploadedFile = $request->files->get('file');
+        $media = $fileService->upload($uploadedFile, $auth->getUser(), $task);
 
-        $fileService->upload($uploadedFile, $auth->getUser(), $task);
-
-        $task = $this->tasksRepository()->find($taskId);
-
-        if($task->getMedia()) {
+        if($task && $task->getMedia()) {
+            $task = $this->tasksRepository()->find($taskId);
             $files = $task->getMedia();
 
             foreach($files as $file) {
@@ -107,6 +109,12 @@ class Files extends TaskooApiController
                     'id' => $file->getId()
                 ];
             }
+        } else {
+            $data['avatar'] = [
+                'id' => $media->getId(),
+                'filePath' => $media->getFilePath(),
+                'fileExtension' => $media->getExtension()
+            ];
         }
 
 

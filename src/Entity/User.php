@@ -100,6 +100,12 @@ class User
      */
     private $favorites;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Media::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     */
+    private $avatar;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
@@ -447,6 +453,18 @@ class User
                 $favorite->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAvatar(): ?Media
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?Media $avatar): self
+    {
+        $this->avatar = $avatar;
 
         return $this;
     }

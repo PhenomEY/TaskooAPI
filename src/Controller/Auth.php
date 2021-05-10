@@ -67,6 +67,18 @@ class Auth extends TaskooApiController
         $data['user']['lastname'] = $user->getLastname();
         $data['user']['id'] = $user->getId();
         $data['user']['email'] = $user->getEmail();
+        $data['user']['avatar'] = [];
+
+        if($user->getColor()) $data['user']['color'] = $user->getColor()->getHexCode();
+
+        $avatar = $user->getAvatar();
+        if($avatar) {
+            $data['user']['avatar'] = [
+                'id' => $avatar->getId(),
+                'filePath' => $avatar->getFilePath(),
+                'fileExtension' => $avatar->getExtension()
+            ];
+        }
 
         $userPermissions = $user->getUserPermissions();
 
@@ -131,6 +143,18 @@ class Auth extends TaskooApiController
         $data['user']['lastname'] = $userAuth->getUser()->getLastname();
         $data['user']['id'] = $userAuth->getUser()->getId();
         $data['user']['email'] = $userAuth->getUser()->getEmail();
+        $data['user']['avatar'] = [];
+
+        if($userAuth->getUser()->getColor()) $data['user']['color'] = $userAuth->getUser()->getColor()->getHexCode();
+
+        $avatar = $userAuth->getUser()->getAvatar();
+        if($avatar) {
+            $data['user']['avatar'] = [
+                'id' => $avatar->getId(),
+                'filePath' => $avatar->getFilePath(),
+                'fileExtension' => $avatar->getExtension()
+            ];
+        }
 
         $userPermissions = $userAuth->getUser()->getUserPermissions();
 

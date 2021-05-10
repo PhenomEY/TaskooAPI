@@ -167,9 +167,11 @@ class TaskooUser extends TaskooApiController
         $user = $this->userRepository()->find($userId);
         if(!$user) throw new InvalidRequestException();
 
+        $data['id'] = $user->getId();
         $data['firstname'] = $user->getFirstname();
         $data['lastname'] = $user->getLastname();
         $data['email'] = $user->getEmail();
+        $data['avatar'] = [];
 
         if($auth->getUser()->getUserPermissions()->getAdministration()) {
             $data['active'] = $user->getActive();
@@ -200,6 +202,21 @@ class TaskooUser extends TaskooApiController
             }
         }
 
+        if($user->getColor()) {
+            $data['color'] = [
+                'hexCode' => $user->getColor()->getHexCode(),
+                'id' => $user->getColor()->getId()
+            ];
+        }
+
+        if($user->getAvatar()) {
+            $data['avatar'] = [
+                'id' => $user->getAvatar()->getId(),
+                'filePath' => $user->getAvatar()->getFilePath(),
+                'fileExtension' => $user->getAvatar()->getExtension()
+            ];
+        }
+
         return $this->responseManager->successResponse($data, 'user_loaded');
     }
 
@@ -221,6 +238,12 @@ class TaskooUser extends TaskooApiController
         if($user->getId() === $auth->getUser()->getId() || $auth->getUser()->getUserPermissions()->getAdministration()) {
 
             $entityManager = $this->getDoctrine()->getManager();
+
+            //color
+            if(isset($payload['color'])) {
+                $color = $this->colorsRepository()->find($payload['color']);
+                $user->setColor($color);
+            }
 
             //user actions with password verification
             if(isset($payload['password_current'])) {
@@ -324,13 +347,9 @@ class TaskooUser extends TaskooApiController
 
 
             }
-
-
-
             $entityManager->persist($user);
             $entityManager->flush();
-
-            return $this->responseManager->successResponse($data, 'user_updated');
         }
+        return $this->responseManager->successResponse($data, 'user_updated');
     }
 }
