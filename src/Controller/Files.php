@@ -96,28 +96,37 @@ class Files extends TaskooApiController
         $uploadedFile = $request->files->get('file');
         $media = $fileService->upload($uploadedFile, $auth->getUser(), $task);
 
-        if($task && $task->getMedia()) {
-            $task = $this->tasksRepository()->find($taskId);
-            $files = $task->getMedia();
+        $data = ($task && $task->getMedia()) ? $this->getTaskData($taskId, $media) : $this->getAvatarData($media);
 
-            foreach($files as $file) {
-                $data['files'][] = [
-                    'fileName' => $file->getFileName(),
-                    'fileSize' => $file->getFileSize(),
-                    'fileExtension' => $file->getExtension(),
-                    'filePath' => $file->getFilePath(),
-                    'id' => $file->getId()
-                ];
-            }
-        } else {
-            $data['avatar'] = [
-                'id' => $media->getId(),
-                'filePath' => $media->getFilePath(),
-                'fileExtension' => $media->getExtension()
+        return $this->responseManager->successResponse($data, 'file_uploaded');
+    }
+
+    private function getTaskData(int $taskId, Media $media): ?array {
+        $task = $this->tasksRepository()->find($taskId);
+        $files = $task->getMedia();
+        $data = [];
+
+        foreach($files as $file) {
+            $data['files'][] = [
+                'fileName' => $file->getFileName(),
+                'fileSize' => $file->getFileSize(),
+                'fileExtension' => $file->getExtension(),
+                'filePath' => $file->getFilePath(),
+                'id' => $file->getId()
             ];
         }
 
+        return $data;
+    }
 
-        return $this->responseManager->successResponse($data, 'file_uploaded');
+    private function getAvatarData(Media $media): ?array {
+        $data = [];
+        $data['avatar'] = [
+            'id' => $media->getId(),
+            'filePath' => $media->getFilePath(),
+            'fileExtension' => $media->getExtension()
+        ];
+
+        return $data;
     }
 }
