@@ -24,12 +24,8 @@ class Project extends TaskooApiController
     public function getProject(int $projectId, Request $request)
     {
         $data = [];
-
-        $token = $request->headers->get('authorization');
-
         //check if authentication is valid
-        $auth = $this->authenticator->verifyToken($token);
-
+        $auth = $request->attributes->get('auth');
         //check if user got permission to view project
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
 
@@ -106,7 +102,6 @@ class Project extends TaskooApiController
             })->toArray();
 
         return $this->responseManager->successResponse($data, 'project_loaded');
-
     }
 
     /**
@@ -124,9 +119,7 @@ class Project extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-
-        $auth = $this->authenticator->verifyToken($token, 'PROJECT_CREATE');
+        $auth = $request->attributes->get('auth');
         $organisationId = $payload['organisationId'];
 
         //check if user is permitted to create a project in this organisation
@@ -170,9 +163,7 @@ class Project extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $request->attributes->get('auth');
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
 
         $entityManager = $this->getDoctrine()->getManager();
@@ -249,8 +240,7 @@ class Project extends TaskooApiController
     public function favorizeProject(int $projectId, Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $request->attributes->get('auth');
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -270,8 +260,7 @@ class Project extends TaskooApiController
     public function defavorizeProject(int $projectId, Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $request->attributes->get('auth');
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -297,8 +286,7 @@ class Project extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $request->attributes->get('auth');
         $entityManager = $this->getDoctrine()->getManager();
 
         if(isset($payload['positions'])) {

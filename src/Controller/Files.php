@@ -24,6 +24,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class Files extends TaskooApiController
 {
+
+    const IS_PUBLIC = true;
+
     /**
      * @Route("/file/{filePath}", name="api_file_get", methods={"GET"})
      */

@@ -18,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class Invite extends TaskooApiController
 {
 
+    const IS_PUBLIC = true;
+
     /**
      * @Route("/invite/{inviteId}", name="api_user_get_invite", methods={"GET"})
      * @param $inviteId

@@ -16,6 +16,8 @@ use App\Security\TaskooAuthenticator;
 use App\Service\TaskooColorService;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class TaskooApiController extends AbstractController
 {
@@ -25,11 +27,14 @@ class TaskooApiController extends AbstractController
 
     protected $colorService;
 
+    protected $serializer;
+
     public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager, TaskooColorService $colorService)
     {
         $this->authenticator = $authenticator;
         $this->responseManager = $responseManager;
         $this->colorService = $colorService;
+        $this->serializer = new Serializer([new ObjectNormalizer()]);
     }
 
     protected function projectsRepository(): ObjectRepository {
