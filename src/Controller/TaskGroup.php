@@ -22,7 +22,7 @@ class TaskGroup extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $auth = $request->attributes->get('auth');
+        $auth = $this->authenticator->verifyToken($request);
 
         $projectId = $payload['projectId'];
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
@@ -59,7 +59,7 @@ class TaskGroup extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $auth = $request->attributes->get('auth');
+        $auth = $this->authenticator->verifyToken($request);
         $taskGroup = $this->taskGroupsRepository()->find($groupId);
         if(!$taskGroup) throw new InvalidRequestException();
         $project = $this->authenticator->checkProjectPermission($auth, $taskGroup->getProject()->getId());
@@ -101,7 +101,7 @@ class TaskGroup extends TaskooApiController
     {
         $data = [];
 
-        $auth = $request->attributes->get('auth');
+        $auth = $this->authenticator->verifyToken($request);
         /** @var TaskGroups $taskGroup */
         $taskGroup = $this->taskGroupsRepository()->find($groupId);
         if(!$taskGroup) throw new InvalidRequestException();
