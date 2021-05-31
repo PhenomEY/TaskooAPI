@@ -28,10 +28,8 @@ class Task extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         $entityManager = $this->getDoctrine()->getManager();
-
 
         if(isset($payload['mainTaskId'])) {
             $mainTaskId = $payload['mainTaskId'];
@@ -85,8 +83,7 @@ class Task extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         /** @var $task Tasks */
         $task = $this->tasksRepository()->find($taskId);
         if(!$task) throw new InvalidRequestException();
@@ -182,9 +179,8 @@ class Task extends TaskooApiController
     public function getTask(int $taskId, Request $request)
     {
         $data = [];
+        $auth = $this->authenticator->verifyToken($request);
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
         //get Task
         /** @var $task Tasks */
         $task = $this->tasksRepository()->find($taskId);
@@ -279,9 +275,7 @@ class Task extends TaskooApiController
     public function deleteTask(int $taskId, Request $request, TaskooFileService $fileService)
     {
         $data = [];
-
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
 
         //get Task
         /** @var Tasks $task */

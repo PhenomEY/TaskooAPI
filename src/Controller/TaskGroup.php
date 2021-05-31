@@ -21,8 +21,8 @@ class TaskGroup extends TaskooApiController
         $data = [];
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+
+        $auth = $request->attributes->get('auth');
 
         $projectId = $payload['projectId'];
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
@@ -59,8 +59,7 @@ class TaskGroup extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $request->attributes->get('auth');
         $taskGroup = $this->taskGroupsRepository()->find($groupId);
         if(!$taskGroup) throw new InvalidRequestException();
         $project = $this->authenticator->checkProjectPermission($auth, $taskGroup->getProject()->getId());
@@ -102,8 +101,7 @@ class TaskGroup extends TaskooApiController
     {
         $data = [];
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $request->attributes->get('auth');
         /** @var TaskGroups $taskGroup */
         $taskGroup = $this->taskGroupsRepository()->find($groupId);
         if(!$taskGroup) throw new InvalidRequestException();
@@ -123,8 +121,7 @@ class TaskGroup extends TaskooApiController
     public function getTaskgroup(int $groupId, Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         /** @var TaskGroups $taskGroup */
         $taskGroup = $this->taskGroupsRepository()->find($groupId);
         if(!$taskGroup) throw new InvalidRequestException();

@@ -9,9 +9,11 @@ use App\Entity\UserAuth;
 use App\Exception\InvalidAuthenticationException;
 use App\Exception\InvalidRequestException;
 use App\Exception\NoAuthenticationException;
+use App\Exception\NoAuthentificationException;
 use App\Exception\NotAuthorizedException;
 use App\Struct\AuthStruct;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class TaskooAuthenticator {
@@ -29,8 +31,11 @@ class TaskooAuthenticator {
         $this->manager = $manager;
     }
 
-    public function verifyToken(?string $token, ?string $permission = null, ?int $id = null): ?AuthStruct {
-        if(!$token) throw new NoAuthenticationException();
+    public function verifyToken(?Request $request, ?string $permission = null, ?int $id = null): ?AuthStruct {
+        if(!$request) throw new InvalidRequestException();
+
+        $token = $request->headers->get('authorization');
+        if(!$token) throw new NoAuthentificationException();
 
         /** @var AuthStruct $auth */
         $auth = $this->checkAuthToken($token);

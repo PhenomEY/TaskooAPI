@@ -20,8 +20,7 @@ class Admin extends TaskooApiController
     public function getMainSettings(Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         $mainSettings = $this->settingsRepository()->findOneBy([
             'name' => 'app_url'
@@ -38,11 +37,10 @@ class Admin extends TaskooApiController
     public function saveMainSettings(Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
 
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         $settings = $payload['settings'];
 
@@ -65,8 +63,7 @@ class Admin extends TaskooApiController
     public function getUsers(Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         $users = $this->userRepository()->findAll();
 

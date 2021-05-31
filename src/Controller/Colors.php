@@ -16,10 +16,8 @@ class Colors extends TaskooApiController
     public function getOrganisations(Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
         $entityManager = $this->getDoctrine()->getManager();
-
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
 
         $colorsRepository = $this->colorsRepository();
 

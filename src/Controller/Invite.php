@@ -107,8 +107,7 @@ class Invite extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
 
         //check if email is valid

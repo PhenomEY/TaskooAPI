@@ -59,8 +59,7 @@ class Files extends TaskooApiController
     {
         $data = [];
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
 
         /** @var Media $media */
         $media = $this->mediaRepository()->find($fileId);
@@ -82,8 +81,7 @@ class Files extends TaskooApiController
     {
         $data = [];
         $taskId = $request->get('taskId');
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         $task = null;
 
         //get Task

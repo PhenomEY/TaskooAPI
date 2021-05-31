@@ -23,8 +23,7 @@ class TaskooUser extends TaskooApiController
     public function getUserNotifications(Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         $isDashboard = $request->query->get('dashboard');
 
         if($isDashboard === 'true') {
@@ -66,8 +65,7 @@ class TaskooUser extends TaskooApiController
     {
         $data = [];
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
 
         $dashboard = false;
         $limit = 100;
@@ -114,8 +112,8 @@ class TaskooUser extends TaskooApiController
         $data = [];
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         //check if email is valid
         if(!$this->authenticator->verifyEmail($payload['email'])) {
@@ -161,8 +159,7 @@ class TaskooUser extends TaskooApiController
     {
         $data = [];
 
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         /** @var User $user */
         $user = $this->userRepository()->find($userId);
         if(!$user) throw new InvalidRequestException();
@@ -228,8 +225,7 @@ class TaskooUser extends TaskooApiController
         $data = [];
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         /** @var User $user */
         $user = $this->userRepository()->find($userId);
         if(!$user) throw new InvalidRequestException();

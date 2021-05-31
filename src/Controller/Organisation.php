@@ -18,10 +18,9 @@ class Organisation extends TaskooApiController
     public function getOrganisations(Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
         $entityManager = $this->getDoctrine()->getManager();
 
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         $organisations = $this->organisationsRepository()->findAll();
 
@@ -52,9 +51,7 @@ class Organisation extends TaskooApiController
         $data = [];
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $token = $request->headers->get('authorization');
-        $entityManager = $this->getDoctrine()->getManager();
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         $organisation = new Organisations();
 
@@ -82,10 +79,8 @@ class Organisation extends TaskooApiController
         $data = [];
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $token = $request->headers->get('authorization');
-        $entityManager = $this->getDoctrine()->getManager();
 
-        $auth = $this->authenticator->verifyToken($token, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
         /** @var $organisation Organisations */
         $organisation = $this->organisationsRepository()->find($orgId);
@@ -143,8 +138,7 @@ class Organisation extends TaskooApiController
             'projects' => [],
             'favorites'=> []
         ];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
         $organisation = $this->authenticator->checkOrganisationPermission($auth, $orgId);
 
         $projects = $organisation->getProjects();
@@ -214,8 +208,7 @@ class Organisation extends TaskooApiController
         $data = [
             'users' => []
         ];
-        $token = $request->headers->get('authorization');
-        $auth = $this->authenticator->verifyToken($token);
+        $auth = $this->authenticator->verifyToken($request);
 
         /** @var $organisation Organisations */
         $organisation = $this->organisationsRepository()->find($orgId);
