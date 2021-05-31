@@ -24,17 +24,11 @@ class Project extends TaskooApiController
     public function getProject(int $projectId, Request $request)
     {
         $data = [];
-        //check if authentication is valid
         $auth = $request->attributes->get('auth');
         //check if user got permission to view project
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
 
-        $data['project']['id'] = $project->getId();
-        $data['project']['name'] = $project->getName();
-        $data['project']['deadline'] = $project->getDeadline();
-        $data['project']['isClosed'] = $project->getClosed();
-        $data['project']['description'] = $project->getDescription();
-        $data['project']['isFavorite'] = false;
+        $data['project'] = $project->getProjectMainData();
 
         if($this->favoritesRepository()->findOneBy([
             'project' => $project->getId(),
@@ -44,25 +38,15 @@ class Project extends TaskooApiController
         };
 
         if($project->getOrganisation()) {
-            $data['project']['organisation']['id'] = $project->getOrganisation()->getId();
-            $data['project']['organisation']['name'] = $project->getOrganisation()->getName();
-
-            if($project->getOrganisation()->getColor()) {
-                $data['project']['organisation']['color'] = $project->getOrganisation()->getColor()->getHexCode();
-            }
+            $data['project']['organisation'] = $project->getOrganisation()->getOrganisationData();
         }
 
         if($project->getClosed()) {
-            $data['project']['users'] = $this->projectsRepository()->getProjectUsers($projectId);
+            $data['project']['users'] = $project->getProjectUsersData();
         }
 
-        if($project->getMainUser()) {
-            $data['project']['mainUser'] = [
-                'firstname' => $project->getMainUser()->getFirstname(),
-                'lastname' => $project->getMainUser()->getLastname(),
-                'id' => $project->getMainUser()->getId()
-            ];
-        }
+        $data['project']['mainUser'] = $project->getMainUserData();
+
 
         $data['groups'] = $project->getTaskgroups()
             ->map(function($group) {

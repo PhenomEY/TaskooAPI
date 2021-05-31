@@ -128,4 +128,21 @@ class Organisations
 
         return $this;
     }
+
+    public function getOrganisationData() : array
+    {
+        $data = [
+            'id' => $this->id,
+            'name' => $this->name
+        ];
+
+        if($this->getColor()) {
+            $data['color'] = [
+                'id' => $this->getColor()->getId(),
+                'hexCode' => $this->getColor()->getHexCode()
+            ];
+        }
+
+        return $data;
+    }
 }

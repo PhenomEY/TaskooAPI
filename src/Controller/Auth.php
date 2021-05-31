@@ -178,14 +178,7 @@ class Auth extends TaskooApiController
 
 
         foreach($organisations as $key=>$organisation) {
-            $data['organisations'][$key] = [
-                'name' => $organisation->getName(),
-                'id' => $organisation->getId(),
-            ];
-
-            if($organisation->getColor()) {
-                $data['organisations'][$key]['color'] = $organisation->getColor()->getHexCode();
-            }
+            $data['organisations'][$key] = $organisation->getOrganisationData();
         }
 
         return $this->responseManager->successResponse($data, 'auth_valid');

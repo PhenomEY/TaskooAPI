@@ -189,7 +189,7 @@ class Organisation extends TaskooApiController
             ];
 
             if($project->getOrganisation()->getColor()) {
-                $projectData['color'] = $project->getOrganisation()->getColor()->getHexCode();
+                $projectData['color']['hexCode'] = $project->getOrganisation()->getColor()->getHexCode();
             }
 
             array_push($data['favorites'], $projectData);
