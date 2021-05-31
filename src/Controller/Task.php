@@ -201,17 +201,8 @@ class Task extends TaskooApiController
         $data['task']['dateDue'] = $task->getDateDue();
         $data['task']['isDone'] = $task->getDone();
         $data['task']['subTasks'] = null;
-        $data['task']['project']['name'] = $project->getName();
-        $data['task']['project']['id'] = $project->getId();
 
-        //project organisation data
-        if($project->getOrganisation()) {
-            $data['task']['project']['organisation']['id'] = $project->getOrganisation()->getId();
-            $data['task']['project']['organisation']['name'] = $project->getOrganisation()->getName();
-            if($project->getOrganisation()->getColor()) {
-                $data['task']['project']['organisation']['color'] = $project->getOrganisation()->getColor()->getHexCode();
-            }
-        }
+        $data['task']['project'] = $project->getProjectMainData();
 
         //task priority
         $data['task']['highPriority'] = $task->getHigherPriority();
@@ -225,9 +216,9 @@ class Task extends TaskooApiController
 
         //assignable users for task
         if($project->getClosed()) {
-            $data['task']['availableUsers'] = $this->projectsRepository()->getProjectUsers($project->getId());
+            $data['task']['availableUsers'] = $project->getProjectUsersData();
         } else {
-            $data['task']['availableUsers'] = $this->organisationsRepository()->getOrganisationUsers($project->getOrganisation()->getId());
+            $data['task']['availableUsers'] = $project->getOrganisation()->getOrganisationUsersData();
         }
 
         //task finished data
@@ -257,7 +248,7 @@ class Task extends TaskooApiController
         }
 
         //assigned users
-        $data['task']['users'] = $this->tasksRepository()->getAssignedUsers($task->getId());
+        $data['task']['users'] = $task->getAssignedUserData();
 
         //task media
         $data['task']['files'] = [];

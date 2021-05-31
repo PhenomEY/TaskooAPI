@@ -226,9 +226,12 @@ class Projects
             'name' => $this->name,
             'deadline' => $this->deadline,
             'isClosed' => $this->closed,
-            'description' => $this->description,
-            'isFavorite' => false
+            'description' => $this->description
         ];
+
+        if($this->getOrganisation()) {
+            $data['organisation'] = $this->getOrganisation()->getOrganisationData();
+        }
 
         return $data;
     }
@@ -241,26 +244,7 @@ class Projects
 
             if(!$user->getActive()) continue;
 
-            $currentUser = [
-                'id' => $user->getId(),
-                'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname()
-            ];
-
-            if($user->getAvatar()) {
-                $currentUser['avatar'] = [
-                    'filePath' => $user->getAvatar()->getFilePath()
-                ];
-            }
-
-            if($user->getColor()) {
-                $currentUser['color'] = [
-                    'id' => $user->getColor()->getId(),
-                    'hexCode' => $user->getColor()->getHexCode()
-                ];
-            }
-
-            $userData[] = $currentUser;
+            $userData[] = $user->getUserData();
         }
 
         return $userData;
@@ -270,25 +254,6 @@ class Projects
     {
         if(!$this->mainUser) return null;
 
-        $currentUser = [
-            'id' => $this->mainUser->getId(),
-            'firstname' => $this->mainUser->getFirstname(),
-            'lastname' => $this->mainUser->getLastname()
-        ];
-
-        if($this->mainUser->getAvatar()) {
-            $currentUser['avatar'] = [
-                'filePath' => $this->mainUser->getAvatar()->getFilePath()
-            ];
-        }
-
-        if($this->mainUser->getColor()) {
-            $currentUser['color'] = [
-                'id' => $this->mainUser->getColor()->getId(),
-                'hexCode' => $this->mainUser->getColor()->getHexCode()
-            ];
-        }
-
-        return $currentUser;
+        return $this->mainUser->getUserData();
     }
 }

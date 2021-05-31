@@ -468,4 +468,28 @@ class User
 
         return $this;
     }
+
+    public function getUserData() : array
+    {
+        $userData = [
+            'id' => $this->id,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname
+        ];
+
+        if($this->getAvatar()) {
+            $userData['avatar'] = [
+                'filePath' => $this->getAvatar()->getFilePath()
+            ];
+        }
+
+        if($this->getColor()) {
+            $userData['color'] = [
+                'id' => $this->getColor()->getId(),
+                'hexCode' => $this->getColor()->getHexCode()
+            ];
+        }
+
+        return $userData;
+    }
 }

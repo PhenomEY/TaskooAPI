@@ -338,4 +338,16 @@ class Tasks
 
         return $this;
     }
+
+    public function getAssignedUserData() : array
+    {
+        $userData = [];
+
+        /** @var User $user */
+        foreach($this->assignedUser as $user) {
+            $userData[] = $user->getUserData();
+        }
+
+        return $userData;
+    }
 }

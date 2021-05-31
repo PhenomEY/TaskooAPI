@@ -37,9 +37,6 @@ class Project extends TaskooApiController
             $data['project']['isFavorite'] = true;
         };
 
-        if($project->getOrganisation()) {
-            $data['project']['organisation'] = $project->getOrganisation()->getOrganisationData();
-        }
 
         if($project->getClosed()) {
             $data['project']['users'] = $project->getProjectUsersData();

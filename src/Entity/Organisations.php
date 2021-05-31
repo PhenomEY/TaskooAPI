@@ -145,4 +145,18 @@ class Organisations
 
         return $data;
     }
+
+    public function getOrganisationUsersData(): array
+    {
+        $userData = [];
+
+        foreach($this->getUsers() as $user) {
+
+            if(!$user->getActive()) continue;
+
+            $userData[] = $user->getUserData();
+        }
+
+        return $userData;
+    }
 }
