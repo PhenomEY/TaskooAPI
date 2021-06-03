@@ -112,7 +112,7 @@ class Organisation extends TaskooApiController
     public function deleteOrganisation(int $orgId, Request $request)
     {
         $data = [];
-        $token = $request->headers->get('authorization');
+        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
         $entityManager = $this->getDoctrine()->getManager();
 
         /** @var $organisation Organisations */
