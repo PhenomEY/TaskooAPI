@@ -124,8 +124,6 @@ class Project extends TaskooApiController
             $project->addProjectUser($mainUser);
         }
 
-
-        $project->setCreatedAt(new \DateTime('now'));
         $project->setClosed($payload['closed']);
         $project->addProjectUser($auth->getUser());
         $entityManager->persist($project);

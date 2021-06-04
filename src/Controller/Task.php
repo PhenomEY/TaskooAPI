@@ -58,7 +58,6 @@ class Task extends TaskooApiController
         $task->setPosition(0);
         $task->setDone(false);
         $task->setCreatedBy($auth->getUser());
-        $task->setCreatedAt(new \DateTime('now'));
 
         if(isset($mainTask)) {
             $task->setMainTask($mainTask);

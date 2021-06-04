@@ -36,7 +36,6 @@ class TaskGroup extends TaskooApiController
         $taskGroup->setName($groupName);
         $taskGroup->setProject($project);
         $taskGroup->setPosition($position);
-        $taskGroup->setCreatedAt(new \DateTime('now'));
 
         $entityManager->persist($taskGroup);
 
