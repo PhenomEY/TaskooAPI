@@ -23,6 +23,10 @@ $ bin/console doctrine:migrations:migrate
 
 # load your default data through fixtures
 $ bin/console doctrine:fixtures:load
+
+# default admin account:
+$ username: admin@taskoo.de
+$ password: admin
 ```
 
 ### Setting up the Taskoo Application
