@@ -78,7 +78,6 @@ class TaskooFileService
             $media->setFileSize($fileSize);
             $media->setMimeType($mimeType);
             $media->setUploadedBy($user);
-            $media->setUploadedAt(new \DateTime('now'));
             $media->setFilePath($fileDirectory.'/'.$fileName);
 
             $entityManager = $this->doctrine->getManager();

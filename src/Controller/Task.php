@@ -125,7 +125,6 @@ class Task extends TaskooApiController
                 $notification->setTask($task);
                 $notification->setByUser($auth->getUser());
                 $notification->setUser($user);
-                $notification->setTime(new \DateTime('now'));
                 $notification->setMessage('task_assigned');
 
                 $entityManager->persist($notification);

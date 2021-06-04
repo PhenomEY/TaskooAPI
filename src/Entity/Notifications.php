@@ -54,6 +54,11 @@ class Notifications
      */
     private $visited;
 
+    public function __construct()
+    {
+        $this->time = new \DateTime('now');
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -122,13 +127,6 @@ class Notifications
     public function getTime(): ?\DateTimeInterface
     {
         return $this->time;
-    }
-
-    public function setTime(\DateTimeInterface $time): self
-    {
-        $this->time = $time;
-
-        return $this;
     }
 
     public function getVisited(): ?bool

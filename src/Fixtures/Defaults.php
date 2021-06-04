@@ -59,18 +59,15 @@ class Defaults extends Fixture
         $project->setName('My Project');
         $project->setDescription('This is your first project on taskoo! :-)');
         $project->setOrganisation($team);
-        $project->setCreatedAt();
         $manager->persist($project);
 
         $group = new TaskGroups();
         $group->setName('Put your tasks here!');
         $group->setProject($project);
-        $group->setCreatedAt();
         $group->setPosition(0);
         $manager->persist($group);
 
         $task = new Tasks();
-        $task->setCreatedAt();
         $task->setName('this is your first task!');
         $task->setPosition(0);
         $task->setTaskGroup($group);

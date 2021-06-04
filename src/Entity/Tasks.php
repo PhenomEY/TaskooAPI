@@ -104,6 +104,7 @@ class Tasks
         $this->assignedUser = new ArrayCollection();
         $this->subTasks = new ArrayCollection();
         $this->media = new ArrayCollection();
+        $this->createdAt = new \DateTime("now");
     }
 
     public function getId(): ?int
@@ -288,13 +289,6 @@ class Tasks
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
-    }
-
-    public function setCreatedAt(): self
-    {
-        $this->createdAt = new \DateTime("now");
-
-        return $this;
     }
 
     public function getHigherPriority(): ?bool

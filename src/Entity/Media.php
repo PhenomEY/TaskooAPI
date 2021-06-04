@@ -57,6 +57,11 @@ class Media
      */
     private $filePath;
 
+    public function __construct()
+    {
+        $this->uploadedAt = new \DateTime("now");
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -137,13 +142,6 @@ class Media
     public function getUploadedAt(): ?\DateTimeInterface
     {
         return $this->uploadedAt;
-    }
-
-    public function setUploadedAt(\DateTimeInterface $uploadedAt): self
-    {
-        $this->uploadedAt = $uploadedAt;
-
-        return $this;
     }
 
     public function getFilePath(): ?string

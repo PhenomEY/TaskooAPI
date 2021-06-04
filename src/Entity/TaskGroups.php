@@ -51,6 +51,7 @@ class TaskGroups
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
+        $this->createdAt = new \DateTime("now");
     }
 
     public function getId(): ?int
@@ -85,13 +86,6 @@ class TaskGroups
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
-    }
-
-    public function setCreatedAt(): self
-    {
-        $this->createdAt = new \DateTime("now");
-
-        return $this;
     }
 
     /**

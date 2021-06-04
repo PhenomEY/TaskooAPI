@@ -71,6 +71,7 @@ class Projects
     {
         $this->taskGroups = new ArrayCollection();
         $this->ProjectUsers = new ArrayCollection();
+        $this->createdAt = new \DateTime("now");
     }
 
     public function getId(): ?int
@@ -105,13 +106,6 @@ class Projects
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
-    }
-
-    public function setCreatedAt(): self
-    {
-        $this->createdAt = new \DateTime("now");
-
-        return $this;
     }
 
     public function getDeadline(): ?\DateTimeInterface
