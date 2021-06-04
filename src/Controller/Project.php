@@ -30,6 +30,7 @@ class Project extends TaskooApiController
         $project = $this->authenticator->checkProjectPermission($auth, $projectId);
 
         $data['project'] = $project->getProjectMainData();
+        $data['project']['isFavorite'] = false;
 
         if($this->favoritesRepository()->findOneBy([
             'project' => $project->getId(),
