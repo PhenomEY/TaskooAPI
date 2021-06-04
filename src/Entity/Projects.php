@@ -55,7 +55,7 @@ class Projects
     /**
      * @ORM\Column(type="boolean")
      */
-    private $closed;
+    private $closed = false;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="assignedProjects")
@@ -107,9 +107,9 @@ class Projects
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(): self
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = new \DateTime("now");
 
         return $this;
     }

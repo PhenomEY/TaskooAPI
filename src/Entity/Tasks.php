@@ -49,7 +49,7 @@ class Tasks
     /**
      * @ORM\Column(type="boolean")
      */
-    private $done;
+    private $done = false;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="doneTasks")
@@ -290,9 +290,9 @@ class Tasks
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(): self
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = new \DateTime("now");
 
         return $this;
     }

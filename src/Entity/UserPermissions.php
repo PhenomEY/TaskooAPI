@@ -20,17 +20,17 @@ class UserPermissions
     /**
      * @ORM\Column(type="boolean")
      */
-    private $administration;
+    private $administration = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $projectCreate;
+    private $projectCreate = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $projectEdit;
+    private $projectEdit = false;
 
     /**
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="userPermissions", cascade={"persist", "remove"})
