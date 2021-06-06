@@ -11,15 +11,11 @@ use App\Entity\UserPermissions;
 use App\Exception\InvalidRequestException;
 use App\Service\TaskooMailerService;
 use App\Service\TemporaryURLService;
-use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class Invite extends TaskooApiController
 {
-
-    const IS_PUBLIC = true;
-
     /**
      * @Route("/invite/{inviteId}", name="api_user_get_invite", methods={"GET"})
      * @param $inviteId
