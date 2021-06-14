@@ -8,6 +8,7 @@ use App\Api\TaskooApiController;
 use App\Entity\Favorites;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
+use App\Entity\Tasks;
 use App\Exception\InvalidRequestException;
 use App\Security\TaskooAuthenticator;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,38 +50,44 @@ class Project extends TaskooApiController
 
         $data['groups'] = $project->getTaskgroups()
             ->map(function($group) {
-                $tasks = [];
+                $taskData = [];
+                $tasks = $group->getTasks();
+                if($tasks) {
+                    /** @var Tasks $task */
+                    foreach($tasks as $key => &$task) {
+                        $taskData[$key] = [
+                            'name' => $task->getName(),
+                            'id' => $task->getId(),
+                            'isDone' => $task->getDone(),
+                            'dateDue' => $task->getDateDue()
+                        ];
 
-                if(!$group->getTasks()->isEmpty()) {
-                    $tasks = $this->tasksRepository()->getOpenTasks($group->getId());
-
-                    foreach($tasks as &$task) {
-                        if($task['description']) {
-                            $task['description'] = true;
+                        if($task->getDescription()) {
+                            $taskData[$key]['description'] = true;
                         }
 
-                        $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
+                        $subTasks = $this->tasksRepository()->getSubTasks($task->getId());
                         if($subTasks) {
-                            $task['subTasks'] = true;
+                            $taskData[$key]['subTasks'] = true;
                         }
 
-                        $users = $this->tasksRepository()->getAssignedUsers($task['id']);
-                        if($users) {
-                            $task['user'] = $users[0];
+                        $users = $task->getAssignedUser();
+                        if($users->count() > 0) {
+                            $taskData[$key]['user'] = $users->first()->getUserData();
                         }
 
-                        if($this->mediaRepository()->findOneBy(['task' => $task['id']])) {
-                            $task['hasFiles'] = true;
+                        if($this->mediaRepository()->findOneBy(['task' => $task->getId()])) {
+                            $taskData[$key]['hasFiles'] = true;
                         }
                     }
-
-                    $data['tasks'] = $tasks;
                 }
+
+                $data['tasks'] = $taskData;
 
                 return [
                     'name' => $group->getName(),
                     'id' => $group->getId(),
-                    'tasks' => $tasks
+                    'tasks' => $data['tasks']
                 ];
             })->toArray();
 

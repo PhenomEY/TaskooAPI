@@ -105,9 +105,8 @@ class Auth extends TaskooApiController
         $data['user']['lastname'] = $user->getLastname();
         $data['user']['id'] = $user->getId();
         $data['user']['email'] = $user->getEmail();
-        $data['user']['avatar'] = [];
 
-        if($user->getColor()) $data['user']['color'] = $user->getColor()->getHexCode();
+        if($user->getColor()) $data['user']['color']['hexCode'] = $user->getColor()->getHexCode();
 
         $avatar = $user->getAvatar();
         if($avatar) {
@@ -120,17 +119,14 @@ class Auth extends TaskooApiController
 
         $userPermissions = $user->getUserPermissions();
 
-        if($userPermissions->getAdministration()) {
-            $data['user']['permissions']['administration'] = true;
-        }
 
-        if($userPermissions->getProjectCreate()) {
-            $data['user']['permissions']['project_create'] = true;
-        }
+        $data['user']['permissions']['administration'] = $userPermissions->getAdministration();
 
-        if($userPermissions->getProjectEdit()) {
-            $data['user']['permissions']['project_edit'] = true;
-        }
+
+        $data['user']['permissions']['project_create'] = $userPermissions->getProjectCreate();
+
+
+        $data['user']['permissions']['project_edit'] = $userPermissions->getProjectEdit();
 
         if($user->getUserPermissions()->getAdministration()) {
             $organisations = $this->organisationsRepository()->findAll();

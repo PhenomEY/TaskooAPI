@@ -265,7 +265,6 @@ class TaskooUser extends TaskooApiController
                 }
 
                 if (isset($payload['password']) && !empty($payload['password'])) {
-                    if (!$this->authenticator->verifyPassword($payload['password'])) throw new InvalidPasswordException();
                     $hashedPassword = $this->authenticator->generatePassword($payload['password']);
                     $user->setPassword($hashedPassword);
                 }
@@ -300,7 +299,6 @@ class TaskooUser extends TaskooApiController
                 }
 
                 if (isset($payload['password']) && !empty($payload['password'])) {
-                    if (!$this->authenticator->verifyPassword($payload['password'])) throw new InvalidPasswordException();
                     $hashedPassword = $this->authenticator->generatePassword($payload['password']);
                     $user->setPassword($hashedPassword);
                 }

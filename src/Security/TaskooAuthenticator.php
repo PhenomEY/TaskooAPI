@@ -7,6 +7,7 @@ use App\Entity\Projects;
 use App\Entity\User;
 use App\Entity\UserAuth;
 use App\Exception\InvalidAuthenticationException;
+use App\Exception\InvalidNewPasswordException;
 use App\Exception\InvalidRequestException;
 use App\Exception\NoAuthenticationException;
 use App\Exception\NoAuthentificationException;
@@ -83,6 +84,8 @@ class TaskooAuthenticator {
     }
 
     public function generatePassword($password): string {
+        if(!$this->verifyPassword($password)) throw new InvalidNewPasswordException();
+
         $hashedPassword = hash('sha256', $password.'taskoo7312');
 
         return $hashedPassword;
@@ -97,7 +100,7 @@ class TaskooAuthenticator {
        return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
-    public function verifyPassword(String $password): Bool {
+    private function verifyPassword(String $password): Bool {
         return (strlen($password) >= 8);
     }
 

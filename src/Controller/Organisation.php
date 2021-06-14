@@ -146,24 +146,16 @@ class Organisation extends TaskooApiController
         foreach($projects as $project) {
             $projectData = [];
             if($project->getClosed() && !$auth->getUser()->getUserPermissions()->getAdministration()) {
-
                 if($project->getProjectUsers()->contains($auth->getUser())) {
-                    $projectData = [
-                        'name' => $project->getName(),
-                        'id' => $project->getId(),
-                        'closed' => $project->getClosed()
-                    ];
+                    $projectData = $project->getProjectMainData();
+                    $projectData['organisation'] = $project->getOrganisation()->getOrganisationData();
                     array_push($data['projects'], $projectData);
                 } else {
                     continue;
                 }
             } else {
-                $projectData = [
-                    'name' => $project->getName(),
-                    'id' => $project->getId(),
-                    'closed' => $project->getClosed()
-                ];
-
+                $projectData = $project->getProjectMainData();
+                $projectData['organisation'] = $project->getOrganisation()->getOrganisationData();
                 array_push($data['projects'], $projectData);
             }
         }
@@ -174,17 +166,9 @@ class Organisation extends TaskooApiController
         foreach($favorites as $favorite) {
             $project = $favorite->getProject();
 
-            $projectData = [
-                'name' => $project->getName(),
-                'id' => $project->getId(),
-                'closed' => $project->getClosed(),
-                'favId' => $favorite->getId(),
-                'position' => $favorite->getPosition()
-            ];
-
-            if($project->getOrganisation()->getColor()) {
-                $projectData['color']['hexCode'] = $project->getOrganisation()->getColor()->getHexCode();
-            }
+            $projectData = $project->getProjectMainData();
+            $projectData['position'] = $favorite->getPosition();
+            $projectData['organisation'] = $project->getOrganisation()->getOrganisationData();
 
             array_push($data['favorites'], $projectData);
         }

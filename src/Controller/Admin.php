@@ -73,13 +73,12 @@ class Admin extends TaskooApiController
          * @var $user User
          */
         foreach($users as $user) {
-            $userData = [
-                'id' => $user->getId(),
-                'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname(),
-                'email' => $user->getEmail(),
-                'active' => $user->getActive()
-            ];
+            //default user data
+            $userData = $user->getUserData();
+
+            //sensitive user data
+            $userData['email'] = $user->getEmail();
+            $userData['active'] = $user->getActive();
 
             if($user->getUserPermissions()->getAdministration()) {
                 $userData['isAdmin'] = true;
@@ -91,10 +90,6 @@ class Admin extends TaskooApiController
 
             if($user->getOrganisations()->count() === 0) {
                 $userData['warnings']['organisations'] = true;
-            }
-
-            if($user->getColor()) {
-                $userData['color']['hexCode'] = $user->getColor()->getHexCode();
             }
 
             array_push($data['users'], $userData);
