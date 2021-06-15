@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Team;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,21 +20,21 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
+     /**
+      * @return User[] Returns an array of User objects
+      */
 
-//    public function getProjectUsers($project)
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.active = :active')
-//            ->andWhere(':project MEMBER OF u.assignedProjects')
-//            ->setParameter('active', true)
-//            ->setParameter('project', $project)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function getSortedTeamUsers(Team $team)
+    {
+        return $this->createQueryBuilder('u')
+            ->where(':team MEMBER OF u.teams')
+            ->leftJoin('u.teamRole', 'tr')
+            ->setParameter('team', $team)
+            ->orderBy('tr.priority', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
 
     /*

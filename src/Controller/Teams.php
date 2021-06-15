@@ -182,7 +182,7 @@ class Teams extends TaskooApiController
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function getteamUsers(int $orgId, Request $request)
+    public function getTeamUsers(int $orgId, Request $request)
     {
         $data = [
             'users' => []

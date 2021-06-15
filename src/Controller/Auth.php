@@ -101,31 +101,12 @@ class Auth extends TaskooApiController
         $data = [];
         $user = $userAuth->getUser();
 
-        $data['user']['firstname'] = $user->getFirstname();
-        $data['user']['lastname'] = $user->getLastname();
-        $data['user']['id'] = $user->getId();
-        $data['user']['email'] = $user->getEmail();
-
-        if($user->getColor()) $data['user']['color']['hexCode'] = $user->getColor()->getHexCode();
-
-        $avatar = $user->getAvatar();
-        if($avatar) {
-            $data['user']['avatar'] = [
-                'id' => $avatar->getId(),
-                'filePath' => $avatar->getFilePath(),
-                'fileExtension' => $avatar->getExtension()
-            ];
-        }
+        $data['user'] = $user->getUserData();
 
         $userPermissions = $user->getUserPermissions();
 
-
         $data['user']['permissions']['administration'] = $userPermissions->getAdministration();
-
-
         $data['user']['permissions']['project_create'] = $userPermissions->getProjectCreate();
-
-
         $data['user']['permissions']['project_edit'] = $userPermissions->getProjectEdit();
 
         if($user->getUserPermissions()->getAdministration()) {

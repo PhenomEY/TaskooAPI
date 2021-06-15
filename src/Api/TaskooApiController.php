@@ -11,6 +11,7 @@ use App\Entity\Projects;
 use App\Entity\Settings;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
+use App\Entity\TeamRole;
 use App\Entity\User;
 use App\Security\TaskooAuthenticator;
 use App\Service\TaskooColorService;
@@ -75,6 +76,10 @@ class TaskooApiController extends AbstractController
 
     protected function mediaRepository(): ObjectRepository {
         return $this->getDoctrine()->getRepository(Media::class);
+    }
+
+    protected function teamRolesRepository(): ObjectRepository {
+        return $this->getDoctrine()->getRepository(TeamRole::class);
     }
 
 }

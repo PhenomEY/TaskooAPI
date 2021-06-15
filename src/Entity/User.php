@@ -106,6 +106,12 @@ class User
      */
     private $avatar;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=TeamRole::class, inversedBy="users", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     */
+    private $teamRole;
+
     public function __construct()
     {
         $this->projects = new ArrayCollection();
@@ -474,7 +480,8 @@ class User
         $userData = [
             'id' => $this->id,
             'firstname' => $this->firstname,
-            'lastname' => $this->lastname
+            'lastname' => $this->lastname,
+            'email' => $this->email
         ];
 
         if($this->getAvatar()) {
@@ -490,6 +497,26 @@ class User
             ];
         }
 
+        if($this->getTeamRole()) {
+            $userData['teamrole'] = [
+                'name' => $this->getTeamRole()->getName(),
+                'id' => $this->getTeamRole()->getId(),
+                'priority' => $this->getTeamRole()->getPriority()
+            ];
+        }
+
         return $userData;
+    }
+
+    public function getTeamRole(): ?TeamRole
+    {
+        return $this->teamRole;
+    }
+
+    public function setTeamRole(?TeamRole $teamRole): self
+    {
+        $this->teamRole = $teamRole;
+
+        return $this;
     }
 }

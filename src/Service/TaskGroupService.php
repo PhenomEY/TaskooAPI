@@ -54,7 +54,8 @@ class TaskGroupService
                 'id' => $task->getId(),
                 'isDone' => $task->getDone(),
                 'name' => $task->getName(),
-                'doneAt' => $task->getDoneAt()
+                'doneAt' => $task->getDoneAt(),
+                'higherPriority' => $task->getHigherPriority()
             ];
 
             if($task->getDescription()) {

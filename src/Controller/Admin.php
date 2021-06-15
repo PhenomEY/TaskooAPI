@@ -77,7 +77,6 @@ class Admin extends TaskooApiController
             $userData = $user->getUserData();
 
             //sensitive user data
-            $userData['email'] = $user->getEmail();
             $userData['active'] = $user->getActive();
 
             if($user->getUserPermissions()->getAdministration()) {

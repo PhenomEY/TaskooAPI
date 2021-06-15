@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\TeamRole;
 use App\Entity\User;
 use App\Entity\UserAuth;
 use App\Entity\UserPermissions;
@@ -164,11 +165,8 @@ class TaskooUser extends TaskooApiController
         $user = $this->userRepository()->find($userId);
         if(!$user) throw new InvalidRequestException();
 
-        $data['id'] = $user->getId();
-        $data['firstname'] = $user->getFirstname();
-        $data['lastname'] = $user->getLastname();
-        $data['email'] = $user->getEmail();
         $data['avatar'] = [];
+        $data = $user->getUserData();
 
         if($auth->getUser()->getUserPermissions()->getAdministration()) {
             $data['active'] = $user->getActive();
@@ -187,6 +185,17 @@ class TaskooUser extends TaskooApiController
             $data['permissions']['project_edit'] = $permissions->getProjectEdit();
             $data['permissions']['project_create'] = $permissions->getProjectCreate();
 
+            $availableRoles = $this->teamRolesRepository()->findAll();
+            $data['availableRoles'] = [];
+
+            /** @var TeamRole $role */
+            foreach($availableRoles as $role) {
+                $data['availableRoles'][] = [
+                    'id' => $role->getId(),
+                    'name' => $role->getName(),
+                    'priority' => $role->getPriority()
+                ];
+            }
         }
 
         if($user->getTeams()->count() > 0) {
@@ -197,21 +206,6 @@ class TaskooUser extends TaskooApiController
                     'id' => $team->getId()
                 ];
             }
-        }
-
-        if($user->getColor()) {
-            $data['color'] = [
-                'hexCode' => $user->getColor()->getHexCode(),
-                'id' => $user->getColor()->getId()
-            ];
-        }
-
-        if($user->getAvatar()) {
-            $data['avatar'] = [
-                'id' => $user->getAvatar()->getId(),
-                'filePath' => $user->getAvatar()->getFilePath(),
-                'fileExtension' => $user->getAvatar()->getExtension()
-            ];
         }
 
         return $this->responseManager->successResponse($data, 'user_loaded');
@@ -323,6 +317,13 @@ class TaskooUser extends TaskooApiController
 
                 if(isset($payload['permissions']['project_create'])) {
                     $permissions->setProjectCreate($payload['permissions']['project_create']);
+                }
+
+                if(isset($payload['teamRole'])) {
+                    $role = $this->teamRolesRepository()->find($payload['teamRole']);
+                    if(!$role) throw new InvalidRequestException();
+
+                    $user->setTeamRole($role);
                 }
 
                 if (isset($payload['active'])) {
