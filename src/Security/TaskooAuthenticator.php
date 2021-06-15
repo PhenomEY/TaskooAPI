@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\Organisations;
+use App\Entity\Team;
 use App\Entity\Projects;
 use App\Entity\User;
 use App\Entity\UserAuth;
@@ -62,30 +62,36 @@ class TaskooAuthenticator {
                 if(!$project->getProjectUsers()->contains($user)) throw new NotAuthorizedException();
             } else {
                 //project is open, check if user is assigned to organisation
-                $organisation = $project->getOrganisation();
-                if(!$organisation->getUsers()->contains($user)) throw new NotAuthorizedException();
+                $team = $project->getTeam();
+                if(!$team->getUsers()->contains($user)) throw new NotAuthorizedException();
             }
         }
 
         return $project;
     }
 
-    public function checkOrganisationPermission(AuthStruct $auth, int $organisationId): Organisations {
-        /** @var Organisations $organisation */
-        $organisation = $this->manager->getRepository(Organisations::class)->find($organisationId);
-        if(!$organisation) throw new InvalidRequestException();
+    public function checkTeamPermission(AuthStruct $auth, int $organisationId): Team {
+        /** @var Team $team */
+        $team = $this->manager->getRepository(Team::class)->find($organisationId);
+        if(!$team) throw new InvalidRequestException();
         //if user is admin, do nothing
         if(!$auth->getUser()->getUserPermissions()->getAdministration()) {
             $user = $auth->getUser();
-            if(!$organisation->getUsers()->contains($user)) throw new NotAuthorizedException();
+            if(!$team->getUsers()->contains($user)) throw new NotAuthorizedException();
         }
 
-        return $organisation;
+        return $team;
     }
 
     public function generatePassword($password): string {
         if(!$this->verifyPassword($password)) throw new InvalidNewPasswordException();
 
+        $hashedPassword = hash('sha256', $password.'taskoo7312');
+
+        return $hashedPassword;
+    }
+
+    public function generatePasswordHash($password): string {
         $hashedPassword = hash('sha256', $password.'taskoo7312');
 
         return $hashedPassword;

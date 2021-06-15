@@ -274,7 +274,7 @@ class Project extends TaskooApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $auth = $this->authenticator->verifyToken($request);
+        $this->authenticator->verifyToken($request);
         $entityManager = $this->getDoctrine()->getManager();
 
         if(isset($payload['positions'])) {

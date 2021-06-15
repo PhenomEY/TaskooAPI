@@ -2,21 +2,21 @@
 
 namespace App\Repository;
 
-use App\Entity\Organisations;
+use App\Entity\Team;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Organisations|null find($id, $lockMode = null, $lockVersion = null)
- * @method Organisations|null findOneBy(array $criteria, array $orderBy = null)
- * @method Organisations[]    findAll()
- * @method Organisations[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Team|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Team|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Team[]    findAll()
+ * @method Team[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class OrganisationsRepository extends ServiceEntityRepository
+class TeamRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Organisations::class);
+        parent::__construct($registry, Team::class);
     }
 
     public function getOrganisationUsers($id)

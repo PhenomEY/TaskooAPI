@@ -114,7 +114,7 @@ class Task extends TaskooApiController
             if($project->getClosed()) {
                 if(!$project->getProjectUsers()->contains($user)) throw new NotAuthorizedException();
             } else {
-                if(!$project->getOrganisation()->getUsers()->contains($user)) throw new NotAuthorizedException();
+                if(!$project->getTeam()->getUsers()->contains($user)) throw new NotAuthorizedException();
             }
 
             $task->addAssignedUser($user);
@@ -212,7 +212,7 @@ class Task extends TaskooApiController
         if($project->getClosed()) {
             $data['task']['availableUsers'] = $project->getProjectUsersData();
         } else {
-            $data['task']['availableUsers'] = $project->getOrganisation()->getOrganisationUsersData();
+            $data['task']['availableUsers'] = $project->getTeam()->getTeamUsersData();
         }
 
         //task finished data

@@ -30,7 +30,7 @@ class Auth extends TaskooApiController
         
         $loginData = $payload['login'];
 
-        $hashedPassword = $this->authenticator->generatePassword($loginData['password']);
+        $hashedPassword = $this->authenticator->generatePasswordHash($loginData['password']);
 
         /**
          * @var $user User
@@ -129,13 +129,13 @@ class Auth extends TaskooApiController
         $data['user']['permissions']['project_edit'] = $userPermissions->getProjectEdit();
 
         if($user->getUserPermissions()->getAdministration()) {
-            $organisations = $this->organisationsRepository()->findAll();
+            $teams = $this->teamRepository()->findAll();
         } else {
-            $organisations = $user->getOrganisations();
+            $teams = $user->getTeams();
         }
 
-        foreach($organisations as $key=>$organisation) {
-            $data['organisations'][$key] = $organisation->getOrganisationData();
+        foreach($teams as $key=>$team) {
+            $data['teams'][$key] = $team->getTeamData();
         }
 
         return $data;

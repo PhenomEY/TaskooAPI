@@ -177,8 +177,8 @@ class TaskooUser extends TaskooApiController
                 $data['warnings']['password'] = true;
             }
 
-            if($user->getOrganisations()->count() === 0) {
-                $data['warnings']['organisations'] = true;
+            if($user->getTeams()->count() === 0) {
+                $data['warnings']['teams'] = true;
             }
 
             $permissions = $user->getUserPermissions();
@@ -189,12 +189,12 @@ class TaskooUser extends TaskooApiController
 
         }
 
-        if($user->getOrganisations()->count() > 0) {
-            $organisations = $user->getOrganisations();
-            foreach($organisations as $key=>$organisation) {
-                $data['organisations'][$key] = [
-                    'name' => $organisation->getName(),
-                    'id' => $organisation->getId()
+        if($user->getTeams()->count() > 0) {
+            $teams = $user->getTeams();
+            foreach($teams as $key=>$team) {
+                $data['teams'][$key] = [
+                    'name' => $team->getName(),
+                    'id' => $team->getId()
                 ];
             }
         }
@@ -303,14 +303,14 @@ class TaskooUser extends TaskooApiController
                     $user->setPassword($hashedPassword);
                 }
 
-                if (isset($payload['addOrganisation'])) {
-                    $organisation = $this->organisationsRepository()->find($payload['addOrganisation']);
-                    $user->addOrganisation($organisation);
+                if (isset($payload['addTeam'])) {
+                    $team = $this->teamRepository()->find($payload['addTeam']);
+                    $user->addTeam($team);
                 }
 
-                if (isset($payload['removeOrganisation'])) {
-                    $organisation = $this->organisationsRepository()->find($payload['removeOrganisation']);
-                    $user->removeOrganisation($organisation);
+                if (isset($payload['removeTeam'])) {
+                    $team = $this->teamRepository()->find($payload['removeTeam']);
+                    $user->removeTeam($team);
                 }
 
                 if(isset($payload['permissions']['administration'])) {

@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\OrganisationsRepository;
+use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=OrganisationsRepository::class)
+ * @ORM\Entity(repositoryClass=teamRepository::class)
  */
-class Organisations
+class Team
 {
     /**
      * @ORM\Id
@@ -25,7 +25,7 @@ class Organisations
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity=Projects::class, mappedBy="organisation", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity=Projects::class, mappedBy="team", cascade={"remove"})
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $projects;
@@ -85,8 +85,8 @@ class Organisations
     {
         if ($this->projects->removeElement($project)) {
             // set the owning side to null (unless already changed)
-            if ($project->getOrganisation() === $this) {
-                $project->setOrganisation(null);
+            if ($project->getTeam() === $this) {
+                $project->setTeam(null);
             }
         }
 
@@ -129,7 +129,7 @@ class Organisations
         return $this;
     }
 
-    public function getOrganisationData() : array
+    public function getTeamData() : array
     {
         $data = [
             'id' => $this->id,
@@ -146,7 +146,7 @@ class Organisations
         return $data;
     }
 
-    public function getOrganisationUsersData(): array
+    public function getTeamUsersData(): array
     {
         $userData = [];
 

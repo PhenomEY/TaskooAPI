@@ -88,8 +88,8 @@ class Admin extends TaskooApiController
                 $userData['warnings']['password'] = true;
             }
 
-            if($user->getOrganisations()->count() === 0) {
-                $userData['warnings']['organisations'] = true;
+            if($user->getTeams()->count() === 0) {
+                $userData['warnings']['teams'] = true;
             }
 
             array_push($data['users'], $userData);

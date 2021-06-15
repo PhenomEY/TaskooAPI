@@ -6,7 +6,7 @@ use App\Entity\Color;
 use App\Entity\Favorites;
 use App\Entity\Media;
 use App\Entity\Notifications;
-use App\Entity\Organisations;
+use App\Entity\Team;
 use App\Entity\Projects;
 use App\Entity\Settings;
 use App\Entity\TaskGroups;
@@ -53,8 +53,8 @@ class TaskooApiController extends AbstractController
         return $this->getDoctrine()->getRepository(Notifications::class);
     }
 
-    protected function organisationsRepository(): ObjectRepository {
-        return $this->getDoctrine()->getRepository(Organisations::class);
+    protected function teamRepository(): ObjectRepository {
+        return $this->getDoctrine()->getRepository(Team::class);
     }
 
     protected function userRepository(): ObjectRepository {

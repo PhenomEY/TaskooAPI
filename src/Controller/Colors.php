@@ -13,7 +13,7 @@ class Colors extends TaskooApiController
     /**
      * @Route("/colors", name="api_colors_get", methods={"GET"})
      */
-    public function getOrganisations(Request $request)
+    public function getColors(Request $request)
     {
         $data = [];
         $entityManager = $this->getDoctrine()->getManager();

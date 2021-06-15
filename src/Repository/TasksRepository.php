@@ -112,7 +112,7 @@ class TasksRepository extends ServiceEntityRepository
             ->join('t.assignedUser', 'au', Expr\Join::WITH, 'au = :user')
             ->leftJoin('t.TaskGroup', 'tg')
             ->leftJoin('tg.project', 'p')
-            ->leftJoin('p.organisation', 'org')
+            ->leftJoin('p.team', 'org')
             ->leftJoin('org.color', 'orgColor')
             ->setParameter('user', $user)
             ->setParameter('done', $done)

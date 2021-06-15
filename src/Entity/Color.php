@@ -25,13 +25,13 @@ class Color
     private $hexCode;
 
     /**
-     * @ORM\OneToMany(targetEntity=Organisations::class, mappedBy="color")
+     * @ORM\OneToMany(targetEntity=Team::class, mappedBy="color")
      */
-    private $organisations;
+    private $teams;
 
     public function __construct()
     {
-        $this->organisations = new ArrayCollection();
+        $this->teams = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -52,29 +52,29 @@ class Color
     }
 
     /**
-     * @return Collection|Organisations[]
+     * @return Collection|Team[]
      */
-    public function getOrganisations(): Collection
+    public function getTeams(): Collection
     {
-        return $this->organisations;
+        return $this->team;
     }
 
-    public function addOrganisation(Organisations $organisation): self
+    public function addTeam(Team $team): self
     {
-        if (!$this->organisations->contains($organisation)) {
-            $this->organisations[] = $organisation;
-            $organisation->setColor($this);
+        if (!$this->teams->contains($team)) {
+            $this->teams[] = $team;
+            $team->setColor($this);
         }
 
         return $this;
     }
 
-    public function removeOrganisation(Organisations $organisation): self
+    public function removeTeam(Team $team): self
     {
-        if ($this->organisations->removeElement($organisation)) {
+        if ($this->teams->removeElement($team)) {
             // set the owning side to null (unless already changed)
-            if ($organisation->getColor() === $this) {
-                $organisation->setColor(null);
+            if ($team->getColor() === $this) {
+                $team->setColor(null);
             }
         }
 

@@ -48,9 +48,9 @@ class Projects
     private $taskGroups;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Organisations::class, inversedBy="projects")
+     * @ORM\ManyToOne(targetEntity=Team::class, inversedBy="projects")
      */
-    private $organisation;
+    private $team;
 
     /**
      * @ORM\Column(type="boolean")
@@ -150,14 +150,14 @@ class Projects
         return $this;
     }
 
-    public function getOrganisation(): ?Organisations
+    public function getTeam(): ?Team
     {
-        return $this->organisation;
+        return $this->team;
     }
 
-    public function setOrganisation(?Organisations $organisation): self
+    public function setTeam(?Team $team): self
     {
-        $this->organisation = $organisation;
+        $this->team = $team;
 
         return $this;
     }
@@ -223,8 +223,8 @@ class Projects
             'description' => $this->description
         ];
 
-        if($this->getOrganisation()) {
-            $data['organisation'] = $this->getOrganisation()->getOrganisationData();
+        if($this->getTeam()) {
+            $data['team'] = $this->getTeam()->getTeamData();
         }
 
         return $data;

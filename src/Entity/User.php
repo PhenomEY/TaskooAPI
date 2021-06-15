@@ -61,9 +61,9 @@ class User
     private $tasks;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Organisations::class, mappedBy="Users")
+     * @ORM\ManyToMany(targetEntity=Team::class, mappedBy="Users")
      */
-    private $organisations;
+    private $teams;
 
     /**
      * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="doneBy")
@@ -111,7 +111,7 @@ class User
         $this->projects = new ArrayCollection();
         $this->assignedProjects = new ArrayCollection();
         $this->tasks = new ArrayCollection();
-        $this->organisations = new ArrayCollection();
+        $this->teams = new ArrayCollection();
         $this->doneTasks = new ArrayCollection();
         $this->assignedTasks = new ArrayCollection();
         $this->notifications = new ArrayCollection();
@@ -273,27 +273,27 @@ class User
     }
 
     /**
-     * @return Collection|Organisations[]
+     * @return Collection|Team[]
      */
-    public function getOrganisations(): Collection
+    public function getTeams(): Collection
     {
-        return $this->organisations;
+        return $this->teams;
     }
 
-    public function addOrganisation(Organisations $organisation): self
+    public function addTeam(Team $team): self
     {
-        if (!$this->organisations->contains($organisation)) {
-            $this->organisations[] = $organisation;
-            $organisation->addUser($this);
+        if (!$this->teams->contains($team)) {
+            $this->teams[] = $team;
+            $team->addUser($this);
         }
 
         return $this;
     }
 
-    public function removeOrganisation(Organisations $organisation): self
+    public function removeTeam(Team $team): self
     {
-        if ($this->organisations->removeElement($organisation)) {
-            $organisation->removeUser($this);
+        if ($this->teams->removeElement($team)) {
+            $team->removeUser($this);
         }
 
         return $this;

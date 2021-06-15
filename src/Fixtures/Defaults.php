@@ -3,7 +3,7 @@
 namespace App\Fixtures;
 
 use App\Entity\Color;
-use App\Entity\Organisations;
+use App\Entity\Team;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
@@ -50,7 +50,7 @@ class Defaults extends Fixture
 
         $manager->flush();
 
-        $team = new Organisations();
+        $team = new Team();
         $team->setName('My Team');
         $team->setColor($this->colorService->getRandomColor());
         $manager->persist($team);
@@ -58,7 +58,7 @@ class Defaults extends Fixture
         $project = new Projects();
         $project->setName('My Project');
         $project->setDescription('This is your first project on taskoo! :-)');
-        $project->setOrganisation($team);
+        $project->setTeam($team);
         $manager->persist($project);
 
         $group = new TaskGroups();
@@ -78,7 +78,7 @@ class Defaults extends Fixture
         $user->setFirstname('Admin');
         $user->setLastname('Jackson');
         $user->setEmail('admin@taskoo.de');
-        $hashedPassword = $this->authenticator->generatePassword('admin');
+        $hashedPassword = $this->authenticator->generatePassword('admin123');
         $user->setPassword($hashedPassword);
         $user->setColor($this->colorService->getRandomColor());
         $user->setActive(true);
