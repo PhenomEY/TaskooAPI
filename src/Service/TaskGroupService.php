@@ -32,7 +32,7 @@ class TaskGroupService
         $taskCriteria = new Criteria();
         $taskCriteria->where(new Comparison('TaskGroup',Comparison::EQ, $taskGroup));
         if($done === true || $done === false) {
-            $taskCriteria->where(new Comparison('done', Comparison::EQ, $done));
+            $taskCriteria->andWhere(new Comparison('done', Comparison::EQ, $done));
         }
 
         $taskCriteria->orderBy(['position' => Criteria::ASC]);

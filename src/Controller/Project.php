@@ -48,13 +48,14 @@ class Project extends TaskooApiController
 
         $data['project']['mainUser'] = $project->getMainUserData();
 
+        $data['groups'] = [];
         $taskGroups = $project->getTaskGroups();
         foreach($taskGroups as $key => $taskGroup) {
-            $data['groups']['key'] = [
+            $data['groups'][$key] = [
                 'id' => $taskGroup->getId(),
                 'name' => $taskGroup->getName()
             ];
-            $data['groups']['key']['tasks'] = $taskGroupService->loadTasks($taskGroup, false);
+            $data['groups'][$key]['tasks'] = $taskGroupService->loadTasks($taskGroup, false);
         }
 
         return $this->responseManager->successResponse($data, 'project_loaded');

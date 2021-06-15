@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Entity\Media;
 use App\Entity\Tasks;
+use App\Exception\NotAuthorizedException;
+use App\Security\TaskooAuthenticator;
 use App\Struct\AuthStruct;
 use App\Struct\SearchResultStruct;
 use Doctrine\Common\Collections\Criteria;
@@ -22,17 +24,22 @@ class TaskooSearchService {
 
     private $searchTerm;
 
-    public function __construct(ManagerRegistry $doctrine)
+    private $auth;
+
+    private $authenticator;
+
+    public function __construct(ManagerRegistry $doctrine, TaskooAuthenticator $authenticator)
     {
         $this->doctrine = $doctrine;
-
+        $this->authenticator = $authenticator;
         $this->taskRepository = $this->doctrine->getRepository(Tasks::class);
         $this->mediaRepository = $this->doctrine->getRepository(Media::class);
     }
 
-    public function search(string $searchTerm, ?AuthStruct $auth, ?int $limit = 20, ?int $offset  = 0, $type = 'all') : SearchResultStruct
+    public function search(string $searchTerm, AuthStruct $auth, ?int $limit = 20, ?int $offset  = 0, $type = 'all') : SearchResultStruct
     {
         $this->searchTerm = $searchTerm;
+        $this->auth = $auth;
 
         $taskSearchCriteria = new Criteria();
         $taskSearchCriteria->where(new CompositeExpression(CompositeExpression::TYPE_OR, [
@@ -92,6 +99,12 @@ class TaskooSearchService {
 
         /** @var Media $media */
         foreach($medias->getValues() as $media) {
+            try {
+                $this->authenticator->checkProjectPermission($this->auth, $media->getTask()->getTaskGroup()->getProject()->getId());
+            } catch (NotAuthorizedException $e) {
+                continue;
+            }
+
             $data[] = [
                 'id' => $media->getId(),
                 'filePath' => $media->getFilePath(),
@@ -115,6 +128,12 @@ class TaskooSearchService {
 
         /** @var Tasks $task */
         foreach ($tasks->getValues() as $task) {
+            try {
+                $this->authenticator->checkProjectPermission($this->auth, $task->getTaskGroup()->getProject()->getId());
+            } catch (NotAuthorizedException $e) {
+                continue;
+            }
+
             $data[] = [
                 'id' => $task->getId(),
                 'name' => $task->getName(),
@@ -126,8 +145,10 @@ class TaskooSearchService {
         return $data;
     }
 
-    private function truncateDescription(string $description) : string
+    private function truncateDescription(?string $description) : ?string
     {
+        if(!$description) return null;
+
         $lowerSearchTerm = strtolower($this->searchTerm);
         $termPosition = strpos(strtolower($description), $lowerSearchTerm);
         $termLength = strlen($this->searchTerm);
