@@ -7,6 +7,7 @@ date_default_timezone_set('Europe/Amsterdam');
 use App\Api\TaskooApiController;
 use App\Entity\TaskGroups;
 use App\Exception\InvalidRequestException;
+use App\Service\TaskGroupService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -117,7 +118,7 @@ class TaskGroup extends TaskooApiController
     /**
      * @Route("/taskgroup/{groupId}", name="api_taskgroup_get", methods={"GET"})
      */
-    public function getTaskgroup(int $groupId, Request $request)
+    public function getTaskgroup(int $groupId, Request $request, TaskGroupService $taskGroupService)
     {
         $data = [];
         $auth = $this->authenticator->verifyToken($request);
@@ -130,28 +131,10 @@ class TaskGroup extends TaskooApiController
         $doneTasks = $request->query->get('done');
 
         if($doneTasks === 'true') {
-            $data['tasks'] = $this->tasksRepository()->getDoneTasks($groupId);
+            $data['tasks'] = $taskGroupService->loadTasks($taskGroup, true);
 
         } elseif ($doneTasks === 'false') {
-            $tasks = $this->tasksRepository()->getOpenTasks($groupId);
-
-            foreach($tasks as &$task) {
-                if($task['description']) {
-                    $task['description'] = true;
-                }
-
-                $subTasks = $this->tasksRepository()->getSubTasks($task['id']);
-                if($subTasks) {
-                    $task['subTasks'] = true;
-                }
-
-                $users = $this->tasksRepository()->getAssignedUsers($task['id']);
-                if($users) {
-                    $task['user'] = $users[0];
-                }
-            }
-
-            $data['tasks'] = $tasks;
+            $data['tasks'] = $taskGroupService->loadTasks($taskGroup, false);
         }
 
         return $this->responseManager->successResponse($data, 'taskgroup_loaded');

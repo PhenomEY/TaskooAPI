@@ -11,6 +11,7 @@ use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Exception\InvalidRequestException;
 use App\Security\TaskooAuthenticator;
+use App\Service\TaskGroupService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,7 +23,7 @@ class Project extends TaskooApiController
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function getProject(int $projectId, Request $request)
+    public function getProject(int $projectId, Request $request, TaskGroupService $taskGroupService)
     {
 
         $data = [];
@@ -47,49 +48,14 @@ class Project extends TaskooApiController
 
         $data['project']['mainUser'] = $project->getMainUserData();
 
-
-        $data['groups'] = $project->getTaskgroups()
-            ->map(function($group) {
-                $taskData = [];
-                $tasks = $group->getTasks();
-                if($tasks) {
-                    /** @var Tasks $task */
-                    foreach($tasks as $key => &$task) {
-                        $taskData[$key] = [
-                            'name' => $task->getName(),
-                            'id' => $task->getId(),
-                            'isDone' => $task->getDone(),
-                            'dateDue' => $task->getDateDue()
-                        ];
-
-                        if($task->getDescription()) {
-                            $taskData[$key]['description'] = true;
-                        }
-
-                        $subTasks = $this->tasksRepository()->getSubTasks($task->getId());
-                        if($subTasks) {
-                            $taskData[$key]['subTasks'] = true;
-                        }
-
-                        $users = $task->getAssignedUser();
-                        if($users->count() > 0) {
-                            $taskData[$key]['user'] = $users->first()->getUserData();
-                        }
-
-                        if($this->mediaRepository()->findOneBy(['task' => $task->getId()])) {
-                            $taskData[$key]['hasFiles'] = true;
-                        }
-                    }
-                }
-
-                $data['tasks'] = $taskData;
-
-                return [
-                    'name' => $group->getName(),
-                    'id' => $group->getId(),
-                    'tasks' => $data['tasks']
-                ];
-            })->toArray();
+        $taskGroups = $project->getTaskGroups();
+        foreach($taskGroups as $key => $taskGroup) {
+            $data['groups']['key'] = [
+                'id' => $taskGroup->getId(),
+                'name' => $taskGroup->getName()
+            ];
+            $data['groups']['key']['tasks'] = $taskGroupService->loadTasks($taskGroup, false);
+        }
 
         return $this->responseManager->successResponse($data, 'project_loaded');
     }
@@ -110,16 +76,16 @@ class Project extends TaskooApiController
         if(!$payload) throw new InvalidRequestException();
 
         $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_PROJECT_CREATE);
-        $organisationId = $payload['organisationId'];
+        $teamId = $payload['teamId'];
 
-        //check if user is permitted to create a project in this organisation
-        $organisation = $this->authenticator->checkOrganisationPermission($auth, $organisationId);
+        //check if user is permitted to create a project in this team
+        $team = $this->authenticator->checkTeamPermission($auth, $teamId);
 
         //Create new Project
         $project = new Projects();
         $project->setName($payload['projectName']);
 
-        $project->setOrganisation($organisation);
+        $project->setTeam($team);
 
         if(isset($payload['deadline'])) {
             $dateTime = new \DateTime($payload['deadline']);
