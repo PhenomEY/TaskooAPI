@@ -6,6 +6,7 @@ use App\Entity\Media;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
 use App\Entity\User;
+use Composer\Autoload\ClassLoader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
@@ -30,7 +31,11 @@ class TaskGroupService
 
     public function loadTasks(TaskGroups $taskGroup, ?bool $done = null) : array {
         $taskCriteria = new Criteria();
-        $taskCriteria->where(new Comparison('TaskGroup',Comparison::EQ, $taskGroup));
+        $taskCriteria->where(new CompositeExpression(CompositeExpression::TYPE_AND, [
+            new Comparison('TaskGroup',Comparison::EQ, $taskGroup),
+            new Comparison('mainTask', Comparison::IS, NULL)
+        ]));
+
         if($done === true || $done === false) {
             $taskCriteria->andWhere(new Comparison('done', Comparison::EQ, $done));
         }
