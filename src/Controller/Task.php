@@ -12,6 +12,7 @@ use App\Entity\Tasks;
 use App\Exception\InvalidRequestException;
 use App\Exception\NotAuthorizedException;
 use App\Service\TaskooFileService;
+use App\Service\TaskooNotificationService;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -77,7 +78,7 @@ class Task extends TaskooApiController
     /**
      * @Route("/task/{taskId}", name="api_task_update", methods={"PUT"})
      */
-    public function updateTask(int $taskId, Request $request)
+    public function updateTask(int $taskId, Request $request, TaskooNotificationService $notificationService)
     {
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
@@ -120,13 +121,8 @@ class Task extends TaskooApiController
             $task->addAssignedUser($user);
 
             if($user->getId() !== $auth->getUser()->getId()) {
-                $notification = new Notifications();
-                $notification->setTask($task);
-                $notification->setByUser($auth->getUser());
-                $notification->setUser($user);
-                $notification->setMessage('task_assigned');
-
-                $entityManager->persist($notification);
+                //generate notification
+                $notificationService->create($user, $auth->getUser(), $task, null, $notificationService::TASK_ASSIGNED);
             }
 
         }

@@ -197,11 +197,7 @@ class Teams extends TaskooApiController
         foreach($users as $user) {
             if(!$user->getActive()) continue;
 
-            $data['users'][] = [
-              'id' => $user->getId(),
-              'firstname' => $user->getFirstname(),
-              'lastname' => $user->getLastname()
-            ];
+            $data['users'][] = $user->getUserData();
         }
 
         return $this->responseManager->successResponse($data, 'team_users_loaded');

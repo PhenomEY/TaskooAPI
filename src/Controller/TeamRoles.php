@@ -79,7 +79,7 @@ class TeamRoles extends TaskooApiController
     }
 
     /**
-     * @Route("/teamroles/{roleId}", name="api_roles_update", methods={"DELETE"})
+     * @Route("/teamroles/{roleId}", name="api_roles_delete", methods={"DELETE"})
      */
     public function deleteRole(int $roleId, Request $request)
     {

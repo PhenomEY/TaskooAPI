@@ -38,12 +38,14 @@ class Media
     private $fileSize;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Tasks::class, inversedBy="media")
+     * @ORM\ManyToOne(targetEntity=Tasks::class, inversedBy="media", cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $task;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $uploadedBy;
 

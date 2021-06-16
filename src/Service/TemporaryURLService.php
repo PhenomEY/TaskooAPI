@@ -3,8 +3,6 @@ namespace App\Service;
 
 use App\Entity\TempUrls;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**

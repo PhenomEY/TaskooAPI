@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\Notifications;
 use App\Entity\TeamRole;
 use App\Entity\User;
 use App\Entity\UserAuth;
@@ -12,6 +13,7 @@ use App\Entity\UserPermissions;
 use App\Exception\InvalidEmailException;
 use App\Exception\InvalidPasswordException;
 use App\Exception\InvalidRequestException;
+use App\Service\TaskooNotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,18 +23,16 @@ class TaskooUser extends TaskooApiController
     /**
      * @Route("/user/notifications", name="api_user_get_notifications", methods={"GET"})
      */
-    public function getUserNotifications(Request $request)
+    public function getUserNotifications(Request $request, TaskooNotificationService $notificationService)
     {
         $data = [];
         $auth = $this->authenticator->verifyToken($request);
         $isDashboard = $request->query->get('dashboard');
 
         if($isDashboard === 'true') {
-            $notifications = $this->notificationsRepository()->getUserNotifications($auth->getUser(), true);
-            $data['notifications'] = $notifications;
+            $data['notifications'] = $notificationService->load($auth->getUser(), 10);
         } else {
-            $notifications = $this->notificationsRepository()->getUserNotifications($auth->getUser());
-            $data['notifications'] = $notifications;
+            $data['notifications'] = $notificationService->load($auth->getUser(), 10, null);
         }
 
 
@@ -44,19 +44,28 @@ class TaskooUser extends TaskooApiController
      */
     public function visitedNotifications(Request $request)
     {
-        $data = [];
+        $auth = $this->authenticator->verifyToken($request);
+        $payload = $request->toArray();
 
-        $token = $request->headers->get('authorization');
+        $notifications = $payload['notifications'];
 
-        if(isset($token)) {
-            $auth = $this->authenticator->checkUserAuth($token);
+        $manager = $this->getDoctrine()->getManager();
 
-            if(isset($auth['user'])) {
-                return $this->responseManager->successResponse($data, 'notifications_updated');
+        foreach($notifications as $notification) {
+            /** @var Notifications $update */
+            $update = $this->notificationsRepository()->findOneBy([
+                'id' => $notification['id'],
+                'user' => $auth->getUser()
+            ]);
+
+            if($update) {
+                $update->setVisited(true);
+                $manager->persist($update);
             }
         }
 
-        return $this->responseManager->forbiddenResponse();
+        $manager->flush();
+        return $this->responseManager->successResponse([], 'notifications_updated');
     }
 
     /**
@@ -346,5 +355,22 @@ class TaskooUser extends TaskooApiController
             $entityManager->flush();
         }
         return $this->responseManager->successResponse($data, 'user_updated');
+    }
+
+    /**
+     * @Route("/user/{userId}", name="api_user_delete", methods={"DELETE"})
+     */
+    public function deleteUser(int $userId, Request $request)
+    {
+        $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
+        $user = $this->userRepository()->find($userId);
+
+        if(!$user) throw new InvalidRequestException();
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($user);
+        $manager->flush();
+
+        return $this->responseManager->successResponse([], 'user_deleted');
     }
 }

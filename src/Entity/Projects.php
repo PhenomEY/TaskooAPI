@@ -27,6 +27,7 @@ class Projects
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="projects")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $mainUser;
 

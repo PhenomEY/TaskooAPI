@@ -51,32 +51,33 @@ class User
     private $projects;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Projects::class, mappedBy="ProjectUsers")
+     * @ORM\ManyToMany(targetEntity=Projects::class, mappedBy="ProjectUsers", cascade={"persist"})
      */
     private $assignedProjects;
 
     /**
-     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="assignedUser")
+     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="assignedUser", cascade={"persist"})
      */
     private $tasks;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Team::class, mappedBy="Users")
+     * @ORM\ManyToMany(targetEntity=Team::class, mappedBy="Users", cascade={"persist"})
      */
     private $teams;
 
     /**
-     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="doneBy")
+     * @ORM\OneToMany(targetEntity=Tasks::class, mappedBy="doneBy", cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $doneTasks;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Tasks::class, mappedBy="assignedUser")
+     * @ORM\ManyToMany(targetEntity=Tasks::class, mappedBy="assignedUser", cascade={"persist"})
      */
     private $assignedTasks;
 
     /**
-     * @ORM\OneToMany(targetEntity=Notifications::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=Notifications::class, mappedBy="user", orphanRemoval=true)
      */
     private $notifications;
 
@@ -86,7 +87,7 @@ class User
     private $active;
 
     /**
-     * @ORM\OneToOne(targetEntity=UserPermissions::class, mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=UserPermissions::class, mappedBy="user", cascade={"remove"})
      */
     private $userPermissions;
 
@@ -107,7 +108,7 @@ class User
     private $avatar;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TeamRole::class, inversedBy="users", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=TeamRole::class, inversedBy="users", cascade={"persist"})
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $teamRole;

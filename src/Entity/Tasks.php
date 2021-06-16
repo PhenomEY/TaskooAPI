@@ -53,6 +53,7 @@ class Tasks
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="doneTasks")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $doneBy;
 
@@ -79,6 +80,7 @@ class Tasks
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $createdBy;
 

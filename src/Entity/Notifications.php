@@ -18,23 +18,25 @@ class Notifications
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\ManyToOne(targetEntity=User::class, cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $byUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="notifications")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="notifications", cascade={"persist"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Projects::class, cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Projects::class, cascade={"persist"})
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $project;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Tasks::class, cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity=Tasks::class, cascade={"persist"})
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $task;

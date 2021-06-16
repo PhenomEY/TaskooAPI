@@ -9,9 +9,11 @@ use App\Entity\Favorites;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
 use App\Entity\Tasks;
+use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Security\TaskooAuthenticator;
 use App\Service\TaskGroupService;
+use App\Service\TaskooNotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -111,8 +113,13 @@ class Project extends TaskooApiController
 
     /**
      * @Route("/project/{projectId}", name="api_project_update", methods={"PUT"})
+     * @param int $projectId
+     * @param Request $request
+     * @param TaskooNotificationService $notificationService
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws \Exception
      */
-    public function updateProject(int $projectId, Request $request)
+    public function updateProject(int $projectId, Request $request, TaskooNotificationService $notificationService)
     {
         $data = [];
         $payload = json_decode($request->getContent(), true);
@@ -137,9 +144,14 @@ class Project extends TaskooApiController
             }
 
             if(isset($payload['mainUser'])) {
+                /** @var User $mainUser */
                 $mainUser = $this->userRepository()->find($payload['mainUser']);
-
                 if($mainUser) $project->setMainUser($mainUser);
+
+                if($mainUser->getId() !== $auth->getUser()->getId()) {
+                    //generate notification
+                    $notificationService->create($mainUser, $auth->getUser(), null, $project, $notificationService::PROJECT_ASSIGNED);
+                }
             }
 
             if(isset($payload['deadline'])) {
@@ -148,12 +160,18 @@ class Project extends TaskooApiController
             }
 
             if(isset($payload['addUser'])){
+                /** @var User $user */
                 $user = $this->userRepository()->find($payload['addUser']);
 
                 if($user && !$project->getProjectUsers()->contains($user)) {
                     $project->addProjectUser($user);
                 } else {
                     return $this->responseManager->errorResponse('adduser_failed');
+                }
+
+                if($user->getId() !== $auth->getUser()->getId()) {
+                    //generate new notification
+                    $notificationService->create($user, $auth->getUser(), null, $project, $notificationService::PROJECT_ASSIGNED);
                 }
             }
 
@@ -257,5 +275,24 @@ class Project extends TaskooApiController
         $entityManager->flush();
 
         return $this->responseManager->successResponse($data, 'favorites_updated');
+    }
+
+    /**
+     * @Route("/project/{projectId}", name="api_project_delete", methods={"DELETE"})
+     * @param int $projectId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws \Exception
+     */
+    public function deleteProject(int $projectId, Request $request)
+    {
+        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_PROJECT_CREATE);
+        $project = $this->authenticator->checkProjectPermission($auth, $projectId);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($project);
+        $manager->flush();
+
+        return $this->responseManager->successResponse([], 'project_deleted');
     }
 }
