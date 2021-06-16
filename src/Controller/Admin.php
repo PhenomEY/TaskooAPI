@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
 use App\Api\TaskooApiController;
+use App\Entity\Settings;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Service\TaskooMailerService;
@@ -22,11 +23,11 @@ class Admin extends TaskooApiController
         $data = [];
         $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
-        $mainSettings = $this->settingsRepository()->findOneBy([
-            'name' => 'app_url'
-        ]);
+        /** @var Settings $settings */
+        $settings = $this->settingsRepository()->findAll()[0];
 
-        $data['app_url'] = $mainSettings->getValue();
+        $data['settings']['app_url'] = $settings->getAppUrl();
+        $data['settings']['sender'] = $settings->getMailSender();
 
         return $this->responseManager->successResponse($data, 'mainsettings_loaded');
     }
@@ -37,22 +38,20 @@ class Admin extends TaskooApiController
     public function saveMainSettings(Request $request)
     {
         $data = [];
-
-        $payload = json_decode($request->getContent(), true);
+        $payload = $request->toArray();
         if(!$payload) throw new InvalidRequestException();
         $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
 
-        $settings = $payload['settings'];
+        $newSettings = $payload['settings'];
 
-        $mainSettings = $this->settingsRepository()->findOneBy([
-            'name' => 'app_url'
-        ]);
+        /** @var Settings $settings */
+        $settings = $this->settingsRepository()->findAll()[0];
+        $settings->setAppUrl($newSettings['app_url']);
+        $settings->setMailSender($newSettings['sender']);
 
-        $mainSettings->setValue($settings['app_url']);
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($mainSettings);
-        $entityManager->flush();
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($settings);
+        $manager->flush();
 
         return $this->responseManager->successResponse($data, 'mainsettings_saved');
     }
