@@ -3,6 +3,7 @@
 namespace App\Fixtures;
 
 use App\Entity\Color;
+use App\Entity\Settings;
 use App\Entity\Team;
 use App\Entity\Projects;
 use App\Entity\TaskGroups;
@@ -28,6 +29,11 @@ class Defaults extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        $settings = new Settings();
+        $settings->setAppUrl('https://app.taskoo.de');
+        $settings->setMailSender('Taskoo <noreply@taskoo.de>');
+        $manager->persist($settings);
+
         $color1 = new Color();
         $color1->setHexCode('#c8ae1e');
         $manager->persist($color1);

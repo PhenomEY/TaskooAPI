@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <meta name="color-scheme" content="only">
+    <style type="text/css">
+    {% block style %}
+        body {
+            background:#f5f5f5;
+            color:#6f6e6e;
+        }
+
+        .mail-body {
+            background:#ffffff;
+            box-shadow:0px 1px 4px rgba(0,0,0,0.2);
+            padding:16px;
+            margin:0 auto;
+        }
+
+        .header-row {
+            border-bottom:20px solid;
+            border-color:transparent;
+        }
+
+        .mail-header {
+            margin:0 auto;
+            padding-bottom: 20px;
+            border-bottom:2px solid #f5f5f5;
+        }
+
+        .mail-header img {
+            width: 120px;
+            margin:0 auto;
+        }
+
+        .mail-content {
+            padding:16px 0;
+        }
+
+        .footer-row {
+            border-top:20px solid;
+            border-color:transparent;
+        }
+
+        .mail-footer {
+            border-top:2px solid #f5f5f5;
+            padding-top:20px;
+            text-align: center;
+        }
+
+        a {
+            color:#31353d;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    {% endblock %}
+    </style>
+</head>
+<body>
+<table class="mail-body" align="center" width="500" cellspacing="0" cellpadding="0">
+    <tr class="header-row">
+        <td align="center" class="mail-header">
+            {% block header %}
+                <img src="{{ email.image('@images/Logo_GREY.svg') }}" alt="Logo">
+            {% endblock %}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="mail-content">
+            {% block content %}{% endblock %}
+        </td>
+    </tr>
+
+    <tr class="footer-row">
+        <td class="mail-footer">
+            {% block footer %}
+            Taskoo - Easy Task Management for Teams
+            {% endblock %}
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,7 +1,14 @@
-<div>
-    Hallo {{ firstname }} {{ lastname }}! <br />
-    Du wurdest zu Taskoo eingeladen. Klicke auf den folgenden Link um deine Anmeldung abzuschließen! <br>
+{% extends 'emails/email_base.html.twig' %}
 
-    <a href="https://taskoo.de/#/invite/{{ invite_url }}">https://taskoo.de/#/invite/{{ invite_url }}</a> <br />
+{% block content %}
+    Hallo <strong>{{ firstname }} {{ lastname }}</strong>,
+    <br />
+    <br />
+    Du wurdest zu Taskoo eingeladen!
+    <br />
+    Klicke auf den folgenden Link um deine Anmeldung abzuschließen.
+    <br />
+    <br />
+    <a href="{{ settings.appUrl }}/invite/{{ invite_url }}">{{ settings.appUrl }}/invite/{{ invite_url }}</a> <br />
     <small>Der Einladungslink ist 24 Stunden gültig.</small>
-</div>
+{% endblock %}

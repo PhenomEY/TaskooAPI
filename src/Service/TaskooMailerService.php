@@ -2,23 +2,37 @@
 
 namespace App\Service;
 
+use App\Entity\Settings;
 use App\Entity\TempUrls;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Mailer;
 
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 
 class TaskooMailerService {
 
     private $mailer;
 
+    private $doctrine;
+
+    private $settings;
+
+    private $serializer;
+
     private const SENDER = 'Taskoo <noreply@taskoo.de>';
 
-    public function __construct(MailerInterface $mailer)
+    public function __construct(MailerInterface $mailer, ManagerRegistry $doctrine)
     {
         $this->mailer = $mailer;
+        $this->doctrine = $doctrine;
+        $this->serializer = new Serializer([new ObjectNormalizer()]);
+        $this->settings = $this->serializer->normalize($this->doctrine->getRepository(Settings::class)->findAll()[0]);
+
     }
 
     public function sendInviteMail(TempUrls $inviteURL, int $hours): void {
@@ -35,10 +49,10 @@ class TaskooMailerService {
                 'expires_in' => $hours,
                 'firstname' => $user->getFirstname(),
                 'lastname' => $user->getLastname(),
-                'invite_url' => $inviteURL->getHash()
+                'invite_url' => $inviteURL->getHash(),
+                'settings' => $this->settings
             ]);
 
         $this->mailer->send($email);
     }
-
 }

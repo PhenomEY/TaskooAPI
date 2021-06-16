@@ -18,40 +18,41 @@ class Settings
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=60)
      */
-    private $name;
+    private $appUrl;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=60)
      */
-    private $value;
+    private $mailSender;
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getAppUrl(): ?string
     {
-        return $this->name;
+        return $this->appUrl;
     }
 
-    public function setName(string $name): self
+    public function setAppUrl(string $appUrl): self
     {
-        $this->name = $name;
+        $this->appUrl = $appUrl;
 
         return $this;
     }
 
-    public function getValue(): ?string
+    public function getMailSender(): ?string
     {
-        return $this->value;
+        return $this->mailSender;
     }
 
-    public function setValue(?string $value): self
+    public function setMailSender(string $mailSender): self
     {
-        $this->value = $value;
+        $this->mailSender = $mailSender;
 
         return $this;
     }
