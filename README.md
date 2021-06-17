@@ -1,4 +1,4 @@
-![Lines of code](https://img.shields.io/tokei/lines/github/PhenomEY/TaskooAPI)
+![Lines of code](https://img.shields.io/tokei/lines/github/TaskooApp/TaskooAPI)
 # Taskoo - Easy task management API
 
 <img width="250" src="https://media.taskoo.de/Logo_GREEN.svg">
@@ -26,7 +26,7 @@ $ bin/console doctrine:fixtures:load
 
 # default admin account:
 $ username: admin@taskoo.de
-$ password: admin
+$ password: admin123
 ```
 
 ### Setting up the Taskoo Application
