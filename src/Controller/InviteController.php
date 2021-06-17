@@ -14,7 +14,7 @@ use Taskoo\Service\TemporaryURLService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Invite extends TaskooApiController
+class InviteController extends TaskooApiController
 {
     /**
      * @Route("/invite/{inviteId}", name="api_user_get_invite", methods={"GET"})

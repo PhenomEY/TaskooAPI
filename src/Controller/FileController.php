@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Files extends TaskooApiController
+class FileController extends TaskooApiController
 {
     /**
      * @Route("/file/{filePath}", name="api_file_get", methods={"GET"})

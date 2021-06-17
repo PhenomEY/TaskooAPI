@@ -7,7 +7,7 @@ use Taskoo\Service\TaskooSearchService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Search extends TaskooApiController
+class SearchController extends TaskooApiController
 {
     /**
      * @Route("/search/{searchTerm}", name="api_search", methods={"GET"})

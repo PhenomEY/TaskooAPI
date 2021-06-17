@@ -17,7 +17,7 @@ use Taskoo\Service\TaskooNotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskooUser extends TaskooApiController
+class UserController extends TaskooApiController
 {
 
     /**

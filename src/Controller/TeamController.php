@@ -10,7 +10,7 @@ use Taskoo\Service\TaskooColorService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Teams extends TaskooApiController
+class TeamController extends TaskooApiController
 {
     /**
      * @Route("/team", name="api_team_get", methods={"GET"})

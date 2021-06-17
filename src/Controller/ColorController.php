@@ -8,7 +8,7 @@ use Taskoo\Entity\Color;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Colors extends TaskooApiController
+class ColorController extends TaskooApiController
 {
     /**
      * @Route("/colors", name="api_colors_get", methods={"GET"})

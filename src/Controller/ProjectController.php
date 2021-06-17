@@ -17,7 +17,7 @@ use Taskoo\Service\TaskooNotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Project extends TaskooApiController
+class ProjectController extends TaskooApiController
 {
     /**
      * @Route("/project/{projectId}", name="api_project_load", methods={"GET"})

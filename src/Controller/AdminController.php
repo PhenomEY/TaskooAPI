@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 
-class Admin extends TaskooApiController
+class AdminController extends TaskooApiController
 {
     /**
      * @Route("/admin/main", name="api_admin_main_get", methods={"GET"})

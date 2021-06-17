@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TeamPage extends TaskooApiController
+class TeamPageController extends TaskooApiController
 {
     /**
      * @Route("/teampage", name="api_teampage_get", methods={"GET"})

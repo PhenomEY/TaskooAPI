@@ -4,6 +4,6 @@
 
 file:
   path: /file/{filePath}
-  controller: Taskoo\Controller\Files::getFile
+  controller: Taskoo\Controller\FileController::getFile
   requirements:
     filePath: .+

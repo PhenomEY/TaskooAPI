@@ -11,7 +11,7 @@ use Doctrine\ORM\LazyCriteriaCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TeamRoles extends TaskooApiController
+class TeamRoleController extends TaskooApiController
 {
     /**
      * @Route("/teamroles", name="api_roles_get", methods={"GET"})

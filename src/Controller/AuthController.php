@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Taskoo\Entity\UserAuth;
 
-class Auth extends TaskooApiController
+class AuthController extends TaskooApiController
 {
     /**
      * @Route("/auth/login", name="api_auth_login", methods={"POST"})

@@ -11,7 +11,7 @@ use Taskoo\Service\TaskGroupService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskGroup extends TaskooApiController
+class TaskGroupController extends TaskooApiController
 {
 
     /**
