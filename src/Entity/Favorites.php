@@ -19,13 +19,13 @@ class Favorites
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="favorites", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=Projects::class, cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false, onDelete={"CASCADE"})
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
      */
     private $project;
 
