@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace Taskoo\Repository;
 
-use App\Entity\Favorites;
+use Taskoo\Entity\Favorites;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

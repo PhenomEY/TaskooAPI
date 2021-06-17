@@ -1,13 +1,13 @@
 <?php
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\TempUrls;
+use Taskoo\Entity\TempUrls;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Class TemporaryURLService
- * @package App\Service
+ * @package Taskoo\Service
  */
 class TemporaryURLService
 {

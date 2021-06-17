@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace Taskoo\Entity;
 
-use App\Repository\MediaRepository;
+use Taskoo\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

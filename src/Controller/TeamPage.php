@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
-namespace App\Controller;
+namespace Taskoo\Controller;
 
-use App\Api\TaskooApiController;
-use App\Entity\Team;
-use App\Entity\User;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Team;
+use Taskoo\Entity\User;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Symfony\Component\HttpFoundation\Request;

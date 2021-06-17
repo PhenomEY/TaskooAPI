@@ -1,19 +1,19 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 //date_default_timezone_set('Europe/Amsterdam');
 
-use App\Api\TaskooApiController;
-use App\Entity\Favorites;
-use App\Entity\Projects;
-use App\Entity\TaskGroups;
-use App\Entity\Tasks;
-use App\Entity\User;
-use App\Exception\InvalidRequestException;
-use App\Security\TaskooAuthenticator;
-use App\Service\TaskGroupService;
-use App\Service\TaskooNotificationService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Favorites;
+use Taskoo\Entity\Projects;
+use Taskoo\Entity\TaskGroups;
+use Taskoo\Entity\Tasks;
+use Taskoo\Entity\User;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Security\TaskooAuthenticator;
+use Taskoo\Service\TaskGroupService;
+use Taskoo\Service\TaskooNotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

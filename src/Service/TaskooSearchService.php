@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\Media;
-use App\Entity\Tasks;
-use App\Exception\NotAuthorizedException;
-use App\Security\TaskooAuthenticator;
-use App\Struct\AuthStruct;
-use App\Struct\SearchResultStruct;
+use Taskoo\Entity\Media;
+use Taskoo\Entity\Tasks;
+use Taskoo\Exception\NotAuthorizedException;
+use Taskoo\Security\TaskooAuthenticator;
+use Taskoo\Struct\AuthStruct;
+use Taskoo\Struct\SearchResultStruct;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\CompositeExpression;

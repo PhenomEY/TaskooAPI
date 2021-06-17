@@ -1,18 +1,18 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use App\Api\TaskooApiController;
-use App\Entity\Media;
-use App\Entity\Notifications;
-use App\Entity\TaskGroups;
-use App\Entity\Tasks;
-use App\Exception\InvalidRequestException;
-use App\Exception\NotAuthorizedException;
-use App\Service\TaskooFileService;
-use App\Service\TaskooNotificationService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Media;
+use Taskoo\Entity\Notifications;
+use Taskoo\Entity\TaskGroups;
+use Taskoo\Entity\Tasks;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Exception\NotAuthorizedException;
+use Taskoo\Service\TaskooFileService;
+use Taskoo\Service\TaskooNotificationService;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

@@ -1,18 +1,18 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use App\Api\TaskooApiController;
-use App\Entity\User;
-use App\Exception\NotAuthorizedException;
-use App\Exception\InvalidRequestException;
-use App\Struct\AuthStruct;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\User;
+use Taskoo\Exception\NotAuthorizedException;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Struct\AuthStruct;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
-use App\Entity\UserAuth;
+use Taskoo\Entity\UserAuth;
 
 class Auth extends TaskooApiController
 {

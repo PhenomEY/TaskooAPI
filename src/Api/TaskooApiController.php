@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace App\Api;
+namespace Taskoo\Api;
 
-use App\Entity\Color;
-use App\Entity\Favorites;
-use App\Entity\Media;
-use App\Entity\Notifications;
-use App\Entity\Team;
-use App\Entity\Projects;
-use App\Entity\Settings;
-use App\Entity\TaskGroups;
-use App\Entity\Tasks;
-use App\Entity\TeamRole;
-use App\Entity\User;
-use App\Security\TaskooAuthenticator;
-use App\Service\TaskooColorService;
+use Taskoo\Entity\Color;
+use Taskoo\Entity\Favorites;
+use Taskoo\Entity\Media;
+use Taskoo\Entity\Notifications;
+use Taskoo\Entity\Team;
+use Taskoo\Entity\Projects;
+use Taskoo\Entity\Settings;
+use Taskoo\Entity\TaskGroups;
+use Taskoo\Entity\Tasks;
+use Taskoo\Entity\TeamRole;
+use Taskoo\Entity\User;
+use Taskoo\Security\TaskooAuthenticator;
+use Taskoo\Service\TaskooColorService;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\Media;
-use App\Entity\TaskGroups;
-use App\Entity\Tasks;
-use App\Entity\User;
+use Taskoo\Entity\Media;
+use Taskoo\Entity\TaskGroups;
+use Taskoo\Entity\Tasks;
+use Taskoo\Entity\User;
 use Composer\Autoload\ClassLoader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;

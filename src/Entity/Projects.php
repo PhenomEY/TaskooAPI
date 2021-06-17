@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace Taskoo\Entity;
 
-use App\Repository\ProjectsRepository;
+use Taskoo\Repository\ProjectsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

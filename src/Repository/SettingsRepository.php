@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace Taskoo\Repository;
 
-use App\Entity\Settings;
+use Taskoo\Entity\Settings;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

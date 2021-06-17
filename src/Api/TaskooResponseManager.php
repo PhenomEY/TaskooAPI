@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api;
+namespace Taskoo\Api;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 

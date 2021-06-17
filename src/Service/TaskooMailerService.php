@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\Settings;
-use App\Entity\TempUrls;
+use Taskoo\Entity\Settings;
+use Taskoo\Entity\TempUrls;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Mailer;

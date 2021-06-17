@@ -2,25 +2,25 @@
 
 namespace Taskoo\Repository;
 
-use Taskoo\Entity\TempUrls;
+use Taskoo\Entity\TeamRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method TempUrls|null find($id, $lockMode = null, $lockVersion = null)
- * @method TempUrls|null findOneBy(array $criteria, array $orderBy = null)
- * @method TempUrls[]    findAll()
- * @method TempUrls[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method TeamRole|null find($id, $lockMode = null, $lockVersion = null)
+ * @method TeamRole|null findOneBy(array $criteria, array $orderBy = null)
+ * @method TeamRole[]    findAll()
+ * @method TeamRole[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TempUrlsRepository extends ServiceEntityRepository
+class TeamRoleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, TempUrls::class);
+        parent::__construct($registry, TeamRole::class);
     }
 
     // /**
-    //  * @return TempUrls[] Returns an array of TempUrls objects
+    //  * @return TeamRole[] Returns an array of TeamRole objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class TempUrlsRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?TempUrls
+    public function findOneBySomeField($value): ?TeamRole
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.exampleField = :val')

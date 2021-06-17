@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace Taskoo\Entity;
 
-use App\Repository\FavoritesRepository;
+use Taskoo\Repository\FavoritesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

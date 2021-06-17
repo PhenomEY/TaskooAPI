@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller;
+namespace Taskoo\Controller;
 
-use App\Api\TaskooApiController;
-use App\Service\TaskooSearchService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Service\TaskooSearchService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

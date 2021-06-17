@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace App\Security;
+namespace Taskoo\Security;
 
-use App\Entity\Team;
-use App\Entity\Projects;
-use App\Entity\User;
-use App\Entity\UserAuth;
-use App\Exception\InvalidAuthenticationException;
-use App\Exception\InvalidNewPasswordException;
-use App\Exception\InvalidRequestException;
-use App\Exception\NoAuthenticationException;
-use App\Exception\NoAuthentificationException;
-use App\Exception\NotAuthorizedException;
-use App\Struct\AuthStruct;
+use Taskoo\Entity\Team;
+use Taskoo\Entity\Projects;
+use Taskoo\Entity\User;
+use Taskoo\Entity\UserAuth;
+use Taskoo\Exception\InvalidAuthenticationException;
+use Taskoo\Exception\InvalidNewPasswordException;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Exception\NoAuthenticationException;
+use Taskoo\Exception\NoAuthentificationException;
+use Taskoo\Exception\NotAuthorizedException;
+use Taskoo\Struct\AuthStruct;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 

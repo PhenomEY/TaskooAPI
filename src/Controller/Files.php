@@ -1,13 +1,13 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use App\Api\TaskooApiController;
-use App\Entity\Media;
-use App\Entity\Tasks;
-use App\Exception\InvalidRequestException;
-use App\Service\TaskooFileService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Media;
+use Taskoo\Entity\Tasks;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Service\TaskooFileService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

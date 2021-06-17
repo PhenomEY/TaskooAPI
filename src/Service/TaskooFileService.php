@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\Media;
-use App\Entity\Tasks;
-use App\Entity\User;
-use App\Exception\InvalidFileTypeException;
-use App\Exception\InvalidRequestException;
+use Taskoo\Entity\Media;
+use Taskoo\Entity\Tasks;
+use Taskoo\Entity\User;
+use Taskoo\Exception\InvalidFileTypeException;
+use Taskoo\Exception\InvalidRequestException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;

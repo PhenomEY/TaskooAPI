@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace App\Fixtures;
+namespace Taskoo\Fixtures;
 
-use App\Entity\Color;
-use App\Entity\Settings;
-use App\Entity\Team;
-use App\Entity\Projects;
-use App\Entity\TaskGroups;
-use App\Entity\Tasks;
-use App\Entity\User;
-use App\Entity\UserPermissions;
-use App\Security\TaskooAuthenticator;
-use App\Service\TaskooColorService;
+use Taskoo\Entity\Color;
+use Taskoo\Entity\Settings;
+use Taskoo\Entity\Team;
+use Taskoo\Entity\Projects;
+use Taskoo\Entity\TaskGroups;
+use Taskoo\Entity\Tasks;
+use Taskoo\Entity\User;
+use Taskoo\Entity\UserPermissions;
+use Taskoo\Security\TaskooAuthenticator;
+use Taskoo\Service\TaskooColorService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 

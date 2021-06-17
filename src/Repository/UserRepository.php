@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repository;
+namespace Taskoo\Repository;
 
-use App\Entity\Team;
-use App\Entity\User;
+use Taskoo\Entity\Team;
+use Taskoo\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

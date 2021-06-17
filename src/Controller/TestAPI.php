@@ -1,11 +1,11 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use App\Api\TaskooApiController;
-use App\Entity\Projects;
-use App\Service\TaskooMailerService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Projects;
+use Taskoo\Service\TaskooMailerService;
 use Doctrine\DBAL\Driver\Connection;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace Taskoo\Repository;
 
-use App\Entity\Tasks;
+use Taskoo\Entity\Tasks;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Query\Expr;

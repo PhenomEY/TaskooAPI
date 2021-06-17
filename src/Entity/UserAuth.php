@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace Taskoo\Entity;
 
-use App\Repository\UserAuthRepository;
+use Taskoo\Repository\UserAuthRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Api;
+namespace Taskoo\Api;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;

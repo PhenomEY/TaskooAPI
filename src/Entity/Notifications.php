@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace Taskoo\Entity;
 
-use App\Repository\NotificationsRepository;
+use Taskoo\Repository\NotificationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

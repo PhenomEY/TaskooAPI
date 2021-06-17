@@ -1,12 +1,12 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use App\Api\TaskooApiController;
-use App\Entity\Team;
-use App\Exception\InvalidRequestException;
-use App\Service\TaskooColorService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Team;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Service\TaskooColorService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

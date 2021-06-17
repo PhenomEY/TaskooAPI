@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace Taskoo\Entity;
 
-use App\Repository\TempUrlsRepository;
+use Taskoo\Repository\TempUrlsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

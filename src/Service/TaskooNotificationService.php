@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\Notifications;
-use App\Entity\Projects;
-use App\Entity\Tasks;
-use App\Entity\User;
+use Taskoo\Entity\Notifications;
+use Taskoo\Entity\Projects;
+use Taskoo\Entity\Tasks;
+use Taskoo\Entity\User;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\LazyCriteriaCollection;

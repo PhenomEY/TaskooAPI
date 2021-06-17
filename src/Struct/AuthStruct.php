@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
-namespace App\Struct;
+namespace Taskoo\Struct;
 
-use App\Entity\User;
+use Taskoo\Entity\User;
 
 class AuthStruct {
 

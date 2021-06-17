@@ -1,11 +1,11 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use App\Api\TaskooApiController;
-use App\Entity\TeamRole;
-use App\Exception\InvalidRequestException;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\TeamRole;
+use Taskoo\Exception\InvalidRequestException;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\LazyCriteriaCollection;
 use Symfony\Component\HttpFoundation\Request;

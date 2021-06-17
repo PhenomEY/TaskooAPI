@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Struct;
+namespace Taskoo\Struct;
 
 use Doctrine\ORM\LazyCriteriaCollection;
 

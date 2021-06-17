@@ -1,14 +1,14 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use App\Api\TaskooApiController;
-use App\Entity\Settings;
-use App\Entity\User;
-use App\Exception\InvalidRequestException;
-use App\Service\TaskooMailerService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\Settings;
+use Taskoo\Entity\User;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Service\TaskooMailerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;

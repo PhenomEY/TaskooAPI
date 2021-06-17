@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Service;
+namespace Taskoo\Service;
 
-use App\Entity\Color;
+use Taskoo\Entity\Color;
 use Doctrine\Persistence\ManagerRegistry;
 
 class TaskooColorService {

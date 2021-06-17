@@ -1,13 +1,13 @@
 <?php
-namespace App\Controller;
+namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use App\Api\TaskooApiController;
-use App\Entity\TaskGroups;
-use App\Exception\InvalidRequestException;
-use App\Service\TaskGroupService;
+use Taskoo\Api\TaskooApiController;
+use Taskoo\Entity\TaskGroups;
+use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Service\TaskGroupService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
