@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 namespace Taskoo\Service;
 
 use Taskoo\Entity\TempUrls;
-use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -26,7 +25,7 @@ class TemporaryURLService
      * @param int $hours
      * @param null $user
      */
-    public function generateURL(String $action, int $hours, $user = null)
+    public function generateURL(String $action, int $hours, $user = null) : TempUrls
     {
         $tempUrl = new TempUrls();
         $tempUrl->setCreatedAt(new \DateTime('now'));
@@ -45,7 +44,7 @@ class TemporaryURLService
         return $tempUrl;
     }
 
-    public function verifyURL($id, String $action)
+    public function verifyURL($id, String $action): ?TempUrls
     {
         $tempURLRepository = $this->doctrine->getRepository(TempUrls::class);
 
@@ -56,10 +55,17 @@ class TemporaryURLService
 
         //check if url is already dead
         if(!$currentURL || $currentURL->getDeadAt() <= new \DateTime('now')) {
-            return false;
+            return null;
         }
 
         return $currentURL;
+    }
+
+    public function removeURL(TempUrls $invite): void
+    {
+        $manager = $this->doctrine->getManager();
+        $manager->remove($invite);
+        $manager->flush();
     }
 
     private function generateHash() {

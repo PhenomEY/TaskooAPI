@@ -6,7 +6,9 @@ use Taskoo\Entity\Team;
 use Taskoo\Entity\Projects;
 use Taskoo\Entity\User;
 use Taskoo\Entity\UserAuth;
+use Taskoo\Exception\EmailInUseException;
 use Taskoo\Exception\InvalidAuthenticationException;
+use Taskoo\Exception\InvalidEmailException;
 use Taskoo\Exception\InvalidNewPasswordException;
 use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Exception\NoAuthenticationException;
@@ -101,9 +103,16 @@ class Authenticator {
         return hash('sha256', time().$salt.bin2hex(random_bytes(16)));
     }
 
-    public function verifyEmail(String $email) {
+    public function verifyEmail(String $email): void {
         //check if email is valid
-       return filter_var($email, FILTER_VALIDATE_EMAIL);
+       if(!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new InvalidEmailException();
+
+        //check if send email is already in use
+        $emailInUse = $this->manager->getRepository(User::class)->findOneBy([
+            'email' => $email
+        ]);
+
+        if($emailInUse) throw new EmailInUseException();
     }
 
     private function verifyPassword(String $password): Bool {

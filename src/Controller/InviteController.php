@@ -9,6 +9,7 @@ use Taskoo\Entity\TempUrls;
 use Taskoo\Entity\User;
 use Taskoo\Entity\UserPermissions;
 use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Service\InviteService;
 use Taskoo\Service\MailerService;
 use Taskoo\Service\TemporaryURLService;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,21 +24,10 @@ class InviteController extends ApiController
      * @param TemporaryURLService $temporaryURLService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function getInvite($inviteId, Request $request, TemporaryURLService $temporaryURLService)
+    public function getInvite($inviteId, InviteService $inviteService)
     {
-        $data = [
-            'inviteId' => $inviteId
-        ];
+        $invite = $inviteService->load($inviteId);
 
-        /**
-         * @var $invite TempUrls
-         */
-        $invite = $temporaryURLService->verifyURL($inviteId, $temporaryURLService::INVITE_ACTION);
-
-        if(!$invite) {
-            throw new InvalidRequestException();
-        }
-        
         $data['user'] = [
             'firstname' => $invite->getUser()->getFirstname(),
             'lastname' => $invite->getUser()->getLastname(),
@@ -54,40 +44,13 @@ class InviteController extends ApiController
      * @param TemporaryURLService $temporaryURLService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function finishInvite($inviteId, Request $request, TemporaryURLService $temporaryURLService)
+    public function finishInvite($inviteId, Request $request, InviteService $inviteService)
     {
-        $data = [];
-        $payload = json_decode($request->getContent(), true);
+        $payload = $request->toArray();
 
-        /**
-         * @var $invite TempUrls
-         */
-        $invite = $temporaryURLService->verifyURL($inviteId, $temporaryURLService::INVITE_ACTION);
+        $inviteService->finish($inviteId, $payload['password']);
 
-        if(!$invite || !isset($payload['password'])) {
-            throw new InvalidRequestException();
-        }
-        
-        $user = $invite->getUser();
-
-        $hashedPassword = $this->authenticator->generatePassword($payload['password']);
-
-        $user->setPassword($hashedPassword);
-        $user->setActive(true);
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $deleteManager = clone $entityManager;
-
-        //set user
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        //delete invite URL
-        $deleteManager->remove($invite);
-        $deleteManager->flush();
-
-
-        return $this->responseManager->successResponse($data, 'invite_finished');
+        return $this->responseManager->successResponse([], 'invite_finished');
     }
 
     /**
@@ -97,49 +60,14 @@ class InviteController extends ApiController
      * @param MailerService $mailerService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function createInvite(Request $request, TemporaryURLService $temporaryURLService, MailerService $mailerService)
+    public function createInvite(Request $request, InviteService $inviteService)
     {
-        $data = [];
-        $payload = json_decode($request->getContent(), true);
-        if(!$payload) throw new InvalidRequestException();
+        $userData = $request->toArray();
+        if(!$userData) throw new InvalidRequestException();
+        $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
-        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
+        $inviteService->create($userData);
 
-
-        //check if email is valid
-        if (!filter_var($payload['email'], FILTER_VALIDATE_EMAIL)) {
-            return $this->responseManager->errorResponse('invalid_email');
-        }
-
-        //check if send email is already in use
-        $emailInUse = $this->userRepository()->findOneBy([
-            'email' => $payload['email']
-        ]);
-
-        //if mail already exists return error
-        if($emailInUse) {
-            return $this->responseManager->errorResponse('email_in_use');
-        }
-
-        //else create new user
-        $user = new User();
-        $user->setEmail($payload['email']);
-        $user->setFirstname($payload['firstname']);
-        $user->setLastname($payload['lastname']);
-        $user->setColor($this->colorService->getRandomColor());
-
-        $permissions = new UserPermissions();
-        $permissions->setDefaults($user);
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($user);
-        $entityManager->persist($permissions);
-        $entityManager->flush();
-
-        $inviteURL = $temporaryURLService->generateURL($temporaryURLService::INVITE_ACTION, 24, $user);
-
-        $mailerService->sendInviteMail($inviteURL, 24);
-
-        return $this->responseManager->successResponse($data, 'user_invite_send');
+        return $this->responseManager->successResponse([], 'user_invite_send');
     }
 }

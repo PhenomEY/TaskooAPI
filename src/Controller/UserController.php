@@ -123,22 +123,10 @@ class UserController extends ApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
+        $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         //check if email is valid
-        if(!$this->authenticator->verifyEmail($payload['email'])) {
-            return $this->responseManager->errorResponse('invalid_email');
-        }
-
-        //check if send email is already in use
-        $emailInUse = $this->userRepository()->findOneBy([
-            'email' => $payload['email']
-        ]);
-
-        //if mail already exists return error
-        if($emailInUse) {
-            return $this->responseManager->errorResponse('email_in_use');
-        }
+        $this->authenticator->verifyEmail($payload['email']);
 
         $hashedPassword = $this->authenticator->generatePassword($payload['password']);
 
@@ -251,18 +239,9 @@ class UserController extends ApiController
                 if($user->getPassword() !== $hashedPassword) throw new InvalidPasswordException();
 
                 if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
-                    //check if send email is already in use
-                    $emailInUse = $this->userRepository()->findOneBy([
-                        'email' => $payload['email']
-                    ]);
-
                     //check if email is valid
-                    if (!$this->authenticator->verifyEmail($payload['email'])) throw new InvalidEmailException();
+                    $this->authenticator->verifyEmail($payload['email']);
 
-                    //if mail already exists return error
-                    if ($emailInUse) {
-                        return $this->responseManager->errorResponse('email_in_use');
-                    }
 
                     $user->setEmail($payload['email']);
                 }
@@ -285,18 +264,8 @@ class UserController extends ApiController
                 $permissions = $user->getUserPermissions();
 
                 if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
-                    //check if send email is already in use
-                    $emailInUse = $this->userRepository()->findOneBy([
-                        'email' => $payload['email']
-                    ]);
-
                     //check if email is valid
-                    if (!$this->authenticator->verifyEmail($payload['email'])) throw new InvalidEmailException();
-
-                    //if mail already exists return error
-                    if ($emailInUse) {
-                        return $this->responseManager->errorResponse('email_in_use');
-                    }
+                    $this->authenticator->verifyEmail($payload['email']);
 
                     $user->setEmail($payload['email']);
                 }
