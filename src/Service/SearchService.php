@@ -5,7 +5,7 @@ namespace Taskoo\Service;
 use Taskoo\Entity\Media;
 use Taskoo\Entity\Tasks;
 use Taskoo\Exception\NotAuthorizedException;
-use Taskoo\Security\TaskooAuthenticator;
+use Taskoo\Security\Authenticator;
 use Taskoo\Struct\AuthStruct;
 use Taskoo\Struct\SearchResultStruct;
 use Doctrine\Common\Collections\Criteria;
@@ -28,7 +28,7 @@ class SearchService {
 
     private $authenticator;
 
-    public function __construct(ManagerRegistry $doctrine, TaskooAuthenticator $authenticator)
+    public function __construct(ManagerRegistry $doctrine, Authenticator $authenticator)
     {
         $this->doctrine = $doctrine;
         $this->authenticator = $authenticator;

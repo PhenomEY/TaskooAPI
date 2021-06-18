@@ -11,7 +11,7 @@ use Taskoo\Entity\TaskGroups;
 use Taskoo\Entity\Tasks;
 use Taskoo\Entity\User;
 use Taskoo\Exception\InvalidRequestException;
-use Taskoo\Security\TaskooAuthenticator;
+use Taskoo\Security\Authenticator;
 use Taskoo\Service\TaskGroupService;
 use Taskoo\Service\NotificationService;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,7 +66,7 @@ class ProjectController extends ApiController
     /**
      * @Route("/project", name="api_project_create", methods={"POST"})
      * @param Request $request
-     * @param TaskooAuthenticator $authenticator
+     * @param Authenticator $authenticator
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Exception
      */

@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 
-class TaskooAuthenticator {
+class Authenticator {
     public const PERMISSIONS_ADMINISTRATION = 'ADMINISTRATION';
     public const PERMISSIONS_PROJECT_CREATE = 'PROJECT_CREATE';
     public const PERMISSIONS_PROJECT_EDIT   = 'PROJECT_EDIT';
