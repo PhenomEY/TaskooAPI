@@ -4,14 +4,14 @@ namespace Taskoo\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\TaskGroups;
 use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Service\TaskGroupService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskGroupController extends TaskooApiController
+class TaskGroupController extends ApiController
 {
 
     /**

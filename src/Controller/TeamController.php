@@ -3,14 +3,14 @@ namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Team;
 use Taskoo\Exception\InvalidRequestException;
-use Taskoo\Service\TaskooColorService;
+use Taskoo\Service\ColorService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TeamController extends TaskooApiController
+class TeamController extends ApiController
 {
     /**
      * @Route("/team", name="api_team_get", methods={"GET"})

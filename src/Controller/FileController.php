@@ -3,22 +3,22 @@ namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Media;
 use Taskoo\Entity\Tasks;
 use Taskoo\Exception\InvalidRequestException;
-use Taskoo\Service\TaskooFileService;
+use Taskoo\Service\FileService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-class FileController extends TaskooApiController
+class FileController extends ApiController
 {
     /**
      * @Route("/file/{filePath}", name="api_file_get", methods={"GET"})
      */
-    public function getFile(String $filePath, Request $request, TaskooFileService $fileService)
+    public function getFile(String $filePath, Request $request, FileService $fileService)
     {
         /** @var Media $media */
         $media = $this->mediaRepository()->findOneBy(['filePath' => $filePath]);
@@ -40,10 +40,10 @@ class FileController extends TaskooApiController
      * @Route("/file/{fileId}", name="api_file_get", methods={"DELETE"})
      * @param int $fileId
      * @param Request $request
-     * @param TaskooFileService $fileService
+     * @param FileService $fileService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function deleteFile(int $fileId, Request $request, TaskooFileService $fileService)
+    public function deleteFile(int $fileId, Request $request, FileService $fileService)
     {
         $data = [];
 
@@ -63,9 +63,9 @@ class FileController extends TaskooApiController
     /**
      * @Route("/file", name="api_file_upload", methods={"POST"})
      * @param Request $request
-     * @param TaskooFileService $fileService
+     * @param FileService $fileService
      */
-    public function uploadFile(Request $request, TaskooFileService $fileService)
+    public function uploadFile(Request $request, FileService $fileService)
     {
         $data = [];
         $taskId = $request->get('taskId');

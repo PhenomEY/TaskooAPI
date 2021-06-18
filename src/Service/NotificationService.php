@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\LazyCriteriaCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
-class TaskooNotificationService
+class NotificationService
 {
     public const TASK_ASSIGNED = 'task_assigned';
     public const PROJECT_ASSIGNED = 'project_assigned';

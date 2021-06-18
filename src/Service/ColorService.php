@@ -5,7 +5,7 @@ namespace Taskoo\Service;
 use Taskoo\Entity\Color;
 use Doctrine\Persistence\ManagerRegistry;
 
-class TaskooColorService {
+class ColorService {
 
     protected ManagerRegistry $doctrine;
 

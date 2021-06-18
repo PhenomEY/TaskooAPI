@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\ORM\LazyCriteriaCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
-class TaskooSearchService {
+class SearchService {
 
     private $doctrine;
 

@@ -4,20 +4,20 @@ namespace Taskoo\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Media;
 use Taskoo\Entity\Notifications;
 use Taskoo\Entity\TaskGroups;
 use Taskoo\Entity\Tasks;
 use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Exception\NotAuthorizedException;
-use Taskoo\Service\TaskooFileService;
-use Taskoo\Service\TaskooNotificationService;
+use Taskoo\Service\FileService;
+use Taskoo\Service\NotificationService;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskController extends TaskooApiController
+class TaskController extends ApiController
 {
 
     /**
@@ -78,7 +78,7 @@ class TaskController extends TaskooApiController
     /**
      * @Route("/task/{taskId}", name="api_task_update", methods={"PUT"})
      */
-    public function updateTask(int $taskId, Request $request, TaskooNotificationService $notificationService)
+    public function updateTask(int $taskId, Request $request, NotificationService $notificationService)
     {
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
@@ -263,10 +263,10 @@ class TaskController extends TaskooApiController
      * @Route("/task/{taskId}", name="api_task_delete", methods={"DELETE"})
      * @param int $taskId
      * @param Request $request
-     * @param TaskooFileService $fileService
+     * @param FileService $fileService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function deleteTask(int $taskId, Request $request, TaskooFileService $fileService)
+    public function deleteTask(int $taskId, Request $request, FileService $fileService)
     {
         $data = [];
         $auth = $this->authenticator->verifyToken($request);

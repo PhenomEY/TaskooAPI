@@ -3,12 +3,12 @@ namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Color;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ColorController extends TaskooApiController
+class ColorController extends ApiController
 {
     /**
      * @Route("/colors", name="api_colors_get", methods={"GET"})

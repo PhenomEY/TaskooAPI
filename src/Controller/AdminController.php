@@ -4,16 +4,16 @@ namespace Taskoo\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Settings;
 use Taskoo\Entity\User;
 use Taskoo\Exception\InvalidRequestException;
-use Taskoo\Service\TaskooMailerService;
+use Taskoo\Service\MailerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 
-class AdminController extends TaskooApiController
+class AdminController extends ApiController
 {
     /**
      * @Route("/admin/main", name="api_admin_main_get", methods={"GET"})

@@ -14,13 +14,13 @@ use Taskoo\Entity\Tasks;
 use Taskoo\Entity\TeamRole;
 use Taskoo\Entity\User;
 use Taskoo\Security\TaskooAuthenticator;
-use Taskoo\Service\TaskooColorService;
+use Taskoo\Service\ColorService;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-class TaskooApiController extends AbstractController
+class ApiController extends AbstractController
 {
     protected $authenticator;
 
@@ -30,7 +30,7 @@ class TaskooApiController extends AbstractController
 
     protected $serializer;
 
-    public function __construct(TaskooAuthenticator $authenticator, TaskooResponseManager $responseManager, TaskooColorService $colorService)
+    public function __construct(TaskooAuthenticator $authenticator, ResponseManager $responseManager, ColorService $colorService)
     {
         $this->authenticator = $authenticator;
         $this->responseManager = $responseManager;

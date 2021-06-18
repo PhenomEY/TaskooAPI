@@ -4,17 +4,17 @@ namespace Taskoo\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\TempUrls;
 use Taskoo\Entity\User;
 use Taskoo\Entity\UserPermissions;
 use Taskoo\Exception\InvalidRequestException;
-use Taskoo\Service\TaskooMailerService;
+use Taskoo\Service\MailerService;
 use Taskoo\Service\TemporaryURLService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class InviteController extends TaskooApiController
+class InviteController extends ApiController
 {
     /**
      * @Route("/invite/{inviteId}", name="api_user_get_invite", methods={"GET"})
@@ -94,10 +94,10 @@ class InviteController extends TaskooApiController
      * @Route("/invite", name="api_user_create_invite", methods={"POST"})
      * @param Request $request
      * @param TemporaryURLService $temporaryURLService
-     * @param TaskooMailerService $mailerService
+     * @param MailerService $mailerService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function createInvite(Request $request, TemporaryURLService $temporaryURLService, TaskooMailerService $mailerService)
+    public function createInvite(Request $request, TemporaryURLService $temporaryURLService, MailerService $mailerService)
     {
         $data = [];
         $payload = json_decode($request->getContent(), true);

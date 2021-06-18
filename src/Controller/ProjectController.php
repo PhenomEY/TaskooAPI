@@ -4,7 +4,7 @@ namespace Taskoo\Controller;
 mb_http_output('UTF-8');
 //date_default_timezone_set('Europe/Amsterdam');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Favorites;
 use Taskoo\Entity\Projects;
 use Taskoo\Entity\TaskGroups;
@@ -13,11 +13,11 @@ use Taskoo\Entity\User;
 use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Security\TaskooAuthenticator;
 use Taskoo\Service\TaskGroupService;
-use Taskoo\Service\TaskooNotificationService;
+use Taskoo\Service\NotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ProjectController extends TaskooApiController
+class ProjectController extends ApiController
 {
     /**
      * @Route("/project/{projectId}", name="api_project_load", methods={"GET"})
@@ -115,11 +115,11 @@ class ProjectController extends TaskooApiController
      * @Route("/project/{projectId}", name="api_project_update", methods={"PUT"})
      * @param int $projectId
      * @param Request $request
-     * @param TaskooNotificationService $notificationService
+     * @param NotificationService $notificationService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Exception
      */
-    public function updateProject(int $projectId, Request $request, TaskooNotificationService $notificationService)
+    public function updateProject(int $projectId, Request $request, NotificationService $notificationService)
     {
         $data = [];
         $payload = json_decode($request->getContent(), true);

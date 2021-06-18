@@ -3,7 +3,7 @@ namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\TeamRole;
 use Taskoo\Exception\InvalidRequestException;
 use Doctrine\Common\Collections\Criteria;
@@ -11,7 +11,7 @@ use Doctrine\ORM\LazyCriteriaCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TeamRoleController extends TaskooApiController
+class TeamRoleController extends ApiController
 {
     /**
      * @Route("/teamroles", name="api_roles_get", methods={"GET"})

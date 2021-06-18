@@ -2,19 +2,19 @@
 
 namespace Taskoo\Controller;
 
-use Taskoo\Api\TaskooApiController;
-use Taskoo\Service\TaskooSearchService;
+use Taskoo\Api\ApiController;
+use Taskoo\Service\SearchService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class SearchController extends TaskooApiController
+class SearchController extends ApiController
 {
     /**
      * @Route("/search/{searchTerm}", name="api_search", methods={"GET"})
      * @param String $searchTerm
      * @param Request $request
      */
-    public function search($searchTerm, Request $request, TaskooSearchService $searchService)
+    public function search($searchTerm, Request $request, SearchService $searchService)
     {
         $auth = $this->authenticator->verifyToken($request);
         $limit = $request->get('l');

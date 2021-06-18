@@ -5,7 +5,7 @@ namespace Taskoo\Api;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
-class TaskooResponseManager {
+class ResponseManager {
 
 
     public function notFoundResponse() {

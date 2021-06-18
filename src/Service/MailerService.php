@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 
-class TaskooMailerService {
+class MailerService {
 
     private $mailer;
 

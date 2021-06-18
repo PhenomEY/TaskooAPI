@@ -3,7 +3,7 @@ namespace Taskoo\Controller;
 
 mb_http_output('UTF-8');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\User;
 use Taskoo\Exception\NotAuthorizedException;
 use Taskoo\Exception\InvalidRequestException;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Taskoo\Entity\UserAuth;
 
-class AuthController extends TaskooApiController
+class AuthController extends ApiController
 {
     /**
      * @Route("/auth/login", name="api_auth_login", methods={"POST"})

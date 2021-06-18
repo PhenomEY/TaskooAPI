@@ -11,7 +11,7 @@ use Taskoo\Entity\Tasks;
 use Taskoo\Entity\User;
 use Taskoo\Entity\UserPermissions;
 use Taskoo\Security\TaskooAuthenticator;
-use Taskoo\Service\TaskooColorService;
+use Taskoo\Service\ColorService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -21,7 +21,7 @@ class Defaults extends Fixture
 
     private $colorService;
 
-    public function __construct(TaskooAuthenticator $authenticator, TaskooColorService $colorService)
+    public function __construct(TaskooAuthenticator $authenticator, ColorService $colorService)
     {
         $this->authenticator = $authenticator;
         $this->colorService = $colorService;

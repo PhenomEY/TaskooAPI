@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace Taskoo\Controller;
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Team;
 use Taskoo\Entity\User;
 use Doctrine\Common\Collections\Criteria;
@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TeamPageController extends TaskooApiController
+class TeamPageController extends ApiController
 {
     /**
      * @Route("/teampage", name="api_teampage_get", methods={"GET"})

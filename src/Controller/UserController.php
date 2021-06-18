@@ -4,7 +4,7 @@ namespace Taskoo\Controller;
 mb_http_output('UTF-8');
 date_default_timezone_set('Europe/Amsterdam');
 
-use Taskoo\Api\TaskooApiController;
+use Taskoo\Api\ApiController;
 use Taskoo\Entity\Notifications;
 use Taskoo\Entity\TeamRole;
 use Taskoo\Entity\User;
@@ -13,17 +13,17 @@ use Taskoo\Entity\UserPermissions;
 use Taskoo\Exception\InvalidEmailException;
 use Taskoo\Exception\InvalidPasswordException;
 use Taskoo\Exception\InvalidRequestException;
-use Taskoo\Service\TaskooNotificationService;
+use Taskoo\Service\NotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class UserController extends TaskooApiController
+class UserController extends ApiController
 {
 
     /**
      * @Route("/user/notifications", name="api_user_get_notifications", methods={"GET"})
      */
-    public function getUserNotifications(Request $request, TaskooNotificationService $notificationService)
+    public function getUserNotifications(Request $request, NotificationService $notificationService)
     {
         $data = [];
         $auth = $this->authenticator->verifyToken($request);
