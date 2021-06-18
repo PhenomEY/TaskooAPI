@@ -21,7 +21,7 @@ class AdminController extends ApiController
     public function getMainSettings(Request $request)
     {
         $data = [];
-        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         /** @var Settings $settings */
         $settings = $this->settingsRepository()->findAll()[0];
@@ -40,7 +40,7 @@ class AdminController extends ApiController
         $data = [];
         $payload = $request->toArray();
         if(!$payload) throw new InvalidRequestException();
-        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         $newSettings = $payload['settings'];
 
@@ -62,7 +62,7 @@ class AdminController extends ApiController
     public function getUsers(Request $request)
     {
         $data = [];
-        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         $users = $this->userRepository()->findAll();
 

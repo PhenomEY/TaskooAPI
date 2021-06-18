@@ -19,7 +19,7 @@ class TeamController extends ApiController
     {
         $data = [];
 
-        $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
         $teams = $this->teamRepository()->findAll();
 
         foreach($teams as $key=>$team) {
@@ -49,7 +49,7 @@ class TeamController extends ApiController
         $data = [];
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
-        $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         $team = new Team();
         $team->setName($payload['name']);
@@ -75,7 +75,7 @@ class TeamController extends ApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         /** @var $team Team */
         $team = $this->teamRepository()->find($orgId);

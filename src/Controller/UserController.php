@@ -123,7 +123,7 @@ class UserController extends ApiController
         $payload = json_decode($request->getContent(), true);
         if(!$payload) throw new InvalidRequestException();
 
-        $auth = $this->authenticator->verifyToken($request, 'ADMINISTRATION');
+        $auth = $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         //check if email is valid
         if(!$this->authenticator->verifyEmail($payload['email'])) {
