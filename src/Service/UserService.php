@@ -5,6 +5,7 @@ namespace Taskoo\Service;
 use Doctrine\Persistence\ManagerRegistry;
 use Taskoo\Entity\User;
 use Taskoo\Entity\UserPermissions;
+use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Security\Authenticator;
 
 class UserService {
@@ -25,8 +26,13 @@ class UserService {
         $this->authenticator = $authenticator;
     }
 
-    public function create(array $userData) : User
+    public function create(?array $userData, bool $active = true) : User
     {
+        if(!$userData) throw new InvalidRequestException();
+
+        //check if email is valid
+        $this->authenticator->verifyEmail($userData['email']);
+
         $user = new User();
 
         //needed user data
@@ -38,6 +44,10 @@ class UserService {
         if(isset($userData['password'])) {
             $password = $this->authenticator->generatePassword($userData['password']);
             $user->setPassword($password);
+        }
+
+        if($active) {
+            $user->setActive($active);
         }
 
         //create permissions for user

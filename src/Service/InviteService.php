@@ -5,7 +5,6 @@ namespace Taskoo\Service;
 use Doctrine\Persistence\ManagerRegistry;
 use Taskoo\Entity\TempUrls;
 use Taskoo\Entity\User;
-use Taskoo\Entity\UserPermissions;
 use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Security\Authenticator;
 
@@ -34,12 +33,14 @@ class InviteService {
     }
 
 
-    public function create(array $userData)
+    public function create(?array $userData): void
     {
+        if(!$userData) throw new InvalidRequestException();
+
         //check if email is valid
         $this->authenticator->verifyEmail($userData['email']);
 
-        $user = $this->userService->create($userData);
+        $user = $this->userService->create($userData, false);
 
         $inviteURL = $this->temporaryURLService->generateURL($this->temporaryURLService::INVITE_ACTION, 24, $user);
 
@@ -56,7 +57,7 @@ class InviteService {
         return $invite;
     }
 
-    public function finish($inviteId, string $password)
+    public function finish($inviteId, string $password): void
     {
         /** @var TempUrls $invite */
         $invite = $this->temporaryURLService->verifyURL($inviteId, $this->temporaryURLService::INVITE_ACTION);

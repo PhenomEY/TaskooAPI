@@ -24,8 +24,6 @@ class MailerService {
 
     private $serializer;
 
-    private const SENDER = 'Taskoo <noreply@taskoo.de>';
-
     public function __construct(MailerInterface $mailer, ManagerRegistry $doctrine)
     {
         $this->mailer = $mailer;
@@ -40,7 +38,7 @@ class MailerService {
         $user = $inviteURL->getUser();
 
         $email = (new TemplatedEmail())
-            ->from(Address::create(static::SENDER))
+            ->from(Address::create($this->settings['mailSender']))
             ->to(new Address($user->getEmail()))
             ->subject('Du wurdest zu Taskoo eingeladen!')
             ->htmlTemplate('emails/invite.html.twig')

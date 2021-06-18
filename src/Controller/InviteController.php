@@ -1,27 +1,20 @@
 <?php
 namespace Taskoo\Controller;
 
-mb_http_output('UTF-8');
-date_default_timezone_set('Europe/Amsterdam');
-
 use Taskoo\Api\ApiController;
-use Taskoo\Entity\TempUrls;
-use Taskoo\Entity\User;
-use Taskoo\Entity\UserPermissions;
-use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Service\InviteService;
-use Taskoo\Service\MailerService;
-use Taskoo\Service\TemporaryURLService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/invite", name="invite_")
+ */
 class InviteController extends ApiController
 {
     /**
-     * @Route("/invite/{inviteId}", name="api_user_get_invite", methods={"GET"})
+     * @Route("/{inviteId}", name="load", methods={"GET"})
      * @param $inviteId
-     * @param Request $request
-     * @param TemporaryURLService $temporaryURLService
+     * @param InviteService $inviteService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function getInvite($inviteId, InviteService $inviteService)
@@ -38,10 +31,10 @@ class InviteController extends ApiController
     }
 
     /**
-     * @Route("/invite/{inviteId}", name="api_user_finish_invite", methods={"POST"})
+     * @Route("/{inviteId}", name="finish", methods={"POST"})
      * @param $inviteId
      * @param Request $request
-     * @param TemporaryURLService $temporaryURLService
+     * @param InviteService $inviteService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function finishInvite($inviteId, Request $request, InviteService $inviteService)
@@ -54,16 +47,14 @@ class InviteController extends ApiController
     }
 
     /**
-     * @Route("/invite", name="api_user_create_invite", methods={"POST"})
+     * @Route("", name="create", methods={"POST"})
      * @param Request $request
-     * @param TemporaryURLService $temporaryURLService
-     * @param MailerService $mailerService
+     * @param InviteService $inviteService
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function createInvite(Request $request, InviteService $inviteService)
     {
         $userData = $request->toArray();
-        if(!$userData) throw new InvalidRequestException();
         $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
         $inviteService->create($userData);

@@ -16,6 +16,7 @@ use Taskoo\Exception\InvalidRequestException;
 use Taskoo\Service\NotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Taskoo\Service\UserService;
 
 class UserController extends ApiController
 {
@@ -116,38 +117,19 @@ class UserController extends ApiController
 
     /**
      * @Route("/user", name="api_user_create", methods={"POST"})
+     * @param Request $request
+     * @param UserService $userService
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function createUser(Request $request)
+    public function createUser(Request $request, UserService $userService)
     {
-        $data = [];
-        $payload = json_decode($request->getContent(), true);
-        if(!$payload) throw new InvalidRequestException();
-
+        $payload = $request->toArray();
         $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
 
-        //check if email is valid
-        $this->authenticator->verifyEmail($payload['email']);
+        //create user
+        $userService->create($payload, true);
 
-        $hashedPassword = $this->authenticator->generatePassword($payload['password']);
-
-        //else create new user
-        $user = new User();
-        $user->setEmail($payload['email']);
-        $user->setPassword($hashedPassword);
-        $user->setFirstname($payload['firstname']);
-        $user->setLastname($payload['lastname']);
-        $user->setActive(true);
-        $user->setColor($this->colorService->getRandomColor());
-
-        $userPermissions = new UserPermissions();
-        $userPermissions->setDefaults($user);
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($userPermissions);
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        return $this->responseManager->successResponse($data, 'user_created');
+        return $this->responseManager->successResponse([], 'user_created');
     }
 
     /**
