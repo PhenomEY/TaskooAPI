@@ -8,15 +8,14 @@ use Taskoo\Api\ApiController;
 use Taskoo\Entity\Notifications;
 use Taskoo\Entity\TeamRole;
 use Taskoo\Entity\User;
-use Taskoo\Entity\UserAuth;
-use Taskoo\Entity\UserPermissions;
-use Taskoo\Exception\InvalidEmailException;
 use Taskoo\Exception\InvalidPasswordException;
 use Taskoo\Exception\InvalidRequestException;
+use Taskoo\Exception\NotAuthorizedException;
 use Taskoo\Service\NotificationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Taskoo\Service\UserService;
+use Taskoo\Struct\AuthStruct;
 
 class UserController extends ApiController
 {
@@ -192,136 +191,61 @@ class UserController extends ApiController
 
     /**
      * @Route("/user/{userId}", name="api_user_update", methods={"PUT"})
+     * @param int $userId
+     * @param Request $request
+     * @param UserService $userService
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function updateUser(int $userId, Request $request)
+    public function updateUser(int $userId, Request $request, UserService $userService)
     {
         $data = [];
-        $payload = json_decode($request->getContent(), true);
-        if(!$payload) throw new InvalidRequestException();
+        $payload = $request->toArray();
         $auth = $this->authenticator->verifyToken($request);
         /** @var User $user */
         $user = $this->userRepository()->find($userId);
         if(!$user) throw new InvalidRequestException();
 
-        //if requesting user is the updated user or admin
-        if($user->getId() === $auth->getUser()->getId() || $auth->getUser()->getUserPermissions()->getAdministration()) {
+        $this->verificationDataUpdate($payload, $user, $auth);
+        $userService->update($user, $payload);
 
-            $entityManager = $this->getDoctrine()->getManager();
-
-            //color
-            if(isset($payload['color'])) {
-                $color = $this->colorsRepository()->find($payload['color']);
-                $user->setColor($color);
-            }
-
-            //user actions with password verification
-            if(isset($payload['password_current'])) {
-                $hashedPassword = $this->authenticator->generatePassword($payload['password_current']);
-
-                if($user->getPassword() !== $hashedPassword) throw new InvalidPasswordException();
-
-                if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
-                    //check if email is valid
-                    $this->authenticator->verifyEmail($payload['email']);
-
-
-                    $user->setEmail($payload['email']);
-                }
-
-                if (isset($payload['password']) && !empty($payload['password'])) {
-                    $hashedPassword = $this->authenticator->generatePassword($payload['password']);
-                    $user->setPassword($hashedPassword);
-                }
-            }
-
-
-            if (isset($payload['firstname']) && $payload['lastname']) {
-                $user->setFirstname($payload['firstname']);
-                $user->setLastname($payload['lastname']);
-            }
-
-
-            //administrator actions
-            if($auth->getUser()->getUserPermissions()->getAdministration()) {
-                $permissions = $user->getUserPermissions();
-
-                if (isset($payload['email']) && ($payload['email'] !== $user->getEmail())) {
-                    //check if email is valid
-                    $this->authenticator->verifyEmail($payload['email']);
-
-                    $user->setEmail($payload['email']);
-                }
-
-                if (isset($payload['password']) && !empty($payload['password'])) {
-                    $hashedPassword = $this->authenticator->generatePassword($payload['password']);
-                    $user->setPassword($hashedPassword);
-                }
-
-                if (isset($payload['addTeam'])) {
-                    $team = $this->teamRepository()->find($payload['addTeam']);
-                    $user->addTeam($team);
-                }
-
-                if (isset($payload['removeTeam'])) {
-                    $team = $this->teamRepository()->find($payload['removeTeam']);
-                    $user->removeTeam($team);
-                }
-
-                if(isset($payload['permissions']['administration'])) {
-                    $permissions->setAdministration($payload['permissions']['administration']);
-                }
-
-                if(isset($payload['permissions']['project_edit'])) {
-                    $permissions->setProjectEdit($payload['permissions']['project_edit']);
-                }
-
-                if(isset($payload['permissions']['project_create'])) {
-                    $permissions->setProjectCreate($payload['permissions']['project_create']);
-                }
-
-                if(isset($payload['teamRole'])) {
-                    $role = $this->teamRolesRepository()->find($payload['teamRole']);
-                    if(!$role) throw new InvalidRequestException();
-
-                    $user->setTeamRole($role);
-                }
-
-                if (isset($payload['active'])) {
-                    if ($payload['active'] === false) {
-                        //deactivate user and remove authtoken
-                        $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
-                            'user' => $user->getId()
-                        ]);
-
-                        if ($userAuth) $entityManager->remove($userAuth);
-                    }
-                    $user->setActive($payload['active']);
-                }
-
-                $entityManager->persist($permissions);
-
-
-            }
-            $entityManager->persist($user);
-            $entityManager->flush();
-        }
         return $this->responseManager->successResponse($data, 'user_updated');
     }
 
     /**
      * @Route("/user/{userId}", name="api_user_delete", methods={"DELETE"})
+     * @param int $userId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function deleteUser(int $userId, Request $request)
+    public function deleteUser(int $userId, Request $request, UserService $userService)
     {
         $this->authenticator->verifyToken($request, $this->authenticator::PERMISSIONS_ADMINISTRATION);
         $user = $this->userRepository()->find($userId);
-
         if(!$user) throw new InvalidRequestException();
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($user);
-        $manager->flush();
+        $userService->delete($user);
 
         return $this->responseManager->successResponse([], 'user_deleted');
+    }
+
+
+    private function verificationDataUpdate(?array $userData, User $user, AuthStruct $auth) : bool
+    {
+        //admin can do everything
+        if($auth->getUser()->getUserPermissions()->getAdministration()) return true;
+
+        if($auth->getUser()->getId() !== $user->getId()) throw new NotAuthorizedException();
+
+        if(isset($userData['email']) || isset($userData['password'])) {
+            if(!isset($userData['password_current'])) throw new NotAuthorizedException();
+            $password = $this->authenticator->generatePasswordHash($userData['password_current']);
+            if($password !== $user->getPassword()) throw new InvalidPasswordException();
+        }
+
+        if((isset($userData['active']) || isset($userData['permissions']) || isset($userData['teamRole']) || isset($userData['addTeam']) || isset($userData['removeTeam'])) && !$auth->getUser()->getUserPermissions()->getAdministration()) {
+            throw new NotAuthorizedException();
+        }
+
+        return true;
     }
 }

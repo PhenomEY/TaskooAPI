@@ -59,6 +59,6 @@ class InviteController extends ApiController
 
         $inviteService->create($userData);
 
-        return $this->responseManager->successResponse([], 'user_invite_send');
+        return $this->responseManager->successResponse([], 'invite_send');
     }
 }
