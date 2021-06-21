@@ -14,10 +14,13 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Taskoo\Entity\UserAuth;
 
+/**
+ * @Route("/auth", name="auth_")
+ */
 class AuthController extends ApiController
 {
     /**
-     * @Route("/auth/login", name="api_auth_login", methods={"POST"})
+     * @Route("/login", name="login", methods={"POST"})
      */
     public function Login(Request $request)
     {
@@ -76,7 +79,7 @@ class AuthController extends ApiController
     }
 
     /**
-     * @Route("/auth/check", name="api_auth_check", methods={"GET"})
+     * @Route("/check", name="check", methods={"GET"})
      */
     public function Check(Request $request)
     {
@@ -95,6 +98,24 @@ class AuthController extends ApiController
         $data = $this->getAppData($userAuth);
 
         return $this->responseManager->successResponse($data, 'auth_valid');
+    }
+
+    /**
+     * @Route("/update", name="update", methods={"GET"})
+     */
+    public function Update(Request $request)
+    {
+        $token = $request->headers->get('authorization');
+
+        /** @var UserAuth $userAuth */
+        $userAuth = $this->getDoctrine()->getRepository(UserAuth::class)->findOneBy([
+            'token' => $token
+        ]);
+
+        //auth token is still valid
+        $data = $this->getAppData($userAuth);
+
+        return $this->responseManager->successResponse($data, 'appdata_updated');
     }
 
     private function getAppData(UserAuth $userAuth) : array {
