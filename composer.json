@@ -11,6 +11,7 @@
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
+        "gumlet/php-image-resize": "^2.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "scienta/doctrine-json-functions": "~4.1",
         "sensio/framework-extra-bundle": "^5.1",

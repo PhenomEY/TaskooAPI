@@ -2,6 +2,7 @@
 
 namespace Taskoo\Service;
 
+use Gumlet\ImageResize;
 use Taskoo\Entity\Media;
 use Taskoo\Entity\Tasks;
 use Taskoo\Entity\User;
@@ -70,6 +71,11 @@ class FileService
 
             if(!in_array($fileExtension, $allowedTypes)) throw new InvalidFileTypeException();
 
+            if(!$task) {
+                //resize avatar image if too large
+                $this->resizeImage($file->getRealPath());
+            }
+
             $file->move($this->getTargetDirectory().'/'.$fileDirectory, $fileName);
 
             $media = new Media();
@@ -103,7 +109,8 @@ class FileService
         return null;
     }
 
-    public function delete(Media $media) {
+    public function delete(Media $media)
+    {
         $mediaPath = $this->getTargetDirectory();
         $filePath = $media->getFilePath();
 
@@ -118,5 +125,17 @@ class FileService
     public function getTargetDirectory()
     {
         return $this->targetDirectory;
+    }
+
+    private function resizeImage(string $filePath)
+    {
+        $resize = new ImageResize($filePath);
+        $height = $resize->getDestHeight();
+        $width = $resize->getDestWidth();
+
+        if($height > 150 || $width > 150) {
+            $resize->resizeToBestFit(150, 150);
+            $resize->save($filePath);
+        }
     }
 }
